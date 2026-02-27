@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS Enterprise v10.0 - C-Integrated Clinical Engine</title>
+    <title>HMS Enterprise v11.0 - Full C-Logic & Finance Repair</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
@@ -337,6 +337,7 @@
                 <select id="pVisitType" onchange="toggleAdmitFields()">
                     <option value="admit">Full In-Patient Admission</option>
                     <option value="checkup">General Out-Patient Checkup</option>
+                    <option value="emergency">🚨 Emergency Trauma Unit</option>
                 </select>
                 <input type="text" id="pName" placeholder="Legal Patient Name">
                 <input type="number" id="pAge" placeholder="Patient Age">
@@ -347,7 +348,7 @@
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
                 </select>
-                <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)">
+                <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)" value="0">
                 <input type="text" id="pSymptoms" placeholder="Symptoms (e.g. Fever, Chest Pain)" onkeyup="suggestClinic()">
             </div>
             <div class="grid-3" id="admitOnlyFields">
@@ -355,6 +356,7 @@
                     <option value="1500">General Ward (1,500/day)</option>
                     <option value="5000">Private Suite (5,000/day)</option>
                     <option value="12000">Intensive Care Unit (12,000/day)</option>
+                    <option value="25000">Emergency Critical Care (25,000/day)</option>
                 </select>
                 <select id="pDoctorAssign">
                     <option value="Not Assigned">Select Assigning Doctor...</option>
@@ -429,8 +431,8 @@
 </div>
 
 <script>
-/** * HMS ENTERPRISE ENGINE v10.0 
- * C-FILE INTEGRATION MODULE - NO LINES REMOVED
+/** * HMS ENTERPRISE ENGINE v11.0 
+ * C-FILE INTEGRATION MODULE + NaN BILLING FIX
  */
 
 const SYSTEM_USERS = [
@@ -517,13 +519,16 @@ function refreshPharmaPatientList() {
 
 function toggleAdmitFields() {
     let type = document.getElementById('pVisitType').value;
-    let fields = document.getElementById('admitOnlyFields');
+    let roomSelect = document.getElementById('pRoom');
     if(type === 'checkup') {
-        document.getElementById('pRoom').disabled = true;
-        document.getElementById('pRoom').style.opacity = '0.3';
+        roomSelect.disabled = true;
+        roomSelect.style.opacity = '0.3';
     } else {
-        document.getElementById('pRoom').disabled = false;
-        document.getElementById('pRoom').style.opacity = '1';
+        roomSelect.disabled = false;
+        roomSelect.style.opacity = '1';
+        if(type === 'emergency') {
+            roomSelect.value = "25000";
+        }
     }
 }
 
@@ -540,6 +545,8 @@ function suggestClinic() {
         suggestionEl.innerText = "Symptom Match: Suggesting General Medicine";
     } else if (sym.includes('skin') || sym.includes('rash')) {
         suggestionEl.innerText = "Symptom Match: Suggesting Dermatology Clinic";
+    } else if (sym.includes('accident') || sym.includes('bleeding')) {
+        suggestionEl.innerText = "🚨 PRIORITY: Routing to Emergency Trauma Unit";
     } else {
         suggestionEl.innerText = "";
     }
@@ -559,8 +566,8 @@ function addStaff() {
         id: Date.now(), 
         name: n, 
         role: r, 
-        salary: parseInt(s), 
-        consultFee: parseInt(f), 
+        salary: parseInt(s) || 0, 
+        consultFee: parseInt(f) || 0, 
         totalCommission: 0 
     });
     localStorage.setItem('hms_staff', JSON.stringify(staff));
@@ -577,7 +584,7 @@ function renderStaff() {
         html += `<tr>
             <td>${x.name}</td>
             <td>${x.role}</td>
-            <td>${x.role === 'Doctor' ? 'Rs ' + x.consultFee : '-'}</td>
+            <td>${x.role === 'Doctor' ? 'Rs ' + (x.consultFee || 0) : '-'}</td>
             <td style="color:var(--success); font-weight:bold;">Rs ${(x.totalCommission || 0).toLocaleString()}</td>
             <td>
                 <button onclick="removeStaff(${x.id})" style="background:var(--danger); padding:5px 10px; font-size:10px; border:none; color:white; border-radius:5px; cursor:pointer;">Terminate</button>
@@ -609,15 +616,16 @@ function searchPatientBill() {
             <div class="card">
                 <div class="grid-3">
                     <div><small>Patient</small><h3>${x.name} (${x.age}, ${x.gender})</h3></div>
-                    <div><small>Type</small><h3 style="color:var(--warning)">${x.visitType === 'checkup' ? 'Gen Checkup' : 'Admission'}</h3></div>
-                    <div><small>Due</small><h3 style="color:var(--accent)">Rs ${bill.total.toFixed(0)}</h3></div>
+                    <div><small>Type</small><h3 style="color:var(--warning)">${x.visitType.toUpperCase()}</h3></div>
+                    <div><small>Due</small><h3 style="color:var(--accent)">Rs ${bill.total.toFixed(2)}</h3></div>
                 </div>
                 <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
                 <p><strong>Clinical Note:</strong> ${x.diagnosis}</p>
                 <p><strong>Primary Symptoms:</strong> ${x.symptoms || 'None recorded'}</p>
                 <div class="grid-3">
-                    <span>Tax (18%): Rs ${bill.tax.toFixed(0)}</span>
-                    <span>Service: Rs ${bill.sub.toFixed(0)}</span>
+                    <span>Tax (18%): Rs ${bill.tax.toFixed(2)}</span>
+                    <span>Service: Rs ${bill.sub.toFixed(2)}</span>
+                    <span>Advance Paid: Rs ${x.deposit}</span>
                 </div>
                 
                 ${currentUser.role === 'admin' ? 
@@ -634,15 +642,18 @@ function searchPatientBill() {
 // --- CORE CLINICAL MODULES ---
 function admitPatient() {
     const name = document.getElementById('pName').value;
-    const age = document.getElementById('pAge').value;
+    const age = parseInt(document.getElementById('pAge').value) || 0;
     const gender = document.getElementById('pGender').value;
     const type = document.getElementById('pVisitType').value;
     const docName = document.getElementById('pDoctorAssign').value;
+    const depositInput = document.getElementById('pDeposit').value;
+    const deposit = parseInt(depositInput) || 0; // Fixes NaN if empty
+
     if(!name || docName === "Not Assigned") return alert("Name and Doctor selection required.");
 
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
     let doctor = staff.find(s => s.name === docName);
-    let fee = doctor ? doctor.consultFee : 500;
+    let fee = doctor ? (parseInt(doctor.consultFee) || 0) : 0;
 
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
     const entry = {
@@ -652,9 +663,9 @@ function admitPatient() {
         gender: gender,
         visitType: type,
         symptoms: document.getElementById('pSymptoms').value,
-        roomTypePrice: type === 'checkup' ? 0 : parseInt(document.getElementById('pRoom').value),
+        roomTypePrice: type === 'checkup' ? 0 : (parseInt(document.getElementById('pRoom').value) || 0),
         consultFee: fee,
-        deposit: parseInt(document.getElementById('pDeposit').value) || 0,
+        deposit: deposit,
         admitDate: new Date().toISOString(),
         diagnosis: document.getElementById('pDiagnosis').value,
         assignedDoctor: docName,
@@ -670,16 +681,30 @@ function admitPatient() {
     refreshPharmaPatientList();
 }
 
+// --- FIX FOR NaN BILLING ERROR ---
 function calculateLiveBill(p) {
     let sub = 0;
+    let consult = parseInt(p.consultFee) || 0;
+    let medsTotal = parseInt(p.meds) || 0;
+    let roomPrice = parseInt(p.roomTypePrice) || 0;
+    let depositAmount = parseInt(p.deposit) || 0;
+
     if(p.visitType === 'checkup') {
-        sub = p.consultFee + p.meds;
+        sub = consult + medsTotal;
     } else {
-        let days = Math.ceil((new Date() - new Date(p.admitDate)) / (86400000)) || 1;
-        sub = (days * p.roomTypePrice) + p.meds + p.consultFee;
+        let diff = new Date() - new Date(p.admitDate);
+        let days = Math.ceil(diff / (1000 * 60 * 60 * 24)) || 1;
+        sub = (days * roomPrice) + medsTotal + consult;
     }
+    
     let tax = sub * 0.18;
-    return { total: (sub + tax) - p.deposit, sub, tax };
+    let total = (sub + tax) - depositAmount;
+    
+    return { 
+        total: isNaN(total) ? 0 : total, 
+        sub: isNaN(sub) ? 0 : sub, 
+        tax: isNaN(tax) ? 0 : tax 
+    };
 }
 
 function showPharmaPrescription() {
@@ -697,13 +722,13 @@ function showPharmaPrescription() {
 function assignMedicineBill() {
     const pid = document.getElementById('pharmaPatientSelect').value;
     const title = document.getElementById('pharmaMedTitle').value;
-    const cost = parseInt(document.getElementById('pharmaMedCost').value);
-    if(!pid || !cost || !title) return alert("Missing details.");
+    const cost = parseInt(document.getElementById('pharmaMedCost').value) || 0;
+    if(!pid || cost === 0 || !title) return alert("Missing details.");
 
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
     let idx = p.findIndex(x => x.id == pid);
     if(idx !== -1) {
-        p[idx].meds += cost;
+        p[idx].meds = (parseInt(p[idx].meds) || 0) + cost;
         p[idx].medicationHistory.push({ title: title, cost: cost, date: new Date().toLocaleDateString() });
         localStorage.setItem('hms_patients', JSON.stringify(p));
         logAudit(`PHARMA: ${title} charged to ${p[idx].name}`);
@@ -743,7 +768,7 @@ function dischargePatient(id) {
     
     let report = `
         -------------------------------------------
-        HMS ENTERPRISE OFFICIAL RECEIPT (C-V10)
+        HMS ENTERPRISE OFFICIAL RECEIPT (V11)
         -------------------------------------------
         Patient: ${p[idx].name}
         Profile: ${p[idx].age} Years | ${p[idx].gender}
@@ -753,7 +778,9 @@ function dischargePatient(id) {
         Facility Charges: Rs ${(bill.sub - p[idx].meds - p[idx].consultFee).toFixed(2)}
         Pharmacy Total: Rs ${p[idx].meds}
         GST (18%): Rs ${bill.tax.toFixed(2)}
-        Total Payable: Rs ${finalAmount.toFixed(2)}
+        Total Deposit: Rs ${p[idx].deposit}
+        -------------------------------------------
+        FINAL PAYABLE: Rs ${finalAmount.toFixed(2)}
         -------------------------------------------
         STATUS: PAID & DISCHARGED
         -------------------------------------------
@@ -774,7 +801,7 @@ function addInventory() {
     if(!n || !s) return;
 
     let inv = JSON.parse(localStorage.getItem('hms_inv')) || [];
-    inv.push({ name: n, stock: parseInt(s), price: parseInt(p), date: new Date().toLocaleDateString() });
+    inv.push({ name: n, stock: parseInt(s) || 0, price: parseInt(p) || 0, date: new Date().toLocaleDateString() });
     localStorage.setItem('hms_inv', JSON.stringify(inv));
     renderInventory();
 }
@@ -838,7 +865,11 @@ function updateUI() {
     let active = p.filter(x => x.status === 'active');
     document.getElementById('stat-p').innerText = active.length;
     
-    let currentLiveTotal = active.reduce((a, b) => a + calculateLiveBill(b).total, 0);
+    let currentLiveTotal = active.reduce((a, b) => {
+        let bill = calculateLiveBill(b);
+        return a + (isNaN(bill.total) ? 0 : bill.total);
+    }, 0);
+    
     document.getElementById('stat-profit').innerText = "Rs " + currentLiveTotal.toLocaleString();
     
     renderPatientTable();
@@ -861,6 +892,7 @@ function logout() { location.reload(); }
 
 function initSnake() {
     const canvas = document.getElementById("snakeGame");
+    if(!canvas) return;
     const ctx = canvas.getContext("2d");
     let box = 20, score = 0, dir, game;
     let snake = [{x: 9 * box, y: 10 * box}];
@@ -888,7 +920,9 @@ function initSnake() {
         if(dir == "RIGHT") headX += box;
         if(dir == "DOWN") headY += box;
         if(headX == food.x && headY == food.y) {
-            score++; document.getElementById('snakeScore').innerText = score;
+            score++; 
+            let scoreBoard = document.getElementById('snakeScore');
+            if(scoreBoard) scoreBoard.innerText = score;
             food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
         } else snake.pop();
         let nH = {x: headX, y: headY};
