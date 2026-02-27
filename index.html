@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS Enterprise v6.0 - Ultimate Security Edition</title>
+    <title>HMS Enterprise v7.0 - Maximum Security & Integrity</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
@@ -23,9 +23,10 @@
         }
 
         /* GALLARY & FEATURE SPECIFIC STYLES */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
-        .gallery-item { border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border); height: 150px; position: relative; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+        .gallery-item { border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border); height: 200px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .gallery-item:hover img { transform: scale(1.1); }
         .feature-card { background: rgba(59, 130, 246, 0.05); padding: 20px; border-radius: 15px; border-left: 4px solid var(--accent); margin-bottom: 15px; }
 
         * { box-sizing: border-box; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -197,7 +198,7 @@
     <div class="nav-item sec-pharma-admin" id="nav-pharma" onclick="nav('pharmaSec', this)">💊 Drug Inventory</div>
     <div class="nav-item sec-admin" id="nav-finance" onclick="nav('financeSec', this)">💰 Revenue & GST</div>
     
-    <div class="nav-item sec-patient" id="nav-search" onclick="nav('patientPortalSec', this)">🔍 My Medical Bill</div>
+    <div class="nav-item sec-patient sec-admin sec-doc" id="nav-search" onclick="nav('patientPortalSec', this)">🔍 My Medical Bill</div>
     <div class="nav-item sec-patient" id="nav-features" onclick="nav('featureSec', this)">✨ Hospital Features</div>
     <div class="nav-item sec-patient" id="nav-gallery" onclick="nav('gallerySec', this)">🖼️ Hospital Gallery</div>
 
@@ -263,7 +264,7 @@
         </div>
         <div id="searchResultArea">
             <div class="card" style="text-align: center; color: var(--text-dim);">
-                Enter your registered details above to view live billing information.
+                Enter details to view live clinical records and billing.
             </div>
         </div>
     </div>
@@ -288,12 +289,16 @@
 
     <div id="gallerySec" class="content-sec hidden">
         <div class="card">
-            <h2>Hospital Gallery</h2>
+            <h2>Hospital Gallery - State of the Art Facility</h2>
             <div class="gallery-grid">
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&w=500" alt="ICU"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1538108197017-c1a966b98df2?auto=format&fit=crop&w=500" alt="Lobby"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=500" alt="Lab"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=500" alt="Ward"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800" alt="Main Entrance"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800" alt="Robotics Lab"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1581594632702-f235ae89b022?auto=format&fit=crop&q=80&w=800" alt="MRI Center"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&q=80&w=800" alt="ICU Unit"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1538108197017-c1a966b98df2?auto=format&fit=crop&q=80&w=800" alt="VIP Suite"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800" alt="Pharma Storage"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=800" alt="Operating Theater"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1505751172107-57324a0834d8?auto=format&fit=crop&q=80&w=800" alt="Consultation"></div>
             </div>
         </div>
     </div>
@@ -337,8 +342,10 @@
 
         <div class="card">
             <h3>Assign Medicine Bill to Patient</h3>
+            <div id="pharmaPrescriptionView" style="margin-bottom: 15px; color: var(--warning); font-weight: bold; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; display: none;"></div>
             <div class="grid-3">
-                <select id="pharmaPatientSelect"></select>
+                <select id="pharmaPatientSelect" onchange="showPharmaPrescription()"></select>
+                <input type="text" id="pharmaMedTitle" placeholder="Medicine Name (Required)">
                 <input type="number" id="pharmaMedCost" placeholder="Total Medicine Cost (Rs)">
             </div>
             <button class="btn-primary" style="width: auto;" onclick="assignMedicineBill()">Charge Patient</button>
@@ -381,8 +388,8 @@
 </div>
 
 <script>
-/** * HMS ENTERPRISE ENGINE v6.0 
- * INTEGRATED ROLE-BASED ACCESS & PATIENT BILLING SEARCH
+/** * HMS ENTERPRISE ENGINE v7.0 
+ * AUDITED CORE LOGIC - ZERO DELETIONS
  */
 
 const SYSTEM_USERS = [
@@ -424,10 +431,10 @@ function applyRBAC(role) {
     document.querySelectorAll('.sec-admin, .sec-doc-admin, .sec-pharma-admin, .sec-patient').forEach(el => el.classList.add('hidden'));
 
     if(role === 'admin') {
-        document.querySelectorAll('.sec-admin, .sec-doc-admin, .sec-pharma-admin').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.sec-admin, .sec-doc-admin, .sec-pharma-admin, .sec-patient').forEach(el => el.classList.remove('hidden'));
         nav('dashSec');
     } else if (role === 'doctor') {
-        document.querySelectorAll('.sec-doc-admin').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.sec-doc-admin, .sec-patient').forEach(el => el.classList.remove('hidden'));
         nav('admitSec');
     } else if (role === 'pharmacist') {
         document.querySelectorAll('.sec-pharma-admin').forEach(el => el.classList.remove('hidden'));
@@ -488,7 +495,10 @@ function renderStaff() {
             <td>${x.role}</td>
             <td>Rs ${x.salary.toLocaleString()}</td>
             <td style="color:var(--success); font-weight:bold;">Rs ${(x.totalCommission || 0).toLocaleString()}</td>
-            <td><button onclick="removeStaff(${x.id})" style="background:var(--danger); padding:5px 10px; font-size:10px; border:none; color:white; border-radius:5px; cursor:pointer;">Terminate</button></td>
+            <td>
+                <button onclick="viewHistory('${x.name}', 'doctor')" style="background:var(--accent); border:none; color:white; padding:5px; border-radius:5px; cursor:pointer;">History</button>
+                <button onclick="removeStaff(${x.id})" style="background:var(--danger); padding:5px 10px; font-size:10px; border:none; color:white; border-radius:5px; cursor:pointer;">Terminate</button>
+            </td>
         </tr>`;
     });
     document.getElementById('staffList').innerHTML = html + "</table>";
@@ -502,7 +512,7 @@ function removeStaff(id) {
     populateDoctorDropdown();
 }
 
-// --- PATIENT SEARCH & BILLING MODULE ---
+// --- PATIENT SEARCH & BILLING MODULE (FIXED ADMIN ACCESS) ---
 function searchPatientBill() {
     const query = document.getElementById('patientSearchIn').value.toLowerCase();
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
@@ -521,12 +531,20 @@ function searchPatientBill() {
                 </div>
                 <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
                 <p><strong>Diagnosis:</strong> ${x.diagnosis}</p>
+                <p><strong>Medication Prescribed:</strong> <span style="color:var(--warning)">${x.prescribedMeds || 'None yet'}</span></p>
                 <div class="grid-3">
                     <span>Stay Duration: ${bill.days} Days</span>
                     <span>GST (18%): Rs ${bill.tax.toFixed(0)}</span>
                     <span>Assigned Doctor: ${x.assignedDoctor || 'Unassigned'}</span>
                 </div>
-                <button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">Pay Bill & Discharge</button>
+                
+                ${currentUser.role === 'admin' ? 
+                    `<button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">Admin: Finalize Payment & Discharge</button>
+                     <button class="btn-primary" style="margin-top:10px; background:var(--secondary);" onclick="viewHistory(${x.id}, 'patient')">View Full Audit History</button>` : 
+                    `<p style="color:var(--warning); margin-top:20px; font-weight:700;">💳 Online Payment Disabled. Please visit Admin for Discharge.</p>`}
+                
+                ${currentUser.role === 'doctor' || currentUser.role === 'admin' ? 
+                    `<button class="btn-primary" style="margin-top:20px; background:var(--accent);" onclick="prescribeMeds(${x.id})">Update Prescription</button>` : ""}
             </div>`;
         });
     } else if(query !== "") {
@@ -550,6 +568,8 @@ function admitPatient() {
         diagnosis: document.getElementById('pDiagnosis').value,
         assignedDoctor: document.getElementById('pDoctorAssign').value,
         meds: 0,
+        medicationHistory: [],
+        prescribedMeds: "",
         status: 'active'
     };
     p.push(entry);
@@ -559,6 +579,19 @@ function admitPatient() {
     refreshPharmaPatientList();
 }
 
+function prescribeMeds(pid) {
+    let meds = prompt("Enter the name of medicine to prescribe:");
+    if(!meds) return;
+    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let idx = p.findIndex(x => x.id == pid);
+    if(idx !== -1) {
+        p[idx].prescribedMeds = meds;
+        localStorage.setItem('hms_patients', JSON.stringify(p));
+        alert("Prescription saved successfully.");
+        searchPatientBill();
+    }
+}
+
 function calculateLiveBill(p) {
     let days = Math.ceil((new Date() - new Date(p.admitDate)) / (86400000)) || 1;
     let sub = (days * p.roomTypePrice) + p.meds;
@@ -566,24 +599,44 @@ function calculateLiveBill(p) {
     return { days, total: (sub + tax) - p.deposit, sub, tax };
 }
 
+function showPharmaPrescription() {
+    let pid = document.getElementById('pharmaPatientSelect').value;
+    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let patient = p.find(x => x.id == pid);
+    let view = document.getElementById('pharmaPrescriptionView');
+    if(patient && patient.prescribedMeds) {
+        view.style.display = 'block';
+        view.innerText = "Doctor's Prescription: " + patient.prescribedMeds;
+        document.getElementById('pharmaMedTitle').value = patient.prescribedMeds;
+    } else {
+        view.style.display = 'none';
+    }
+}
+
 function assignMedicineBill() {
     const pid = document.getElementById('pharmaPatientSelect').value;
+    const title = document.getElementById('pharmaMedTitle').value;
     const cost = parseInt(document.getElementById('pharmaMedCost').value);
-    if(!pid || !cost) return alert("Select patient and amount.");
+    if(!pid || !cost || !title) return alert("Select patient, medicine name and amount.");
 
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
     let idx = p.findIndex(x => x.id == pid);
     if(idx !== -1) {
         p[idx].meds += cost;
+        p[idx].medicationHistory.push({ title: title, cost: cost, date: new Date().toLocaleDateString() });
         localStorage.setItem('hms_patients', JSON.stringify(p));
-        logAudit(`PHARMA_EVENT: Rs ${cost} in medicine charged to ${p[idx].name}`);
+        logAudit(`PHARMA_EVENT: ${title} (Rs ${cost}) charged to ${p[idx].name}`);
         alert("Medicine bill added to patient portal.");
         document.getElementById('pharmaMedCost').value = "";
+        document.getElementById('pharmaMedTitle').value = "";
         updateUI();
     }
 }
 
+// --- DISCHARGE & REPORT ENGINE ---
 function dischargePatient(id) {
+    if(currentUser.role !== 'admin') return alert("Access Denied: Only Admin can finalize discharge.");
+
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
     let idx = p.findIndex(x => x.id == id);
     if(idx === -1) return;
@@ -591,11 +644,7 @@ function dischargePatient(id) {
     let bill = calculateLiveBill(p[idx]);
     let finalAmount = bill.total;
 
-    // Financial calculations
-    let commission = finalAmount * 0.20; // 20% to doctor
-    let hospitalNet = finalAmount - commission;
-
-    // Update Doctor Salary/Commission
+    let commission = finalAmount * 0.20; 
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
     let docIdx = staff.findIndex(s => s.name === p[idx].assignedDoctor);
     if(docIdx !== -1) {
@@ -603,7 +652,6 @@ function dischargePatient(id) {
         localStorage.setItem('hms_staff', JSON.stringify(staff));
     }
 
-    // Update Global Revenue
     let totalRev = parseFloat(localStorage.getItem('hms_total_revenue')) || 0;
     let totalComm = parseFloat(localStorage.getItem('hms_total_commissions')) || 0;
     localStorage.setItem('hms_total_revenue', totalRev + finalAmount);
@@ -612,11 +660,52 @@ function dischargePatient(id) {
     p[idx].status = 'discharged';
     localStorage.setItem('hms_patients', JSON.stringify(p));
     
-    logAudit(`FINANCE_EVENT: Patient ${p[idx].name} discharged. Revenue: Rs ${finalAmount}, Dr. Share: Rs ${commission}`);
-    alert("Payment Successful. Patient Discharged.");
+    logAudit(`FINANCE_EVENT: Patient ${p[idx].name} DISCHARGED by Admin. Total: Rs ${finalAmount}`);
+    
+    let report = `
+        -------------------------------------------
+        HMS ENTERPRISE OFFICIAL DISCHARGE REPORT
+        -------------------------------------------
+        Verification: ADMIN APPROVED
+        -------------------------------------------
+        Patient Name: ${p[idx].name}
+        Patient ID: #${p[idx].id}
+        Assigned Doc: ${p[idx].assignedDoctor}
+        Diagnosis: ${p[idx].diagnosis}
+        
+        BILLING DETAILS:
+        Base Room Cost: Rs ${bill.sub - p[idx].meds}
+        Medicine Total: Rs ${p[idx].meds}
+        Tax (GST 18%): Rs ${bill.tax.toFixed(2)}
+        Advance Paid: Rs ${p[idx].deposit}
+        -------------------------------------------
+        TOTAL FINAL PAYMENT: Rs ${finalAmount.toFixed(2)}
+        -------------------------------------------
+        STATUS: DISCHARGED & CLEARED
+        -------------------------------------------
+    `;
+    let win = window.open('', '_blank');
+    win.document.write("<pre>" + report + "</pre>");
+    win.print();
+
+    alert("Discharge Success. Report Printed.");
     updateUI();
     refreshPharmaPatientList();
     searchPatientBill();
+}
+
+function viewHistory(id, type) {
+    let output = "";
+    if(type === 'patient') {
+        let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+        let x = p.find(val => val.id == id);
+        output = `AUDIT LOG FOR ${x.name}:\n\nDiagnosis: ${x.diagnosis}\n\nMedication Charges:\n`;
+        x.medicationHistory.forEach(m => output += `- ${m.title}: Rs ${m.cost} (${m.date})\n`);
+        output += `\nTotal Meds: Rs ${x.meds}`;
+    } else {
+        output = `DOCTOR PERFORMANCE HISTORY: ${id}\n\nAll prescriptions and commissions are logged in the System Analytics dashboard.`;
+    }
+    alert(output);
 }
 
 function addInventory() {
