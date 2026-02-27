@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS Enterprise v7.0 - Maximum Security & Integrity</title>
+    <title>HMS Enterprise v8.0 - Triage & Clinical Integrity</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
@@ -307,24 +307,28 @@
         <div class="card">
             <h3>Clinical Intake Engine</h3>
             <div class="grid-3">
+                <select id="pVisitType" onchange="toggleAdmitFields()">
+                    <option value="admit">Full In-Patient Admission</option>
+                    <option value="checkup">General Out-Patient Checkup</option>
+                </select>
                 <input type="text" id="pName" placeholder="Legal Patient Name">
+                <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)">
+            </div>
+            <div class="grid-3" id="admitOnlyFields">
                 <select id="pRoom">
                     <option value="1500">General Ward (1,500/day)</option>
                     <option value="5000">Private Suite (5,000/day)</option>
                     <option value="12000">Intensive Care Unit (12,000/day)</option>
                 </select>
-                <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)">
-            </div>
-            <div class="grid-3">
                 <select id="pDoctorAssign">
                     <option value="Not Assigned">Select Assigning Doctor...</option>
                 </select>
             </div>
             <textarea id="pDiagnosis" style="height: 120px;" placeholder="Full Clinical Diagnosis, Allergies, and Vitals..."></textarea>
-            <button class="btn-primary" style="width: auto;" onclick="admitPatient()">Finalize Admission</button>
+            <button class="btn-primary" style="width: auto;" onclick="admitPatient()">Finalize Entry</button>
         </div>
         <div class="card">
-            <h3>Active In-Patients</h3>
+            <h3>Active Clinical List</h3>
             <div id="activePatientsList"></div>
         </div>
     </div>
@@ -388,8 +392,8 @@
 </div>
 
 <script>
-/** * HMS ENTERPRISE ENGINE v7.0 
- * AUDITED CORE LOGIC - ZERO DELETIONS
+/** * HMS ENTERPRISE ENGINE v8.0 
+ * AUDITED CORE LOGIC - ZERO DELETIONS - ADDED CHECKUP LOGIC
  */
 
 const SYSTEM_USERS = [
@@ -469,6 +473,18 @@ function refreshPharmaPatientList() {
     });
 }
 
+function toggleAdmitFields() {
+    let type = document.getElementById('pVisitType').value;
+    let fields = document.getElementById('admitOnlyFields');
+    if(type === 'checkup') {
+        fields.style.opacity = '0.3';
+        fields.style.pointerEvents = 'none';
+    } else {
+        fields.style.opacity = '1';
+        fields.style.pointerEvents = 'all';
+    }
+}
+
 // --- STAFF MANAGEMENT MODULE ---
 function addStaff() {
     const n = document.getElementById('stName').value;
@@ -512,7 +528,7 @@ function removeStaff(id) {
     populateDoctorDropdown();
 }
 
-// --- PATIENT SEARCH & BILLING MODULE (FIXED ADMIN ACCESS) ---
+// --- PATIENT SEARCH & BILLING MODULE ---
 function searchPatientBill() {
     const query = document.getElementById('patientSearchIn').value.toLowerCase();
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
@@ -526,29 +542,25 @@ function searchPatientBill() {
             <div class="card">
                 <div class="grid-3">
                     <div><small>Patient Name</small><h3>${x.name}</h3></div>
-                    <div><small>Admission ID</small><h3>#${x.id.toString().slice(-4)}</h3></div>
+                    <div><small>Visit Type</small><h3 style="color:var(--warning)">${x.visitType === 'checkup' ? 'General Checkup' : 'Full Admission'}</h3></div>
                     <div><small>Current Total Due</small><h3 style="color:var(--accent)">Rs ${bill.total.toFixed(0)}</h3></div>
                 </div>
                 <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
                 <p><strong>Diagnosis:</strong> ${x.diagnosis}</p>
                 <p><strong>Medication Prescribed:</strong> <span style="color:var(--warning)">${x.prescribedMeds || 'None yet'}</span></p>
                 <div class="grid-3">
-                    <span>Stay Duration: ${bill.days} Days</span>
                     <span>GST (18%): Rs ${bill.tax.toFixed(0)}</span>
                     <span>Assigned Doctor: ${x.assignedDoctor || 'Unassigned'}</span>
                 </div>
                 
                 ${currentUser.role === 'admin' ? 
-                    `<button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">Admin: Finalize Payment & Discharge</button>
-                     <button class="btn-primary" style="margin-top:10px; background:var(--secondary);" onclick="viewHistory(${x.id}, 'patient')">View Full Audit History</button>` : 
+                    `<button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">Admin: Pay & Discharge</button>
+                     <button class="btn-primary" style="margin-top:10px; background:var(--secondary);" onclick="viewHistory(${x.id}, 'patient')">View History</button>` : 
                     `<p style="color:var(--warning); margin-top:20px; font-weight:700;">💳 Online Payment Disabled. Please visit Admin for Discharge.</p>`}
-                
-                ${currentUser.role === 'doctor' || currentUser.role === 'admin' ? 
-                    `<button class="btn-primary" style="margin-top:20px; background:var(--accent);" onclick="prescribeMeds(${x.id})">Update Prescription</button>` : ""}
             </div>`;
         });
     } else if(query !== "") {
-        html = `<div class="card" style="text-align:center">No active medical records found for "${query}"</div>`;
+        html = `<div class="card" style="text-align:center">No active records found.</div>`;
     }
     document.getElementById('searchResultArea').innerHTML = html;
 }
@@ -556,17 +568,20 @@ function searchPatientBill() {
 // --- CORE CLINICAL MODULES ---
 function admitPatient() {
     const name = document.getElementById('pName').value;
+    const type = document.getElementById('pVisitType').value;
     if(!name) return;
 
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
     const entry = {
         id: Date.now(),
         name: name,
-        roomTypePrice: parseInt(document.getElementById('pRoom').value),
+        visitType: type,
+        roomTypePrice: type === 'checkup' ? 0 : parseInt(document.getElementById('pRoom').value),
+        consultFee: type === 'checkup' ? 500 : 0,
         deposit: parseInt(document.getElementById('pDeposit').value) || 0,
         admitDate: new Date().toISOString(),
         diagnosis: document.getElementById('pDiagnosis').value,
-        assignedDoctor: document.getElementById('pDoctorAssign').value,
+        assignedDoctor: type === 'checkup' ? "Gen-Physician" : document.getElementById('pDoctorAssign').value,
         meds: 0,
         medicationHistory: [],
         prescribedMeds: "",
@@ -574,9 +589,21 @@ function admitPatient() {
     };
     p.push(entry);
     localStorage.setItem('hms_patients', JSON.stringify(p));
-    logAudit(`CLINIC_EVENT: Patient intake finalized for ${name} [Assigned: ${entry.assignedDoctor}]`);
+    logAudit(`CLINIC_EVENT: ${type.toUpperCase()} finalized for ${name}`);
     updateUI();
     refreshPharmaPatientList();
+}
+
+function calculateLiveBill(p) {
+    let sub = 0;
+    if(p.visitType === 'checkup') {
+        sub = p.consultFee + p.meds;
+    } else {
+        let days = Math.ceil((new Date() - new Date(p.admitDate)) / (86400000)) || 1;
+        sub = (days * p.roomTypePrice) + p.meds;
+    }
+    let tax = sub * 0.18;
+    return { total: (sub + tax) - p.deposit, sub, tax };
 }
 
 function prescribeMeds(pid) {
@@ -587,16 +614,9 @@ function prescribeMeds(pid) {
     if(idx !== -1) {
         p[idx].prescribedMeds = meds;
         localStorage.setItem('hms_patients', JSON.stringify(p));
-        alert("Prescription saved successfully.");
+        alert("Prescription saved.");
         searchPatientBill();
     }
-}
-
-function calculateLiveBill(p) {
-    let days = Math.ceil((new Date() - new Date(p.admitDate)) / (86400000)) || 1;
-    let sub = (days * p.roomTypePrice) + p.meds;
-    let tax = sub * 0.18;
-    return { days, total: (sub + tax) - p.deposit, sub, tax };
 }
 
 function showPharmaPrescription() {
@@ -625,8 +645,8 @@ function assignMedicineBill() {
         p[idx].meds += cost;
         p[idx].medicationHistory.push({ title: title, cost: cost, date: new Date().toLocaleDateString() });
         localStorage.setItem('hms_patients', JSON.stringify(p));
-        logAudit(`PHARMA_EVENT: ${title} (Rs ${cost}) charged to ${p[idx].name}`);
-        alert("Medicine bill added to patient portal.");
+        logAudit(`PHARMA_EVENT: ${title} charged to ${p[idx].name}`);
+        alert("Medicine bill added.");
         document.getElementById('pharmaMedCost').value = "";
         document.getElementById('pharmaMedTitle').value = "";
         updateUI();
@@ -635,7 +655,7 @@ function assignMedicineBill() {
 
 // --- DISCHARGE & REPORT ENGINE ---
 function dischargePatient(id) {
-    if(currentUser.role !== 'admin') return alert("Access Denied: Only Admin can finalize discharge.");
+    if(currentUser.role !== 'admin') return alert("Access Denied: Admin only.");
 
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
     let idx = p.findIndex(x => x.id == id);
@@ -660,35 +680,31 @@ function dischargePatient(id) {
     p[idx].status = 'discharged';
     localStorage.setItem('hms_patients', JSON.stringify(p));
     
-    logAudit(`FINANCE_EVENT: Patient ${p[idx].name} DISCHARGED by Admin. Total: Rs ${finalAmount}`);
+    logAudit(`FINANCE_EVENT: ${p[idx].visitType.toUpperCase()} Discharge. Total: Rs ${finalAmount}`);
     
     let report = `
         -------------------------------------------
         HMS ENTERPRISE OFFICIAL DISCHARGE REPORT
         -------------------------------------------
-        Verification: ADMIN APPROVED
+        Type: ${p[idx].visitType.toUpperCase()}
+        Patient: ${p[idx].name}
+        ID: #${p[idx].id}
         -------------------------------------------
-        Patient Name: ${p[idx].name}
-        Patient ID: #${p[idx].id}
-        Assigned Doc: ${p[idx].assignedDoctor}
-        Diagnosis: ${p[idx].diagnosis}
-        
-        BILLING DETAILS:
-        Base Room Cost: Rs ${bill.sub - p[idx].meds}
+        Service Fee: Rs ${p[idx].visitType === 'checkup' ? p[idx].consultFee : (bill.sub - p[idx].meds)}
         Medicine Total: Rs ${p[idx].meds}
         Tax (GST 18%): Rs ${bill.tax.toFixed(2)}
         Advance Paid: Rs ${p[idx].deposit}
         -------------------------------------------
         TOTAL FINAL PAYMENT: Rs ${finalAmount.toFixed(2)}
         -------------------------------------------
-        STATUS: DISCHARGED & CLEARED
+        STATUS: CLEARED
         -------------------------------------------
     `;
     let win = window.open('', '_blank');
     win.document.write("<pre>" + report + "</pre>");
     win.print();
 
-    alert("Discharge Success. Report Printed.");
+    alert("Discharged.");
     updateUI();
     refreshPharmaPatientList();
     searchPatientBill();
@@ -699,11 +715,11 @@ function viewHistory(id, type) {
     if(type === 'patient') {
         let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
         let x = p.find(val => val.id == id);
-        output = `AUDIT LOG FOR ${x.name}:\n\nDiagnosis: ${x.diagnosis}\n\nMedication Charges:\n`;
-        x.medicationHistory.forEach(m => output += `- ${m.title}: Rs ${m.cost} (${m.date})\n`);
+        output = `AUDIT LOG FOR ${x.name}:\n\nDiagnosis: ${x.diagnosis}\n\nMeds Log:\n`;
+        x.medicationHistory.forEach(m => output += `- ${m.title}: Rs ${m.cost}\n`);
         output += `\nTotal Meds: Rs ${x.meds}`;
     } else {
-        output = `DOCTOR PERFORMANCE HISTORY: ${id}\n\nAll prescriptions and commissions are logged in the System Analytics dashboard.`;
+        output = `DOCTOR PERFORMANCE LOG: ${id}`;
     }
     alert(output);
 }
@@ -717,7 +733,6 @@ function addInventory() {
     let inv = JSON.parse(localStorage.getItem('hms_inv')) || [];
     inv.push({ name: n, stock: parseInt(s), price: parseInt(p), date: new Date().toLocaleDateString() });
     localStorage.setItem('hms_inv', JSON.stringify(inv));
-    logAudit(`LOGISTIC_EVENT: Stock reconciliation for ${n}`);
     renderInventory();
 }
 
@@ -728,7 +743,7 @@ function renderInventory() {
     document.getElementById('inventoryList').innerHTML = html + "</table>";
 }
 
-// --- UTILITY & DASHBOARD ENGINE ---
+// --- UTILITY & DASHBOARD ---
 function initChart() {
     const canvas = document.getElementById('revenueChart');
     if(!canvas) return;
@@ -791,10 +806,10 @@ function updateUI() {
 
 function renderPatientTable() {
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let html = `<table><tr><th>ID</th><th>Patient</th><th>Assigned Doctor</th><th>Bill Due</th></tr>`;
+    let html = `<table><tr><th>ID</th><th>Patient</th><th>Type</th><th>Assigned Doctor</th><th>Bill Due</th></tr>`;
     p.filter(x => x.status === 'active').forEach(x => {
         let b = calculateLiveBill(x);
-        html += `<tr><td>#${x.id.toString().slice(-4)}</td><td>${x.name}</td><td><span class="status-pill bg-success">${x.assignedDoctor || 'PENDING'}</span></td><td style="color:var(--accent)">Rs ${b.total.toFixed(0)}</td></tr>`;
+        html += `<tr><td>#${x.id.toString().slice(-4)}</td><td>${x.name}</td><td>${x.visitType}</td><td><span class="status-pill bg-success">${x.assignedDoctor || 'PENDING'}</span></td><td style="color:var(--accent)">Rs ${b.total.toFixed(0)}</td></tr>`;
     });
     document.getElementById('activePatientsList').innerHTML = html + "</table>";
 }
@@ -834,7 +849,7 @@ function initSnake() {
             food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
         } else snake.pop();
         let nH = {x: headX, y: headY};
-        if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) { clearInterval(game); alert("Training Session Over. Score: " + score); }
+        if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) { clearInterval(game); alert("GameOver. Score: " + score); }
         snake.unshift(nH);
     }
     game = setInterval(draw, 100);
