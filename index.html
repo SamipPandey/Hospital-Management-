@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS Enterprise v11.0 - Full C-Logic & Finance Repair</title>
+    <title>HMS Enterprise v12.0 - Absolute Financial Integrity</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
@@ -196,6 +196,7 @@
     
     <div class="nav-item sec-doc-admin" id="nav-admit" onclick="nav('admitSec', this)">🛌 Patient Intake</div>
     <div class="nav-item sec-pharma-admin" id="nav-pharma" onclick="nav('pharmaSec', this)">💊 Drug Inventory</div>
+    <div class="nav-item sec-admin" id="nav-lab" onclick="nav('labSec', this)">🔬 Laboratory</div>
     <div class="nav-item sec-admin" id="nav-finance" onclick="nav('financeSec', this)">💰 Revenue & GST</div>
     
     <div class="nav-item sec-patient sec-admin sec-doc" id="nav-search" onclick="nav('patientPortalSec', this)">🔍 My Medical Bill</div>
@@ -269,6 +270,26 @@
             <div class="card" style="text-align: center; color: var(--text-dim);">
                 Enter details to view live clinical records and billing.
             </div>
+        </div>
+    </div>
+
+    <div id="labSec" class="content-sec hidden">
+        <div class="card">
+            <h3>Diagnostic Laboratory Services</h3>
+            <div class="grid-3">
+                <select id="labPatientSelect"></select>
+                <select id="labTestType">
+                    <option value="500">Full Blood Count (Rs 500)</option>
+                    <option value="1200">X-Ray Imaging (Rs 1,200)</option>
+                    <option value="8000">MRI Scan (Rs 8,000)</option>
+                    <option value="2500">ECG Analysis (Rs 2,500)</option>
+                </select>
+                <button class="btn-primary" onclick="assignLabBill()">Apply Lab Charge</button>
+            </div>
+        </div>
+        <div class="card" id="labLog">
+            <h3>Lab Request Queue</h3>
+            <div id="labQueueList"></div>
         </div>
     </div>
 
@@ -416,7 +437,7 @@
                     </div>
                 </div>
             </div>
-            <button class="btn-primary" style="width: auto; background: var(--secondary); margin-top:20px;" onclick="exportData()">Generate Financial Audit (.CSV)</button>
+            <button class="btn-primary" style="width: auto; background: var(--secondary); margin-top:20px;" onclick="resetFinances()">⚠️ Clear All Financial Records</button>
         </div>
     </div>
 
@@ -431,8 +452,8 @@
 </div>
 
 <script>
-/** * HMS ENTERPRISE ENGINE v11.0 
- * C-FILE INTEGRATION MODULE + NaN BILLING FIX
+/** * HMS ENTERPRISE ENGINE v12.0 
+ * C-FILE INTEGRATION MODULE + ABSOLUTE NEGATIVE FIX
  */
 
 const SYSTEM_USERS = [
@@ -465,6 +486,7 @@ function handleLogin() {
         initChart();
         populateDoctorDropdown();
         refreshPharmaPatientList();
+        refreshLabPatientList();
     } else {
         document.getElementById('loginMsg').innerText = "FATAL: Access Denied. Integrity check failed.";
     }
@@ -512,6 +534,17 @@ function refreshPharmaPatientList() {
     let select = document.getElementById('pharmaPatientSelect');
     if(!select) return;
     select.innerHTML = '<option value="">Select Patient...</option>';
+    active.forEach(x => {
+        select.innerHTML += `<option value="${x.id}">${x.name} (#${x.id.toString().slice(-4)})</option>`;
+    });
+}
+
+function refreshLabPatientList() {
+    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let active = p.filter(x => x.status === 'active');
+    let select = document.getElementById('labPatientSelect');
+    if(!select) return;
+    select.innerHTML = '<option value="">Select Patient for Diagnostic Test...</option>';
     active.forEach(x => {
         select.innerHTML += `<option value="${x.id}">${x.name} (#${x.id.toString().slice(-4)})</option>`;
     });
@@ -647,7 +680,7 @@ function admitPatient() {
     const type = document.getElementById('pVisitType').value;
     const docName = document.getElementById('pDoctorAssign').value;
     const depositInput = document.getElementById('pDeposit').value;
-    const deposit = parseInt(depositInput) || 0; // Fixes NaN if empty
+    const deposit = parseInt(depositInput) || 0; 
 
     if(!name || docName === "Not Assigned") return alert("Name and Doctor selection required.");
 
@@ -666,6 +699,7 @@ function admitPatient() {
         roomTypePrice: type === 'checkup' ? 0 : (parseInt(document.getElementById('pRoom').value) || 0),
         consultFee: fee,
         deposit: deposit,
+        labCharges: 0,
         admitDate: new Date().toISOString(),
         diagnosis: document.getElementById('pDiagnosis').value,
         assignedDoctor: docName,
@@ -679,32 +713,54 @@ function admitPatient() {
     logAudit(`CLINIC: ${name} (${age}y/o) registered for ${type}`);
     updateUI();
     refreshPharmaPatientList();
+    refreshLabPatientList();
 }
 
-// --- FIX FOR NaN BILLING ERROR ---
+// --- ABSOLUTE FIX FOR MINUS / NaN BILLING ERROR ---
 function calculateLiveBill(p) {
     let sub = 0;
-    let consult = parseInt(p.consultFee) || 0;
-    let medsTotal = parseInt(p.meds) || 0;
-    let roomPrice = parseInt(p.roomTypePrice) || 0;
-    let depositAmount = parseInt(p.deposit) || 0;
+    let consult = Math.max(0, parseInt(p.consultFee) || 0);
+    let medsTotal = Math.max(0, parseInt(p.meds) || 0);
+    let labTotal = Math.max(0, parseInt(p.labCharges) || 0);
+    let roomPrice = Math.max(0, parseInt(p.roomTypePrice) || 0);
+    let depositAmount = Math.max(0, parseInt(p.deposit) || 0);
 
     if(p.visitType === 'checkup') {
-        sub = consult + medsTotal;
+        sub = consult + medsTotal + labTotal;
     } else {
         let diff = new Date() - new Date(p.admitDate);
         let days = Math.ceil(diff / (1000 * 60 * 60 * 24)) || 1;
-        sub = (days * roomPrice) + medsTotal + consult;
+        sub = (days * roomPrice) + medsTotal + consult + labTotal;
     }
     
-    let tax = sub * 0.18;
+    let tax = Math.max(0, sub * 0.18);
     let total = (sub + tax) - depositAmount;
     
+    // THE FIX: If total is negative (deposit > bill), we show 0 or handle refund logic.
+    // For this UI, we will display 0 as the "Amount Due".
+    let finalTotal = Math.max(0, total);
+    
     return { 
-        total: isNaN(total) ? 0 : total, 
+        total: isNaN(finalTotal) ? 0 : finalTotal, 
         sub: isNaN(sub) ? 0 : sub, 
         tax: isNaN(tax) ? 0 : tax 
     };
+}
+
+function assignLabBill() {
+    const pid = document.getElementById('labPatientSelect').value;
+    const cost = parseInt(document.getElementById('labTestType').value) || 0;
+    if(!pid) return alert("Select a patient.");
+
+    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let idx = p.findIndex(x => x.id == pid);
+    if(idx !== -1) {
+        p[idx].labCharges = (parseInt(p[idx].labCharges) || 0) + cost;
+        localStorage.setItem('hms_patients', JSON.stringify(p));
+        logAudit(`LAB: Diagnostic test assigned to ${p[idx].name}`);
+        alert("Lab Fee Applied.");
+        updateUI();
+    }
 }
 
 function showPharmaPrescription() {
@@ -758,29 +814,31 @@ function dischargePatient(id) {
 
     let totalRev = parseFloat(localStorage.getItem('hms_total_revenue')) || 0;
     let totalComm = parseFloat(localStorage.getItem('hms_total_commissions')) || 0;
+    
+    // Revenue fix: We only add what was actually paid at discharge.
     localStorage.setItem('hms_total_revenue', totalRev + finalAmount);
     localStorage.setItem('hms_total_commissions', totalComm + commission);
 
     p[idx].status = 'discharged';
     localStorage.setItem('hms_patients', JSON.stringify(p));
     
-    logAudit(`FINANCE: ${p[idx].name} discharged. Revenue: Rs ${finalAmount}`);
+    logAudit(`FINANCE: ${p[idx].name} discharged. Collected: Rs ${finalAmount}`);
     
     let report = `
         -------------------------------------------
-        HMS ENTERPRISE OFFICIAL RECEIPT (V11)
+        HMS ENTERPRISE OFFICIAL RECEIPT (V12)
         -------------------------------------------
         Patient: ${p[idx].name}
         Profile: ${p[idx].age} Years | ${p[idx].gender}
-        Symptoms: ${p[idx].symptoms}
         -------------------------------------------
         Consultation Fee: Rs ${p[idx].consultFee}
-        Facility Charges: Rs ${(bill.sub - p[idx].meds - p[idx].consultFee).toFixed(2)}
+        Lab Charges: Rs ${p[idx].labCharges}
+        Facility Charges: Rs ${(bill.sub - p[idx].meds - p[idx].consultFee - p[idx].labCharges).toFixed(2)}
         Pharmacy Total: Rs ${p[idx].meds}
         GST (18%): Rs ${bill.tax.toFixed(2)}
         Total Deposit: Rs ${p[idx].deposit}
         -------------------------------------------
-        FINAL PAYABLE: Rs ${finalAmount.toFixed(2)}
+        FINAL AMOUNT PAID: Rs ${finalAmount.toFixed(2)}
         -------------------------------------------
         STATUS: PAID & DISCHARGED
         -------------------------------------------
@@ -791,6 +849,7 @@ function dischargePatient(id) {
 
     updateUI();
     refreshPharmaPatientList();
+    refreshLabPatientList();
     searchPatientBill();
 }
 
@@ -853,11 +912,20 @@ function nav(id, el) {
 }
 
 function updateFinanceDashboard() {
-    let rev = parseFloat(localStorage.getItem('hms_total_revenue')) || 0;
-    let comm = parseFloat(localStorage.getItem('hms_total_commissions')) || 0;
+    let rev = Math.max(0, parseFloat(localStorage.getItem('hms_total_revenue')) || 0);
+    let comm = Math.max(0, parseFloat(localStorage.getItem('hms_total_commissions')) || 0);
     document.getElementById('fin-total-rev').innerText = "Rs " + rev.toLocaleString();
     document.getElementById('fin-total-comm').innerText = "Rs " + comm.toLocaleString();
-    document.getElementById('fin-net-profit').innerText = "Rs " + (rev - comm).toLocaleString();
+    document.getElementById('fin-net-profit').innerText = "Rs " + Math.max(0, (rev - comm)).toLocaleString();
+}
+
+function resetFinances() {
+    if(confirm("Confirm Wipe: This will reset all financial records to zero. Continue?")) {
+        localStorage.setItem('hms_total_revenue', '0');
+        localStorage.setItem('hms_total_commissions', '0');
+        updateUI();
+        logAudit("ADMIN: Financial records wiped.");
+    }
 }
 
 function updateUI() {
