@@ -252,7 +252,7 @@
             <button class="btn-primary" style="width: auto;" onclick="addStaff()">Register Staff Member</button>
         </div>
         <div class="card">
-            <h3>Current Employee Roster</h3>
+            <h3>Current Employee Roster (Admin Payroll View)</h3>
             <div id="staffList"></div>
         </div>
     </div>
@@ -334,14 +334,39 @@
             </div>
             <button class="btn-primary" style="background: var(--success); width: auto;" onclick="addInventory()">Update Stock Inventory</button>
         </div>
+
+        <div class="card">
+            <h3>Assign Medicine Bill to Patient</h3>
+            <div class="grid-3">
+                <select id="pharmaPatientSelect"></select>
+                <input type="number" id="pharmaMedCost" placeholder="Total Medicine Cost (Rs)">
+            </div>
+            <button class="btn-primary" style="width: auto;" onclick="assignMedicineBill()">Charge Patient</button>
+        </div>
+
         <div class="card" id="inventoryList"></div>
     </div>
 
     <div id="financeSec" class="content-sec hidden">
         <div class="card">
             <h3>Internal Profit & Loss Tracker</h3>
-            <div id="pnlData"></div>
-            <button class="btn-primary" style="width: auto; background: var(--secondary);" onclick="exportData()">Generate Financial Audit (.CSV)</button>
+            <div id="pnlData">
+                <div class="grid-3">
+                    <div style="padding:20px; background:rgba(255,255,255,0.05); border-radius:15px;">
+                        <small>Total Collected Revenue</small>
+                        <h2 id="fin-total-rev">Rs 0</h2>
+                    </div>
+                    <div style="padding:20px; background:rgba(255,255,255,0.05); border-radius:15px;">
+                        <small>Doctor Payouts (Commissions)</small>
+                        <h2 id="fin-total-comm" style="color: var(--warning)">Rs 0</h2>
+                    </div>
+                    <div style="padding:20px; background:rgba(255,255,255,0.05); border-radius:15px;">
+                        <small>Hospital Net Profit</small>
+                        <h2 id="fin-net-profit" style="color: var(--success)">Rs 0</h2>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-primary" style="width: auto; background: var(--secondary); margin-top:20px;" onclick="exportData()">Generate Financial Audit (.CSV)</button>
         </div>
     </div>
 
@@ -389,13 +414,13 @@ function handleLogin() {
         updateUI();
         initChart();
         populateDoctorDropdown();
+        refreshPharmaPatientList();
     } else {
         document.getElementById('loginMsg').innerText = "FATAL: Access Denied. Integrity check failed.";
     }
 }
 
 function applyRBAC(role) {
-    // Hide all role-specific classes first
     document.querySelectorAll('.sec-admin, .sec-doc-admin, .sec-pharma-admin, .sec-patient').forEach(el => el.classList.add('hidden'));
 
     if(role === 'admin') {
@@ -413,7 +438,6 @@ function applyRBAC(role) {
     }
 }
 
-// POPULATE DOCTORS IN ADMISSION
 function populateDoctorDropdown() {
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
     let docs = staff.filter(s => s.role === "Doctor");
@@ -427,6 +451,17 @@ function populateDoctorDropdown() {
     });
 }
 
+function refreshPharmaPatientList() {
+    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let active = p.filter(x => x.status === 'active');
+    let select = document.getElementById('pharmaPatientSelect');
+    if(!select) return;
+    select.innerHTML = '<option value="">Select Patient for Billing...</option>';
+    active.forEach(x => {
+        select.innerHTML += `<option value="${x.id}">${x.name} (#${x.id.toString().slice(-4)})</option>`;
+    });
+}
+
 // --- STAFF MANAGEMENT MODULE ---
 function addStaff() {
     const n = document.getElementById('stName').value;
@@ -436,7 +471,7 @@ function addStaff() {
     if(!n || !s) return alert("All fields are mandatory.");
 
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
-    staff.push({ id: Date.now(), name: n, role: r, salary: parseInt(s) });
+    staff.push({ id: Date.now(), name: n, role: r, salary: parseInt(s), totalCommission: 0 });
     localStorage.setItem('hms_staff', JSON.stringify(staff));
     
     logAudit(`HR_EVENT: New staff registered - ${n} (${r})`);
@@ -446,9 +481,15 @@ function addStaff() {
 
 function renderStaff() {
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
-    let html = `<table><tr><th>Employee</th><th>Designation</th><th>Payroll</th><th>Action</th></tr>`;
+    let html = `<table><tr><th>Employee</th><th>Designation</th><th>Base Salary</th><th>Dr. Commission Earned</th><th>Action</th></tr>`;
     staff.forEach(x => {
-        html += `<tr><td>${x.name}</td><td>${x.role}</td><td>Rs ${x.salary.toLocaleString()}</td><td><button onclick="removeStaff(${x.id})" style="background:var(--danger); padding:5px 10px; font-size:10px;">Terminate</button></td></tr>`;
+        html += `<tr>
+            <td>${x.name}</td>
+            <td>${x.role}</td>
+            <td>Rs ${x.salary.toLocaleString()}</td>
+            <td style="color:var(--success); font-weight:bold;">Rs ${(x.totalCommission || 0).toLocaleString()}</td>
+            <td><button onclick="removeStaff(${x.id})" style="background:var(--danger); padding:5px 10px; font-size:10px; border:none; color:white; border-radius:5px; cursor:pointer;">Terminate</button></td>
+        </tr>`;
     });
     document.getElementById('staffList').innerHTML = html + "</table>";
 }
@@ -465,7 +506,7 @@ function removeStaff(id) {
 function searchPatientBill() {
     const query = document.getElementById('patientSearchIn').value.toLowerCase();
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let results = p.filter(x => x.name.toLowerCase().includes(query) || x.id.toString().includes(query));
+    let results = p.filter(x => (x.name.toLowerCase().includes(query) || x.id.toString().includes(query)) && x.status === 'active');
 
     let html = "";
     if(results.length > 0 && query !== "") {
@@ -476,7 +517,7 @@ function searchPatientBill() {
                 <div class="grid-3">
                     <div><small>Patient Name</small><h3>${x.name}</h3></div>
                     <div><small>Admission ID</small><h3>#${x.id.toString().slice(-4)}</h3></div>
-                    <div><small>Current Total</small><h3 style="color:var(--accent)">Rs ${bill.total.toFixed(0)}</h3></div>
+                    <div><small>Current Total Due</small><h3 style="color:var(--accent)">Rs ${bill.total.toFixed(0)}</h3></div>
                 </div>
                 <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
                 <p><strong>Diagnosis:</strong> ${x.diagnosis}</p>
@@ -485,9 +526,10 @@ function searchPatientBill() {
                     <span>GST (18%): Rs ${bill.tax.toFixed(0)}</span>
                     <span>Assigned Doctor: ${x.assignedDoctor || 'Unassigned'}</span>
                 </div>
+                <button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">Pay Bill & Discharge</button>
             </div>`;
         });
-    } else {
+    } else if(query !== "") {
         html = `<div class="card" style="text-align:center">No active medical records found for "${query}"</div>`;
     }
     document.getElementById('searchResultArea').innerHTML = html;
@@ -514,6 +556,7 @@ function admitPatient() {
     localStorage.setItem('hms_patients', JSON.stringify(p));
     logAudit(`CLINIC_EVENT: Patient intake finalized for ${name} [Assigned: ${entry.assignedDoctor}]`);
     updateUI();
+    refreshPharmaPatientList();
 }
 
 function calculateLiveBill(p) {
@@ -521,6 +564,59 @@ function calculateLiveBill(p) {
     let sub = (days * p.roomTypePrice) + p.meds;
     let tax = sub * 0.18;
     return { days, total: (sub + tax) - p.deposit, sub, tax };
+}
+
+function assignMedicineBill() {
+    const pid = document.getElementById('pharmaPatientSelect').value;
+    const cost = parseInt(document.getElementById('pharmaMedCost').value);
+    if(!pid || !cost) return alert("Select patient and amount.");
+
+    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let idx = p.findIndex(x => x.id == pid);
+    if(idx !== -1) {
+        p[idx].meds += cost;
+        localStorage.setItem('hms_patients', JSON.stringify(p));
+        logAudit(`PHARMA_EVENT: Rs ${cost} in medicine charged to ${p[idx].name}`);
+        alert("Medicine bill added to patient portal.");
+        document.getElementById('pharmaMedCost').value = "";
+        updateUI();
+    }
+}
+
+function dischargePatient(id) {
+    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let idx = p.findIndex(x => x.id == id);
+    if(idx === -1) return;
+
+    let bill = calculateLiveBill(p[idx]);
+    let finalAmount = bill.total;
+
+    // Financial calculations
+    let commission = finalAmount * 0.20; // 20% to doctor
+    let hospitalNet = finalAmount - commission;
+
+    // Update Doctor Salary/Commission
+    let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
+    let docIdx = staff.findIndex(s => s.name === p[idx].assignedDoctor);
+    if(docIdx !== -1) {
+        staff[docIdx].totalCommission = (staff[docIdx].totalCommission || 0) + commission;
+        localStorage.setItem('hms_staff', JSON.stringify(staff));
+    }
+
+    // Update Global Revenue
+    let totalRev = parseFloat(localStorage.getItem('hms_total_revenue')) || 0;
+    let totalComm = parseFloat(localStorage.getItem('hms_total_commissions')) || 0;
+    localStorage.setItem('hms_total_revenue', totalRev + finalAmount);
+    localStorage.setItem('hms_total_commissions', totalComm + commission);
+
+    p[idx].status = 'discharged';
+    localStorage.setItem('hms_patients', JSON.stringify(p));
+    
+    logAudit(`FINANCE_EVENT: Patient ${p[idx].name} discharged. Revenue: Rs ${finalAmount}, Dr. Share: Rs ${commission}`);
+    alert("Payment Successful. Patient Discharged.");
+    updateUI();
+    refreshPharmaPatientList();
+    searchPatientBill();
 }
 
 function addInventory() {
@@ -545,7 +641,9 @@ function renderInventory() {
 
 // --- UTILITY & DASHBOARD ENGINE ---
 function initChart() {
-    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const canvas = document.getElementById('revenueChart');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
     new Chart(ctx, {
         type: 'line',
         data: {
@@ -567,7 +665,8 @@ function logAudit(msg) {
     let logs = JSON.parse(localStorage.getItem('hms_logs')) || [];
     logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
     localStorage.setItem('hms_logs', JSON.stringify(logs.slice(-50)));
-    document.getElementById('auditContainer').innerHTML = logs.reverse().join('<br>');
+    let container = document.getElementById('auditContainer');
+    if(container) container.innerHTML = logs.reverse().join('<br>');
 }
 
 function nav(id, el) {
@@ -576,6 +675,15 @@ function nav(id, el) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
     if(el) el.classList.add('active-nav');
     if(id === 'gameSec') initSnake();
+    if(id === 'financeSec') updateFinanceDashboard();
+}
+
+function updateFinanceDashboard() {
+    let rev = parseFloat(localStorage.getItem('hms_total_revenue')) || 0;
+    let comm = parseFloat(localStorage.getItem('hms_total_commissions')) || 0;
+    document.getElementById('fin-total-rev').innerText = "Rs " + rev.toLocaleString();
+    document.getElementById('fin-total-comm').innerText = "Rs " + comm.toLocaleString();
+    document.getElementById('fin-net-profit').innerText = "Rs " + (rev - comm).toLocaleString();
 }
 
 function updateUI() {
@@ -583,12 +691,13 @@ function updateUI() {
     let active = p.filter(x => x.status === 'active');
     document.getElementById('stat-p').innerText = active.length;
     
-    let total = p.reduce((a, b) => a + calculateLiveBill(b).total, 0);
-    document.getElementById('stat-profit').innerText = "Rs " + total.toLocaleString();
+    let currentLiveTotal = active.reduce((a, b) => a + calculateLiveBill(b).total, 0);
+    document.getElementById('stat-profit').innerText = "Rs " + currentLiveTotal.toLocaleString();
     
     renderPatientTable();
     renderInventory();
     renderStaff();
+    updateFinanceDashboard();
 }
 
 function renderPatientTable() {
@@ -603,7 +712,6 @@ function renderPatientTable() {
 
 function logout() { location.reload(); }
 
-// --- BREAK ROOM ENGINE ---
 function initSnake() {
     const canvas = document.getElementById("snakeGame");
     const ctx = canvas.getContext("2d");
@@ -637,7 +745,7 @@ function initSnake() {
             food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
         } else snake.pop();
         let nH = {x: headX, y: headY};
-        if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) clearInterval(game);
+        if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) { clearInterval(game); alert("Training Session Over. Score: " + score); }
         snake.unshift(nH);
     }
     game = setInterval(draw, 100);
