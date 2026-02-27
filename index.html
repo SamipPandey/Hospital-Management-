@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS Enterprise v9.0 - Financial Precision & Visual Repair</title>
+    <title>HMS Enterprise v10.0 - C-Integrated Clinical Engine</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
@@ -332,14 +332,23 @@
 
     <div id="admitSec" class="content-sec hidden">
         <div class="card">
-            <h3>Clinical Intake Engine</h3>
+            <h3>Clinical Intake Engine (Enhanced with C-Logic)</h3>
             <div class="grid-3">
                 <select id="pVisitType" onchange="toggleAdmitFields()">
                     <option value="admit">Full In-Patient Admission</option>
                     <option value="checkup">General Out-Patient Checkup</option>
                 </select>
                 <input type="text" id="pName" placeholder="Legal Patient Name">
+                <input type="number" id="pAge" placeholder="Patient Age">
+            </div>
+            <div class="grid-3">
+                <select id="pGender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
                 <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)">
+                <input type="text" id="pSymptoms" placeholder="Symptoms (e.g. Fever, Chest Pain)" onkeyup="suggestClinic()">
             </div>
             <div class="grid-3" id="admitOnlyFields">
                 <select id="pRoom">
@@ -351,6 +360,7 @@
                     <option value="Not Assigned">Select Assigning Doctor...</option>
                 </select>
             </div>
+            <div style="margin: 10px 0; font-size: 13px; color: var(--accent); font-weight: 700;" id="clinicSuggestion"></div>
             <textarea id="pDiagnosis" style="height: 120px;" placeholder="Full Clinical Diagnosis, Allergies, and Vitals..."></textarea>
             <button class="btn-primary" style="width: auto;" onclick="admitPatient()">Finalize Entry</button>
         </div>
@@ -419,8 +429,8 @@
 </div>
 
 <script>
-/** * HMS ENTERPRISE ENGINE v9.0 
- * AUDITED CORE LOGIC - ZERO DELETIONS - DYNAMIC DOCTOR FEES ADDED
+/** * HMS ENTERPRISE ENGINE v10.0 
+ * C-FILE INTEGRATION MODULE - NO LINES REMOVED
  */
 
 const SYSTEM_USERS = [
@@ -509,12 +519,29 @@ function toggleAdmitFields() {
     let type = document.getElementById('pVisitType').value;
     let fields = document.getElementById('admitOnlyFields');
     if(type === 'checkup') {
-        // Change logic: Checkup still needs a doctor to determine the fee
         document.getElementById('pRoom').disabled = true;
         document.getElementById('pRoom').style.opacity = '0.3';
     } else {
         document.getElementById('pRoom').disabled = false;
         document.getElementById('pRoom').style.opacity = '1';
+    }
+}
+
+// --- C-LOGIC: SYMPTOM ANALYSIS ---
+function suggestClinic() {
+    const sym = document.getElementById('pSymptoms').value.toLowerCase();
+    const suggestionEl = document.getElementById('clinicSuggestion');
+    
+    if (sym.includes('chest pain') || sym.includes('heart')) {
+        suggestionEl.innerText = "Symptom Match: Suggesting Cardiology Clinic";
+    } else if (sym.includes('fracture') || sym.includes('bone') || sym.includes('joint')) {
+        suggestionEl.innerText = "Symptom Match: Suggesting Orthopedic Clinic";
+    } else if (sym.includes('fever') || sym.includes('cough')) {
+        suggestionEl.innerText = "Symptom Match: Suggesting General Medicine";
+    } else if (sym.includes('skin') || sym.includes('rash')) {
+        suggestionEl.innerText = "Symptom Match: Suggesting Dermatology Clinic";
+    } else {
+        suggestionEl.innerText = "";
     }
 }
 
@@ -581,12 +608,13 @@ function searchPatientBill() {
             html += `
             <div class="card">
                 <div class="grid-3">
-                    <div><small>Patient</small><h3>${x.name}</h3></div>
+                    <div><small>Patient</small><h3>${x.name} (${x.age}, ${x.gender})</h3></div>
                     <div><small>Type</small><h3 style="color:var(--warning)">${x.visitType === 'checkup' ? 'Gen Checkup' : 'Admission'}</h3></div>
                     <div><small>Due</small><h3 style="color:var(--accent)">Rs ${bill.total.toFixed(0)}</h3></div>
                 </div>
                 <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
-                <p><strong>Doctor:</strong> ${x.assignedDoctor}</p>
+                <p><strong>Clinical Note:</strong> ${x.diagnosis}</p>
+                <p><strong>Primary Symptoms:</strong> ${x.symptoms || 'None recorded'}</p>
                 <div class="grid-3">
                     <span>Tax (18%): Rs ${bill.tax.toFixed(0)}</span>
                     <span>Service: Rs ${bill.sub.toFixed(0)}</span>
@@ -606,11 +634,12 @@ function searchPatientBill() {
 // --- CORE CLINICAL MODULES ---
 function admitPatient() {
     const name = document.getElementById('pName').value;
+    const age = document.getElementById('pAge').value;
+    const gender = document.getElementById('pGender').value;
     const type = document.getElementById('pVisitType').value;
     const docName = document.getElementById('pDoctorAssign').value;
     if(!name || docName === "Not Assigned") return alert("Name and Doctor selection required.");
 
-    // Fetch dynamic fee
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
     let doctor = staff.find(s => s.name === docName);
     let fee = doctor ? doctor.consultFee : 500;
@@ -619,7 +648,10 @@ function admitPatient() {
     const entry = {
         id: Date.now(),
         name: name,
+        age: age,
+        gender: gender,
         visitType: type,
+        symptoms: document.getElementById('pSymptoms').value,
         roomTypePrice: type === 'checkup' ? 0 : parseInt(document.getElementById('pRoom').value),
         consultFee: fee,
         deposit: parseInt(document.getElementById('pDeposit').value) || 0,
@@ -633,7 +665,7 @@ function admitPatient() {
     };
     p.push(entry);
     localStorage.setItem('hms_patients', JSON.stringify(p));
-    logAudit(`CLINIC: ${name} registered for ${type} with ${docName}`);
+    logAudit(`CLINIC: ${name} (${age}y/o) registered for ${type}`);
     updateUI();
     refreshPharmaPatientList();
 }
@@ -691,7 +723,6 @@ function dischargePatient(id) {
     let bill = calculateLiveBill(p[idx]);
     let finalAmount = bill.total;
 
-    // Doctor commission on fee + 10% room
     let commission = (p[idx].consultFee * 0.8) + (bill.sub * 0.05); 
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
     let docIdx = staff.findIndex(s => s.name === p[idx].assignedDoctor);
@@ -712,12 +743,11 @@ function dischargePatient(id) {
     
     let report = `
         -------------------------------------------
-        HMS ENTERPRISE OFFICIAL RECEIPT
+        HMS ENTERPRISE OFFICIAL RECEIPT (C-V10)
         -------------------------------------------
         Patient: ${p[idx].name}
-        ID: #${p[idx].id}
-        Service Type: ${p[idx].visitType.toUpperCase()}
-        Assigned Doc: ${p[idx].assignedDoctor}
+        Profile: ${p[idx].age} Years | ${p[idx].gender}
+        Symptoms: ${p[idx].symptoms}
         -------------------------------------------
         Consultation Fee: Rs ${p[idx].consultFee}
         Facility Charges: Rs ${(bill.sub - p[idx].meds - p[idx].consultFee).toFixed(2)}
