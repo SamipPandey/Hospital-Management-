@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS Enterprise v8.0 - Triage & Clinical Integrity</title>
+    <title>HMS Enterprise v9.0 - Financial Precision & Visual Repair</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
@@ -24,9 +24,10 @@
 
         /* GALLARY & FEATURE SPECIFIC STYLES */
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
-        .gallery-item { border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border); height: 200px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-        .gallery-item:hover img { transform: scale(1.1); }
+        .gallery-item { border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border); height: 200px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); background: #000; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; opacity: 0.9; }
+        .gallery-item:hover img { transform: scale(1.1); opacity: 1; }
+        .gallery-label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 5px; font-size: 10px; font-weight: bold; pointer-events: none; }
         .feature-card { background: rgba(59, 130, 246, 0.05); padding: 20px; border-radius: 15px; border-left: 4px solid var(--accent); margin-bottom: 15px; }
 
         * { box-sizing: border-box; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -165,7 +166,6 @@
         .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; }
         .bg-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 
-        /* SEARCH BAR FOR PATIENTS */
         .search-container { position: relative; margin-bottom: 40px; }
         .search-container input { padding-left: 50px; font-size: 18px; height: 65px; border-radius: 20px; background: rgba(255,255,255,0.05); }
 
@@ -242,13 +242,16 @@
             <h3>Add New Medical Professional</h3>
             <div class="grid-3">
                 <input type="text" id="stName" placeholder="Staff Name">
-                <select id="stRole">
+                <select id="stRole" onchange="toggleStaffFields()">
                     <option value="Doctor">Senior Physician</option>
                     <option value="Nurse">Medical Nurse</option>
                     <option value="Pharmacist">Lead Pharmacist</option>
                     <option value="Security">Security Personnel</option>
                 </select>
                 <input type="number" id="stSalary" placeholder="Base Salary (Rs)">
+            </div>
+            <div id="doctorSpecificInputs" class="grid-3">
+                <input type="number" id="stConsultCharge" placeholder="Consultation Charge (Rs)">
             </div>
             <button class="btn-primary" style="width: auto;" onclick="addStaff()">Register Staff Member</button>
         </div>
@@ -291,14 +294,38 @@
         <div class="card">
             <h2>Hospital Gallery - State of the Art Facility</h2>
             <div class="gallery-grid">
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800" alt="Main Entrance"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800" alt="Robotics Lab"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1581594632702-f235ae89b022?auto=format&fit=crop&q=80&w=800" alt="MRI Center"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&q=80&w=800" alt="ICU Unit"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1538108197017-c1a966b98df2?auto=format&fit=crop&q=80&w=800" alt="VIP Suite"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800" alt="Pharma Storage"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=800" alt="Operating Theater"></div>
-                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1505751172107-57324a0834d8?auto=format&fit=crop&q=80&w=800" alt="Consultation"></div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800" alt="Main Entrance">
+                    <div class="gallery-label">Reception Hall</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800" alt="Modern OR">
+                    <div class="gallery-label">Operating Theater</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce2?auto=format&fit=crop&q=80&w=800" alt="MRI Facility">
+                    <div class="gallery-label">MRI & Imaging Center</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&q=80&w=800" alt="Recovery Suite">
+                    <div class="gallery-label">VIP Patient Suite</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=800" alt="Medical Lab">
+                    <div class="gallery-label">Diagnostic Laboratory</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800" alt="Pharma">
+                    <div class="gallery-label">Pharmacy Store</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1581594632702-f235ae89b022?auto=format&fit=crop&q=80&w=800" alt="Consultation">
+                    <div class="gallery-label">Consultation Room</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1505751172107-57324a0834d8?auto=format&fit=crop&q=80&w=800" alt="Medical Staff">
+                    <div class="gallery-label">Care Team Hub</div>
+                </div>
             </div>
         </div>
     </div>
@@ -392,8 +419,8 @@
 </div>
 
 <script>
-/** * HMS ENTERPRISE ENGINE v8.0 
- * AUDITED CORE LOGIC - ZERO DELETIONS - ADDED CHECKUP LOGIC
+/** * HMS ENTERPRISE ENGINE v9.0 
+ * AUDITED CORE LOGIC - ZERO DELETIONS - DYNAMIC DOCTOR FEES ADDED
  */
 
 const SYSTEM_USERS = [
@@ -421,7 +448,7 @@ function handleLogin() {
         document.getElementById('displayRole').innerText = found.role + " ACCESS";
         
         applyRBAC(found.role);
-        logAudit(`SEC_EVENT: Authentication successful for ${found.u} [${found.role}]`);
+        logAudit(`SEC_EVENT: Authentication successful for ${found.u}`);
         updateUI();
         initChart();
         populateDoctorDropdown();
@@ -449,15 +476,20 @@ function applyRBAC(role) {
     }
 }
 
+function toggleStaffFields() {
+    let role = document.getElementById('stRole').value;
+    document.getElementById('doctorSpecificInputs').style.display = (role === 'Doctor') ? 'grid' : 'none';
+}
+
 function populateDoctorDropdown() {
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
     let docs = staff.filter(s => s.role === "Doctor");
     let select = document.getElementById('pDoctorAssign');
-    select.innerHTML = '<option value="Not Assigned">Assign Medical Lead...</option>';
+    select.innerHTML = '<option value="Not Assigned">Select Doctor...</option>';
     docs.forEach(d => {
         let opt = document.createElement('option');
         opt.value = d.name;
-        opt.innerHTML = d.name;
+        opt.innerHTML = `${d.name} (Fee: Rs ${d.consultFee})`;
         select.appendChild(opt);
     });
 }
@@ -467,7 +499,7 @@ function refreshPharmaPatientList() {
     let active = p.filter(x => x.status === 'active');
     let select = document.getElementById('pharmaPatientSelect');
     if(!select) return;
-    select.innerHTML = '<option value="">Select Patient for Billing...</option>';
+    select.innerHTML = '<option value="">Select Patient...</option>';
     active.forEach(x => {
         select.innerHTML += `<option value="${x.id}">${x.name} (#${x.id.toString().slice(-4)})</option>`;
     });
@@ -477,11 +509,12 @@ function toggleAdmitFields() {
     let type = document.getElementById('pVisitType').value;
     let fields = document.getElementById('admitOnlyFields');
     if(type === 'checkup') {
-        fields.style.opacity = '0.3';
-        fields.style.pointerEvents = 'none';
+        // Change logic: Checkup still needs a doctor to determine the fee
+        document.getElementById('pRoom').disabled = true;
+        document.getElementById('pRoom').style.opacity = '0.3';
     } else {
-        fields.style.opacity = '1';
-        fields.style.pointerEvents = 'all';
+        document.getElementById('pRoom').disabled = false;
+        document.getElementById('pRoom').style.opacity = '1';
     }
 }
 
@@ -490,29 +523,36 @@ function addStaff() {
     const n = document.getElementById('stName').value;
     const r = document.getElementById('stRole').value;
     const s = document.getElementById('stSalary').value;
+    const f = document.getElementById('stConsultCharge').value || 0;
     
     if(!n || !s) return alert("All fields are mandatory.");
 
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
-    staff.push({ id: Date.now(), name: n, role: r, salary: parseInt(s), totalCommission: 0 });
+    staff.push({ 
+        id: Date.now(), 
+        name: n, 
+        role: r, 
+        salary: parseInt(s), 
+        consultFee: parseInt(f), 
+        totalCommission: 0 
+    });
     localStorage.setItem('hms_staff', JSON.stringify(staff));
     
-    logAudit(`HR_EVENT: New staff registered - ${n} (${r})`);
+    logAudit(`HR_EVENT: ${n} (${r}) registered with Rs ${f} Fee`);
     renderStaff();
     populateDoctorDropdown();
 }
 
 function renderStaff() {
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
-    let html = `<table><tr><th>Employee</th><th>Designation</th><th>Base Salary</th><th>Dr. Commission Earned</th><th>Action</th></tr>`;
+    let html = `<table><tr><th>Employee</th><th>Designation</th><th>Consult Fee</th><th>Dr. Earned</th><th>Action</th></tr>`;
     staff.forEach(x => {
         html += `<tr>
             <td>${x.name}</td>
             <td>${x.role}</td>
-            <td>Rs ${x.salary.toLocaleString()}</td>
+            <td>${x.role === 'Doctor' ? 'Rs ' + x.consultFee : '-'}</td>
             <td style="color:var(--success); font-weight:bold;">Rs ${(x.totalCommission || 0).toLocaleString()}</td>
             <td>
-                <button onclick="viewHistory('${x.name}', 'doctor')" style="background:var(--accent); border:none; color:white; padding:5px; border-radius:5px; cursor:pointer;">History</button>
                 <button onclick="removeStaff(${x.id})" style="background:var(--danger); padding:5px 10px; font-size:10px; border:none; color:white; border-radius:5px; cursor:pointer;">Terminate</button>
             </td>
         </tr>`;
@@ -528,7 +568,7 @@ function removeStaff(id) {
     populateDoctorDropdown();
 }
 
-// --- PATIENT SEARCH & BILLING MODULE ---
+// --- PATIENT SEARCH & BILLING ---
 function searchPatientBill() {
     const query = document.getElementById('patientSearchIn').value.toLowerCase();
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
@@ -541,26 +581,24 @@ function searchPatientBill() {
             html += `
             <div class="card">
                 <div class="grid-3">
-                    <div><small>Patient Name</small><h3>${x.name}</h3></div>
-                    <div><small>Visit Type</small><h3 style="color:var(--warning)">${x.visitType === 'checkup' ? 'General Checkup' : 'Full Admission'}</h3></div>
-                    <div><small>Current Total Due</small><h3 style="color:var(--accent)">Rs ${bill.total.toFixed(0)}</h3></div>
+                    <div><small>Patient</small><h3>${x.name}</h3></div>
+                    <div><small>Type</small><h3 style="color:var(--warning)">${x.visitType === 'checkup' ? 'Gen Checkup' : 'Admission'}</h3></div>
+                    <div><small>Due</small><h3 style="color:var(--accent)">Rs ${bill.total.toFixed(0)}</h3></div>
                 </div>
                 <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
-                <p><strong>Diagnosis:</strong> ${x.diagnosis}</p>
-                <p><strong>Medication Prescribed:</strong> <span style="color:var(--warning)">${x.prescribedMeds || 'None yet'}</span></p>
+                <p><strong>Doctor:</strong> ${x.assignedDoctor}</p>
                 <div class="grid-3">
-                    <span>GST (18%): Rs ${bill.tax.toFixed(0)}</span>
-                    <span>Assigned Doctor: ${x.assignedDoctor || 'Unassigned'}</span>
+                    <span>Tax (18%): Rs ${bill.tax.toFixed(0)}</span>
+                    <span>Service: Rs ${bill.sub.toFixed(0)}</span>
                 </div>
                 
                 ${currentUser.role === 'admin' ? 
-                    `<button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">Admin: Pay & Discharge</button>
-                     <button class="btn-primary" style="margin-top:10px; background:var(--secondary);" onclick="viewHistory(${x.id}, 'patient')">View History</button>` : 
-                    `<p style="color:var(--warning); margin-top:20px; font-weight:700;">💳 Online Payment Disabled. Please visit Admin for Discharge.</p>`}
+                    `<button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">Admin: Pay & Discharge</button>` : 
+                    `<p style="color:var(--warning); margin-top:20px; font-weight:700;">Please contact Admin for billing.</p>`}
             </div>`;
         });
     } else if(query !== "") {
-        html = `<div class="card" style="text-align:center">No active records found.</div>`;
+        html = `<div class="card" style="text-align:center">Record Not Found.</div>`;
     }
     document.getElementById('searchResultArea').innerHTML = html;
 }
@@ -569,7 +607,13 @@ function searchPatientBill() {
 function admitPatient() {
     const name = document.getElementById('pName').value;
     const type = document.getElementById('pVisitType').value;
-    if(!name) return;
+    const docName = document.getElementById('pDoctorAssign').value;
+    if(!name || docName === "Not Assigned") return alert("Name and Doctor selection required.");
+
+    // Fetch dynamic fee
+    let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
+    let doctor = staff.find(s => s.name === docName);
+    let fee = doctor ? doctor.consultFee : 500;
 
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
     const entry = {
@@ -577,11 +621,11 @@ function admitPatient() {
         name: name,
         visitType: type,
         roomTypePrice: type === 'checkup' ? 0 : parseInt(document.getElementById('pRoom').value),
-        consultFee: type === 'checkup' ? 500 : 0,
+        consultFee: fee,
         deposit: parseInt(document.getElementById('pDeposit').value) || 0,
         admitDate: new Date().toISOString(),
         diagnosis: document.getElementById('pDiagnosis').value,
-        assignedDoctor: type === 'checkup' ? "Gen-Physician" : document.getElementById('pDoctorAssign').value,
+        assignedDoctor: docName,
         meds: 0,
         medicationHistory: [],
         prescribedMeds: "",
@@ -589,7 +633,7 @@ function admitPatient() {
     };
     p.push(entry);
     localStorage.setItem('hms_patients', JSON.stringify(p));
-    logAudit(`CLINIC_EVENT: ${type.toUpperCase()} finalized for ${name}`);
+    logAudit(`CLINIC: ${name} registered for ${type} with ${docName}`);
     updateUI();
     refreshPharmaPatientList();
 }
@@ -600,23 +644,10 @@ function calculateLiveBill(p) {
         sub = p.consultFee + p.meds;
     } else {
         let days = Math.ceil((new Date() - new Date(p.admitDate)) / (86400000)) || 1;
-        sub = (days * p.roomTypePrice) + p.meds;
+        sub = (days * p.roomTypePrice) + p.meds + p.consultFee;
     }
     let tax = sub * 0.18;
     return { total: (sub + tax) - p.deposit, sub, tax };
-}
-
-function prescribeMeds(pid) {
-    let meds = prompt("Enter the name of medicine to prescribe:");
-    if(!meds) return;
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let idx = p.findIndex(x => x.id == pid);
-    if(idx !== -1) {
-        p[idx].prescribedMeds = meds;
-        localStorage.setItem('hms_patients', JSON.stringify(p));
-        alert("Prescription saved.");
-        searchPatientBill();
-    }
 }
 
 function showPharmaPrescription() {
@@ -626,18 +657,16 @@ function showPharmaPrescription() {
     let view = document.getElementById('pharmaPrescriptionView');
     if(patient && patient.prescribedMeds) {
         view.style.display = 'block';
-        view.innerText = "Doctor's Prescription: " + patient.prescribedMeds;
+        view.innerText = "Prescription: " + patient.prescribedMeds;
         document.getElementById('pharmaMedTitle').value = patient.prescribedMeds;
-    } else {
-        view.style.display = 'none';
-    }
+    } else { view.style.display = 'none'; }
 }
 
 function assignMedicineBill() {
     const pid = document.getElementById('pharmaPatientSelect').value;
     const title = document.getElementById('pharmaMedTitle').value;
     const cost = parseInt(document.getElementById('pharmaMedCost').value);
-    if(!pid || !cost || !title) return alert("Select patient, medicine name and amount.");
+    if(!pid || !cost || !title) return alert("Missing details.");
 
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
     let idx = p.findIndex(x => x.id == pid);
@@ -645,17 +674,15 @@ function assignMedicineBill() {
         p[idx].meds += cost;
         p[idx].medicationHistory.push({ title: title, cost: cost, date: new Date().toLocaleDateString() });
         localStorage.setItem('hms_patients', JSON.stringify(p));
-        logAudit(`PHARMA_EVENT: ${title} charged to ${p[idx].name}`);
-        alert("Medicine bill added.");
-        document.getElementById('pharmaMedCost').value = "";
-        document.getElementById('pharmaMedTitle').value = "";
+        logAudit(`PHARMA: ${title} charged to ${p[idx].name}`);
+        alert("Bill Updated.");
         updateUI();
     }
 }
 
-// --- DISCHARGE & REPORT ENGINE ---
+// --- DISCHARGE ENGINE ---
 function dischargePatient(id) {
-    if(currentUser.role !== 'admin') return alert("Access Denied: Admin only.");
+    if(currentUser.role !== 'admin') return;
 
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
     let idx = p.findIndex(x => x.id == id);
@@ -664,7 +691,8 @@ function dischargePatient(id) {
     let bill = calculateLiveBill(p[idx]);
     let finalAmount = bill.total;
 
-    let commission = finalAmount * 0.20; 
+    // Doctor commission on fee + 10% room
+    let commission = (p[idx].consultFee * 0.8) + (bill.sub * 0.05); 
     let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
     let docIdx = staff.findIndex(s => s.name === p[idx].assignedDoctor);
     if(docIdx !== -1) {
@@ -680,48 +708,33 @@ function dischargePatient(id) {
     p[idx].status = 'discharged';
     localStorage.setItem('hms_patients', JSON.stringify(p));
     
-    logAudit(`FINANCE_EVENT: ${p[idx].visitType.toUpperCase()} Discharge. Total: Rs ${finalAmount}`);
+    logAudit(`FINANCE: ${p[idx].name} discharged. Revenue: Rs ${finalAmount}`);
     
     let report = `
         -------------------------------------------
-        HMS ENTERPRISE OFFICIAL DISCHARGE REPORT
+        HMS ENTERPRISE OFFICIAL RECEIPT
         -------------------------------------------
-        Type: ${p[idx].visitType.toUpperCase()}
         Patient: ${p[idx].name}
         ID: #${p[idx].id}
+        Service Type: ${p[idx].visitType.toUpperCase()}
+        Assigned Doc: ${p[idx].assignedDoctor}
         -------------------------------------------
-        Service Fee: Rs ${p[idx].visitType === 'checkup' ? p[idx].consultFee : (bill.sub - p[idx].meds)}
-        Medicine Total: Rs ${p[idx].meds}
-        Tax (GST 18%): Rs ${bill.tax.toFixed(2)}
-        Advance Paid: Rs ${p[idx].deposit}
+        Consultation Fee: Rs ${p[idx].consultFee}
+        Facility Charges: Rs ${(bill.sub - p[idx].meds - p[idx].consultFee).toFixed(2)}
+        Pharmacy Total: Rs ${p[idx].meds}
+        GST (18%): Rs ${bill.tax.toFixed(2)}
+        Total Payable: Rs ${finalAmount.toFixed(2)}
         -------------------------------------------
-        TOTAL FINAL PAYMENT: Rs ${finalAmount.toFixed(2)}
-        -------------------------------------------
-        STATUS: CLEARED
+        STATUS: PAID & DISCHARGED
         -------------------------------------------
     `;
     let win = window.open('', '_blank');
     win.document.write("<pre>" + report + "</pre>");
     win.print();
 
-    alert("Discharged.");
     updateUI();
     refreshPharmaPatientList();
     searchPatientBill();
-}
-
-function viewHistory(id, type) {
-    let output = "";
-    if(type === 'patient') {
-        let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-        let x = p.find(val => val.id == id);
-        output = `AUDIT LOG FOR ${x.name}:\n\nDiagnosis: ${x.diagnosis}\n\nMeds Log:\n`;
-        x.medicationHistory.forEach(m => output += `- ${m.title}: Rs ${m.cost}\n`);
-        output += `\nTotal Meds: Rs ${x.meds}`;
-    } else {
-        output = `DOCTOR PERFORMANCE LOG: ${id}`;
-    }
-    alert(output);
 }
 
 function addInventory() {
@@ -738,12 +751,12 @@ function addInventory() {
 
 function renderInventory() {
     let inv = JSON.parse(localStorage.getItem('hms_inv')) || [];
-    let html = `<table><tr><th>Drug Name</th><th>Current Stock</th><th>Price Unit</th></tr>`;
+    let html = `<table><tr><th>Drug Name</th><th>Stock</th><th>Price</th></tr>`;
     inv.forEach(x => html += `<tr><td>${x.name}</td><td>${x.stock} Units</td><td>Rs ${x.price}</td></tr>`);
     document.getElementById('inventoryList').innerHTML = html + "</table>";
 }
 
-// --- UTILITY & DASHBOARD ---
+// --- DASHBOARD ---
 function initChart() {
     const canvas = document.getElementById('revenueChart');
     if(!canvas) return;
@@ -753,15 +766,15 @@ function initChart() {
         data: {
             labels: ['Q1', 'Q2', 'Q3', 'Q4'],
             datasets: [{
-                label: 'Revenue Trend',
-                data: [45000, 82000, 61000, 95000],
+                label: 'Growth',
+                data: [45000, 82000, 61000, 115000],
                 borderColor: '#3b82f6',
                 tension: 0.4,
                 fill: true,
                 backgroundColor: 'rgba(59, 130, 246, 0.05)'
             }]
         },
-        options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#1e293b' } }, x: { grid: { display: false } } } }
+        options: { plugins: { legend: { display: false } } }
     });
 }
 
@@ -806,10 +819,10 @@ function updateUI() {
 
 function renderPatientTable() {
     let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let html = `<table><tr><th>ID</th><th>Patient</th><th>Type</th><th>Assigned Doctor</th><th>Bill Due</th></tr>`;
+    let html = `<table><tr><th>ID</th><th>Patient</th><th>Assigned Doctor</th><th>Due</th></tr>`;
     p.filter(x => x.status === 'active').forEach(x => {
         let b = calculateLiveBill(x);
-        html += `<tr><td>#${x.id.toString().slice(-4)}</td><td>${x.name}</td><td>${x.visitType}</td><td><span class="status-pill bg-success">${x.assignedDoctor || 'PENDING'}</span></td><td style="color:var(--accent)">Rs ${b.total.toFixed(0)}</td></tr>`;
+        html += `<tr><td>#${x.id.toString().slice(-4)}</td><td>${x.name}</td><td>${x.assignedDoctor}</td><td style="color:var(--accent)">Rs ${b.total.toFixed(0)}</td></tr>`;
     });
     document.getElementById('activePatientsList').innerHTML = html + "</table>";
 }
@@ -849,7 +862,7 @@ function initSnake() {
             food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
         } else snake.pop();
         let nH = {x: headX, y: headY};
-        if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) { clearInterval(game); alert("GameOver. Score: " + score); }
+        if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) { clearInterval(game); alert("Done. Score: " + score); }
         snake.unshift(nH);
     }
     game = setInterval(draw, 100);
