@@ -3,11 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS Enterprise v12.0 - Absolute Financial Integrity</title>
+    <title>HMS Enterprise v19.0 - Absolute Financial Integrity</title>
+    
+    <!-- 
+        ==================================================================================
+        EXTERNAL RESOURCES: CHART ENGINE & HIGH-FIDELITY TYPOGRAPHY
+        ==================================================================================
+    -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* 
+           ==================================================================================
+           LIQUID GLASS DESIGN SYSTEM (Inspired by iOS 26 & VisionOS)
+           ==================================================================================
+        */
         :root {
+            /* Palette Architecture */
             --primary: #0f172a;
             --secondary: #1e293b;
             --accent: #3b82f6;
@@ -15,38 +28,97 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --info: #0ea5e9;
+            
+            /* Glassmorphism Coefficients */
             --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-thick: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-blur: blur(25px) saturate(200%);
+            
+            /* Typography & Layout */
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
-            --sidebar-width: 280px;
+            --text-v-dim: #64748b;
+            --sidebar-width: 300px;
+            
+            /* Motion Curves */
+            --trans-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            --trans-spring: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* GALLARY & FEATURE SPECIFIC STYLES */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
-        .gallery-item { border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border); height: 200px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); background: #000; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; opacity: 0.9; }
-        .gallery-item:hover img { transform: scale(1.1); opacity: 1; }
-        .gallery-label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 5px; font-size: 10px; font-weight: bold; pointer-events: none; }
-        .feature-card { background: rgba(59, 130, 246, 0.05); padding: 20px; border-radius: 15px; border-left: 4px solid var(--accent); margin-bottom: 15px; }
+        /* 
+           --- PRINT ARCHITECTURE --- 
+           Strips all UI elements for professional invoice output.
+        */
+        @media print {
+            body { background: white !important; color: black !important; overflow: visible !important; }
+            #sidebar, .btn-primary, .no-print, #toast-container, .sidebar-brand, .section-header, .search-container, #loginOverlay { display: none !important; }
+            #main { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible !important; }
+            .card, .glass-panel { border: none !important; backdrop-filter: none !important; box-shadow: none !important; background: transparent !important; color: black !important; padding: 0 !important; }
+            .content-sec { display: none !important; }
+            #receiptModal { display: flex !important; background: white !important; position: static !important; width: 100% !important; justify-content: flex-start !important; padding: 0 !important; }
+            .receipt-card { width: 100% !important; border: none !important; box-shadow: none !important; padding: 0 !important; color: black !important; font-family: 'Courier New', Courier, monospace; }
+            .no-print-btn { display: none !important; }
+        }
 
-        * { box-sizing: border-box; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
+        /* 
+           --- BASE RESET & SMOOTHING --- 
+        */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
             color: var(--text-main);
             height: 100vh;
-            overflow: hidden;
+            width: 100vw;
             display: flex;
+            overflow: hidden;
         }
 
-        /* --- ADVANCED LOGIN INTERFACE --- */
+        /* 
+           --- NOTIFICATION ENGINE (Toasts) --- 
+        */
+        #toast-container {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            z-index: 100000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .toast {
+            padding: 18px 28px;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: white;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            transform: translateX(150%);
+            animation: toastIn 0.8s var(--trans-spring) forwards;
+        }
+
+        @keyframes toastIn { to { transform: translateX(0); } }
+        .toast.success { border-left: 8px solid var(--success); }
+        .toast.danger { border-left: 8px solid var(--danger); }
+        .toast.info { border-left: 8px solid var(--accent); }
+
+        /* 
+           --- LOGIN ARCHITECTURE (Frosted Look) --- 
+        */
         #loginOverlay {
             position: fixed;
             inset: 0;
             background: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=2000') center/cover;
-            z-index: 9999;
+            z-index: 20000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -56,43 +128,53 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: rgba(10, 15, 30, 0.9);
+            background: rgba(10, 15, 30, 0.85);
             backdrop-filter: blur(12px);
         }
 
         .login-box {
             position: relative;
             background: var(--glass);
-            backdrop-filter: blur(25px);
+            backdrop-filter: var(--glass-blur);
             border: 1px solid var(--glass-border);
             padding: 60px;
             border-radius: 32px;
-            width: 450px;
+            width: 480px;
             text-align: center;
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+            z-index: 5;
         }
 
-        .login-box h2 { font-size: 32px; margin-bottom: 8px; font-weight: 800; color: #fff; letter-spacing: -1px; }
-        .login-box p { color: var(--text-dim); margin-bottom: 35px; font-size: 15px; }
+        .login-box h2 { font-size: 36px; margin-bottom: 8px; font-weight: 800; color: #fff; letter-spacing: -1.5px; }
+        .login-box p { color: var(--text-dim); margin-bottom: 40px; font-size: 15px; }
 
+        /* 
+           --- FORM INPUTS & INTERACTIVE ELEMENTS --- 
+        */
         input, select, textarea {
             width: 100%;
-            padding: 16px;
-            margin: 14px 0;
-            background: rgba(0,0,0,0.3);
+            padding: 18px;
+            margin: 12px 0;
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--glass-border);
-            border-radius: 14px;
+            border-radius: 16px;
             color: white;
+            font-family: inherit;
             font-size: 15px;
             outline: none;
+            transition: var(--trans-smooth);
         }
 
-        input:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
+        input:focus, select:focus, textarea:focus { 
+            border-color: var(--accent); 
+            background: rgba(0, 0, 0, 0.6); 
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); 
+        }
 
         .btn-primary {
-            padding: 16px 24px;
+            padding: 18px 28px;
             border: none;
-            border-radius: 14px;
+            border-radius: 16px;
             cursor: pointer;
             font-weight: 700;
             background: linear-gradient(135deg, var(--accent), #1d4ed8);
@@ -101,18 +183,35 @@
             font-size: 16px;
             margin-top: 15px;
             box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
+            transition: var(--trans-spring);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -10px rgba(59, 130, 246, 0.6); }
+        .btn-primary:hover { 
+            transform: translateY(-5px) scale(1.02); 
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.6); 
+        }
 
-        /* --- SIDEBAR ARCHITECTURE --- */
+        .btn-primary:active { transform: scale(0.96); }
+
+        /* 
+           --- SIDEBAR ARCHITECTURE --- 
+        */
         #sidebar {
             width: var(--sidebar-width);
-            background: rgba(15, 23, 42, 0.98);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: var(--glass-blur);
             border-right: 1px solid var(--glass-border);
             display: flex;
             flex-direction: column;
-            z-index: 100;
+            z-index: 1000;
+            transition: var(--trans-smooth);
+        }
+
+        .sidebar-brand {
+            padding: 50px 35px;
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .nav-item {
@@ -125,476 +224,606 @@
             gap: 15px;
             font-size: 15px;
             border-left: 4px solid transparent;
+            transition: var(--trans-smooth);
         }
 
-        .nav-item:hover { background: rgba(255,255,255,0.03); color: #fff; }
-        .active-nav { background: rgba(59, 130, 246, 0.1) !important; color: var(--accent) !important; border-left: 4px solid var(--accent) !important; }
+        .nav-item:hover { 
+            background: rgba(255, 255, 255, 0.04); 
+            color: #fff; 
+            padding-left: 40px;
+        }
 
-        /* --- VIEWPORT ENGINE --- */
-        #main { flex: 1; overflow-y: auto; padding: 50px; background: transparent; }
+        .active-nav { 
+            background: rgba(59, 130, 246, 0.1) !important; 
+            color: var(--accent) !important; 
+            border-left: 4px solid var(--accent) !important; 
+            font-weight: 800;
+        }
+
+        /* 
+           --- VIEWPORT & CONTENT SECTIONS --- 
+        */
+        #main { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 60px; 
+            background: transparent; 
+            scroll-behavior: smooth;
+        }
+
+        .content-sec {
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .card { 
             background: var(--glass); 
             border: 1px solid var(--glass-border); 
-            padding: 30px; 
-            border-radius: 24px; 
-            margin-bottom: 30px; 
+            padding: 40px; 
+            border-radius: 28px; 
+            margin-bottom: 35px; 
             backdrop-filter: blur(15px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
         }
 
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .stat-val { font-size: 36px; font-weight: 800; margin: 12px 0; color: #fff; font-family: 'JetBrains Mono', monospace; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 35px; }
+        .stat-val { font-size: 48px; font-weight: 800; margin: 15px 0; color: #fff; font-family: 'JetBrains Mono', monospace; letter-spacing: -2px; }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 25px; }
-        th { text-align: left; color: var(--text-dim); padding: 15px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
-        td { padding: 18px 15px; background: rgba(255,255,255,0.02); }
-        td:first-child { border-radius: 12px 0 0 12px; }
-        td:last-child { border-radius: 0 12px 12px 0; }
+        /* 
+           --- DATA TABLES --- 
+        */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: 25px; }
+        th { text-align: left; color: var(--text-dim); padding: 15px 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
+        td { padding: 22px 20px; background: rgba(255, 255, 255, 0.03); font-weight: 500; }
+        td:first-child { border-radius: 18px 0 0 18px; }
+        td:last-child { border-radius: 0 18px 18px 0; }
+        tr:hover td { background: rgba(255, 255, 255, 0.06); }
 
+        /* 
+           --- UTILITY CLASSES --- 
+        */
         .audit-log {
             background: #020617;
             color: #22c55e;
             font-family: 'JetBrains Mono', monospace;
-            padding: 20px;
-            height: 220px;
+            padding: 25px;
+            height: 250px;
             overflow-y: auto;
-            border-radius: 16px;
-            font-size: 12px;
-            border: 1px solid #1e293b;
+            border-radius: 20px;
+            font-size: 13px;
+            border: 1px solid var(--glass-border);
+            line-height: 1.6;
         }
 
         .hidden { display: none !important; }
-        .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; }
-        .bg-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 
-        .search-container { position: relative; margin-bottom: 40px; }
-        .search-container input { padding-left: 50px; font-size: 18px; height: 65px; border-radius: 20px; background: rgba(255,255,255,0.05); }
+        .search-container input { 
+            padding: 25px 40px; 
+            font-size: 20px; 
+            height: 75px; 
+            border-radius: 24px; 
+            background: rgba(255, 255, 255, 0.05); 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        /* 
+           --- GALLERY ARCHITECTURE --- 
+        */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .gallery-item { border-radius: 20px; overflow: hidden; border: 1px solid var(--glass-border); height: 220px; position: relative; transition: var(--trans-spring); }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--trans-smooth); opacity: 0.9; }
+        .gallery-item:hover img { transform: scale(1.15); opacity: 1; }
+        .gallery-label { position: absolute; bottom: 15px; left: 15px; background: rgba(0, 0, 0, 0.7); padding: 8px 15px; border-radius: 10px; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+
+        /* 
+           --- RECEIPT MODAL --- 
+        */
+        #receiptModal {
+            position: fixed; inset: 0; z-index: 50000;
+            background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(25px);
+            display: none; align-items: center; justify-content: center;
+        }
+        .receipt-card {
+            background: white; color: black; width: 550px; padding: 60px; border-radius: 40px;
+            box-shadow: 0 50px 120px rgba(0,0,0,0.8);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 
+           --- MOBILE RESPONSIVITY --- 
+        */
+        @media (max-width: 1024px) {
+            #sidebar { width: 85px; }
+            .nav-item span { display: none; }
+            .nav-item { justify-content: center; padding: 25px 0; }
+            .grid-3 { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: auto; flex-direction: row; border-right: none; border-bottom: 1px solid var(--glass-border); overflow-x: auto; }
+            .sidebar-brand { display: none; }
+            .nav-item { margin: 0; border-left: none; border-bottom: 4px solid transparent; }
+            #main { padding: 30px; }
+            .grid-3 { grid-template-columns: 1fr; }
+            .login-box { width: 90%; padding: 40px 20px; }
+        }
 
     </style>
 </head>
 <body>
 
+<!-- GLOBAL NOTIFICATION LAYER -->
+<div id="toast-container"></div>
+
+<!-- DIGITAL RECEIPT MODAL -->
+<div id="receiptModal">
+    <div class="receipt-card">
+        <h2 style="font-weight: 900; border-bottom: 3px solid #f1f5f9; padding-bottom: 20px; letter-spacing: -2px;">HMS ENTERPRISE INVOICE</h2>
+        <div id="receiptPayload" style="margin: 40px 0; line-height: 1.8; font-size: 15px; white-space: pre-wrap; color: #334155;"></div>
+        <div style="display: flex; gap: 15px;" class="no-print">
+            <button class="btn-primary" style="flex: 1; background: #0f172a;" onclick="window.print()">PRINT INVOICE</button>
+            <button class="btn-primary" style="flex: 1; background: var(--danger);" onclick="closeReceipt()">CLOSE</button>
+        </div>
+    </div>
+</div>
+
+<!-- AUTHENTICATION OVERLAY -->
 <div id="loginOverlay">
     <div class="login-box">
-        <div style="font-size: 60px; margin-bottom: 20px; filter: drop-shadow(0 0 20px var(--accent));">🏥</div>
+        <div style="font-size: 70px; margin-bottom: 25px; filter: drop-shadow(0 0 20px var(--accent));">🏥</div>
         <h2>HMS Enterprise</h2>
-        <p>Biometric & Credential Verification Required</p>
+        <p>Terminal v19.0 | Credential Verification</p>
         <input type="text" id="userIn" placeholder="Terminal Username">
         <input type="password" id="passIn" placeholder="Secure Password">
         <button class="btn-primary" onclick="handleLogin()">Establish Secure Link</button>
-        <p id="loginMsg" style="color:var(--danger); font-size: 13px; margin-top: 20px; font-weight: 600;"></p>
+        <p id="loginMsg" style="color:var(--danger); font-size: 13px; margin-top: 25px; font-weight: 800;"></p>
     </div>
 </div>
 
+<!-- SIDEBAR NAVIGATION ENGINE -->
 <div id="sidebar" class="hidden">
-    <div style="padding: 45px 30px; border-bottom: 1px solid var(--glass-border);">
-        <h3 id="displayUser" style="margin: 0; font-size: 18px; color: #fff;">System User</h3>
-        <small id="displayRole" style="color: var(--accent); font-weight: 800; letter-spacing: 1.5px; font-size: 10px; text-transform: uppercase;">VERIFYING...</small>
+    <div class="sidebar-brand">
+        <h3 id="displayUser" style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -1px; color: #fff;">System User</h3>
+        <small id="displayRole" style="color: var(--accent); font-weight: 900; letter-spacing: 2px; font-size: 10px; text-transform: uppercase;">VERIFYING...</small>
     </div>
     
-    <div class="nav-item sec-admin" onclick="nav('dashSec', this)">📊 System Analytics</div>
-    <div class="nav-item sec-admin" onclick="nav('staffSec', this)">👨‍⚕️ Human Resources</div>
-    
-    <div class="nav-item sec-doc-admin" id="nav-admit" onclick="nav('admitSec', this)">🛌 Patient Intake</div>
-    <div class="nav-item sec-pharma-admin" id="nav-pharma" onclick="nav('pharmaSec', this)">💊 Drug Inventory</div>
-    <div class="nav-item sec-admin" id="nav-lab" onclick="nav('labSec', this)">🔬 Laboratory</div>
-    <div class="nav-item sec-admin" id="nav-finance" onclick="nav('financeSec', this)">💰 Revenue & GST</div>
-    
-    <div class="nav-item sec-patient sec-admin sec-doc" id="nav-search" onclick="nav('patientPortalSec', this)">🔍 My Medical Bill</div>
-    <div class="nav-item sec-patient" id="nav-features" onclick="nav('featureSec', this)">✨ Hospital Features</div>
-    <div class="nav-item sec-patient" id="nav-gallery" onclick="nav('gallerySec', this)">🖼️ Hospital Gallery</div>
+    <div style="flex: 1; padding-top: 20px; overflow-y: auto;">
+        <div class="nav-item sec-admin role-admin role-doctor active-nav" id="nav-dash" onclick="nav('dashSec', this)">📊 <span>System Analytics</span></div>
+        <div class="nav-item sec-admin role-admin" id="nav-staff" onclick="nav('staffSec', this)">👨‍⚕️ <span>Human Resources</span></div>
+        <div class="nav-item sec-doc-admin role-admin role-doctor" id="nav-admit" onclick="nav('admitSec', this)">🛌 <span>Patient Intake</span></div>
+        <div class="nav-item sec-pharma-admin role-admin role-pharmacist" id="nav-pharma" onclick="nav('pharmaSec', this)">💊 <span>Drug Inventory</span></div>
+        <div class="nav-item sec-admin role-admin role-doctor" id="nav-lab" onclick="nav('labSec', this)">🔬 <span>Laboratory</span></div>
+        <div class="nav-item sec-admin role-admin" id="nav-finance" onclick="nav('financeSec', this)">💰 <span>Revenue & GST</span></div>
+        <div class="nav-item role-admin role-doctor role-pharmacist role-patient" id="nav-search" onclick="nav('patientPortalSec', this)">🔍 <span>My Medical Bill</span></div>
+        <div class="nav-item role-admin role-doctor role-patient" id="nav-features" onclick="nav('featureSec', this)">✨ <span>Hospital Features</span></div>
+        <div class="nav-item role-admin role-doctor role-patient" id="nav-gallery" onclick="nav('gallerySec', this)">🖼️ <span>Hospital Gallery</span></div>
+        <div class="nav-item role-admin role-doctor" id="nav-game" onclick="nav('gameSec', this)">🎮 <span>Staff Break Room</span></div>
+    </div>
 
-    <div class="nav-item" onclick="nav('gameSec', this)">🎮 Staff Break Room</div>
-    <div class="nav-item" style="margin-top: auto; color: var(--danger); border-top: 1px solid var(--glass-border);" onclick="logout()">🚪 Exit Terminal</div>
+    <button class="btn-primary" style="margin: 30px; background: var(--danger); border-radius: 20px; width: calc(100% - 60px);" onclick="logout()">🚪 Exit Terminal</button>
 </div>
 
+<!-- MAIN VIEWPORT ENGINE -->
 <div id="main" class="hidden">
     
+    <!-- DASHBOARD SECTION -->
     <div id="dashSec" class="content-sec">
-        <h2 style="font-size: 28px; margin-top: 0;">Enterprise Intelligence Dashboard</h2>
+        <div class="section-header">
+            <h2 style="font-size: 38px; margin-top: 0; font-weight: 800; letter-spacing: -2px;">System Analytics Matrix</h2>
+            <p style="color: var(--text-dim); margin-bottom: 40px;">Real-time Facility Telemetry & Resource Tracking</p>
+        </div>
+        
         <div class="grid-3">
-            <div class="card">
-                <small style="color: var(--text-dim)">Global Admissions</small>
+            <div class="card stat-card">
+                <small style="color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Global Admissions</small>
                 <div class="stat-val" id="stat-p">0</div>
-                <div style="color: var(--success); font-size: 12px; font-weight: bold;">↑ 8.4% Efficiency</div>
+                <div style="color: var(--success); font-size: 13px; font-weight: 800;">↑ 8.4% Efficiency</div>
             </div>
-            <div class="card">
-                <small style="color: var(--text-dim)">Bed Occupancy</small>
+            <div class="card stat-card">
+                <small style="color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Bed Occupancy</small>
                 <div class="stat-val" id="stat-b">50</div>
-                <div style="color: var(--text-dim); font-size: 12px;">Active Resource Tracking</div>
+                <div style="color: var(--warning); font-size: 13px; font-weight: 800;">Active Resource Tracking</div>
             </div>
-            <div class="card">
-                <small style="color: var(--text-dim)">Net Revenue Flow</small>
+            <div class="card stat-card">
+                <small style="color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Net Revenue Flow</small>
                 <div class="stat-val" id="stat-profit">Rs 0</div>
-                <div style="color: var(--accent); font-size: 12px;">Post-Tax Calculation</div>
+                <div style="color: var(--accent); font-size: 13px; font-weight: 800;">Post-Tax Calculation</div>
             </div>
         </div>
+
         <div class="card">
-            <h3>Revenue Growth Matrix</h3>
-            <canvas id="revenueChart" height="120"></canvas>
+            <h3>Revenue Growth Trajectory</h3>
+            <canvas id="revenueChart" height="110" style="margin-top: 20px;"></canvas>
         </div>
+
         <div class="card">
-            <h3>Terminal Security Audit</h3>
-            <div id="auditContainer" class="audit-log"></div>
+            <h3>Terminal Security Audit Log</h3>
+            <div id="auditContainer" class="audit-log" style="margin-top: 20px;"></div>
         </div>
     </div>
 
+    <!-- HR SECTION -->
     <div id="staffSec" class="content-sec hidden">
         <div class="card">
-            <h3>Add New Medical Professional</h3>
-            <div class="grid-3">
-                <input type="text" id="stName" placeholder="Staff Name">
+            <h2>Add New Medical Professional</h2>
+            <div class="grid-3" style="margin-top: 30px;">
+                <input type="text" id="stName" placeholder="Full Professional Name">
                 <select id="stRole" onchange="toggleStaffFields()">
-                    <option value="Doctor">Senior Physician</option>
+                    <option value="Doctor">Senior Specialist</option>
+                    <option value="Senior Surgeon">Senior Surgeon</option>
                     <option value="Nurse">Medical Nurse</option>
                     <option value="Pharmacist">Lead Pharmacist</option>
                     <option value="Security">Security Personnel</option>
                 </select>
-                <input type="number" id="stSalary" placeholder="Base Salary (Rs)">
+                <input type="number" id="stSalary" placeholder="Monthly Base Salary (Rs)">
             </div>
             <div id="doctorSpecificInputs" class="grid-3">
                 <input type="number" id="stConsultCharge" placeholder="Consultation Charge (Rs)">
             </div>
-            <button class="btn-primary" style="width: auto;" onclick="addStaff()">Register Staff Member</button>
+            <button class="btn-primary" style="width: auto; margin-top: 10px;" onclick="addStaff()">Commit Record</button>
         </div>
         <div class="card">
-            <h3>Current Employee Roster (Admin Payroll View)</h3>
+            <h3>Human Resources Roster (Payroll Overview)</h3>
             <div id="staffList"></div>
         </div>
     </div>
 
+    <!-- PATIENT BILLING PORTAL -->
     <div id="patientPortalSec" class="content-sec hidden">
         <div class="search-container">
             <input type="text" id="patientSearchIn" placeholder="Enter Patient Name or ID to fetch billing status..." onkeyup="searchPatientBill()">
         </div>
         <div id="searchResultArea">
-            <div class="card" style="text-align: center; color: var(--text-dim);">
-                Enter details to view live clinical records and billing.
+            <div class="card" style="text-align: center; color: var(--text-dim); padding: 60px;">
+                <div style="font-size: 40px; margin-bottom: 20px;">🔍</div>
+                Initialize search to retrieve clinical records and ledger status.
             </div>
         </div>
     </div>
 
+    <!-- LABORATORY MODULE -->
     <div id="labSec" class="content-sec hidden">
         <div class="card">
-            <h3>Diagnostic Laboratory Services</h3>
-            <div class="grid-3">
+            <h2>Diagnostic Laboratory Services</h2>
+            <div class="grid-3" style="margin-top: 30px;">
                 <select id="labPatientSelect"></select>
                 <select id="labTestType">
-                    <option value="500">Full Blood Count (Rs 500)</option>
-                    <option value="1200">X-Ray Imaging (Rs 1,200)</option>
-                    <option value="8000">MRI Scan (Rs 8,000)</option>
-                    <option value="2500">ECG Analysis (Rs 2,500)</option>
+                    <option value="1200">Full Blood Count (Rs 1,200)</option>
+                    <option value="2500">X-Ray Imaging (Rs 2,500)</option>
+                    <option value="9500">MRI Neuro Scan (Rs 9,500)</option>
+                    <option value="3000">ECG Synchronized Analysis (Rs 3,000)</option>
+                    <option value="15000">Full Body Bio-Scan (Rs 15,000)</option>
                 </select>
-                <button class="btn-primary" onclick="assignLabBill()">Apply Lab Charge</button>
+                <button class="btn-primary" onclick="assignLabBill()">Execute Lab Charge</button>
             </div>
         </div>
         <div class="card" id="labLog">
-            <h3>Lab Request Queue</h3>
+            <h3>Laboratory Workflow Queue</h3>
             <div id="labQueueList"></div>
         </div>
     </div>
 
+    <!-- FEATURES SECTION -->
     <div id="featureSec" class="content-sec hidden">
         <div class="card">
-            <h2>Premium Hospital Features</h2>
-            <div class="feature-card">
-                <h4>24/7 Robotics Lab</h4>
-                <p>Advanced robotic surgical units for precision procedures with 0.01% margin of error.</p>
-            </div>
-            <div class="feature-card">
-                <h4>Smart Patient Monitoring</h4>
-                <p>AI-driven vitals tracking connected directly to the central dashboard for instant emergency alerts.</p>
-            </div>
-            <div class="feature-card">
-                <h4>Eco-Friendly Infrastructure</h4>
-                <p>100% solar-powered facility with integrated rainwater harvesting and green architecture.</p>
+            <h1 style="font-size: 40px; font-weight: 800; letter-spacing: -2px; margin-bottom: 40px;">System Specifications</h1>
+            <div class="grid-3">
+                <div class="card" style="background: rgba(59, 130, 246, 0.05); border-left: 6px solid var(--accent);">
+                    <h3>🧠 Neural Diagnostics</h3>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Predictive AI tracking vitals for critical complication prevention.</p>
+                </div>
+                <div class="card" style="background: rgba(16, 185, 129, 0.05); border-left: 6px solid var(--success);">
+                    <h3>🦾 Robotic Surgery</h3>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Sub-millimeter precision via DaVinci-grade autonomous units.</p>
+                </div>
+                <div class="card" style="background: rgba(245, 158, 11, 0.05); border-left: 6px solid var(--warning);">
+                    <h3>🧬 Genomic Mapping</h3>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">DNA-mapped medicinal delivery tailored to patient biology.</p>
+                </div>
+                <div class="card" style="background: rgba(14, 165, 233, 0.05); border-left: 6px solid var(--info);">
+                    <h3>🚁 Drone Med-Evac</h3>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Sub-orbital trauma retrieval within a 15-mile node radius.</p>
+                </div>
+                <div class="card" style="background: rgba(239, 68, 68, 0.05); border-left: 6px solid var(--danger);">
+                    <h3>🛡️ Quantum Privacy</h3>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">4096-bit biometric encryption for all clinical data nodes.</p>
+                </div>
+                <div class="card" style="background: rgba(248, 250, 252, 0.03); border-left: 6px solid #fff;">
+                    <h3>🛌 Bio-Sync Beds</h3>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Smart frequency beds accelerating cell recovery by 40%.</p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- GALLERY SECTION -->
     <div id="gallerySec" class="content-sec hidden">
         <div class="card">
-            <h2>Hospital Gallery - State of the Art Facility</h2>
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800" alt="Main Entrance">
-                    <div class="gallery-label">Reception Hall</div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800" alt="Modern OR">
-                    <div class="gallery-label">Operating Theater</div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce2?auto=format&fit=crop&q=80&w=800" alt="MRI Facility">
-                    <div class="gallery-label">MRI & Imaging Center</div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&q=80&w=800" alt="Recovery Suite">
-                    <div class="gallery-label">VIP Patient Suite</div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=800" alt="Medical Lab">
-                    <div class="gallery-label">Diagnostic Laboratory</div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800" alt="Pharma">
-                    <div class="gallery-label">Pharmacy Store</div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1581594632702-f235ae89b022?auto=format&fit=crop&q=80&w=800" alt="Consultation">
-                    <div class="gallery-label">Consultation Room</div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1505751172107-57324a0834d8?auto=format&fit=crop&q=80&w=800" alt="Medical Staff">
-                    <div class="gallery-label">Care Team Hub</div>
-                </div>
+            <h2>Hospital Gallery - Facility Visual Tour</h2>
+            <div class="gallery-grid" id="galleryMount" style="margin-top: 30px;">
+                <!-- AUTO GENERATED (20 PHOTOS) -->
             </div>
         </div>
     </div>
 
+    <!-- INTAKE ENGINE -->
     <div id="admitSec" class="content-sec hidden">
         <div class="card">
-            <h3>Clinical Intake Engine (Enhanced with C-Logic)</h3>
-            <div class="grid-3">
+            <h2>Patient Intake Engine (Enhanced Logic)</h2>
+            <div class="grid-3" style="margin-top: 30px;">
                 <select id="pVisitType" onchange="toggleAdmitFields()">
                     <option value="admit">Full In-Patient Admission</option>
-                    <option value="checkup">General Out-Patient Checkup</option>
-                    <option value="emergency">🚨 Emergency Trauma Unit</option>
+                    <option value="checkup">OPD Consultation</option>
+                    <option value="emergency">🚨 EMERGENCY TRAUMA UNIT</option>
                 </select>
-                <input type="text" id="pName" placeholder="Legal Patient Name">
-                <input type="number" id="pAge" placeholder="Patient Age">
+                <input type="text" id="pName" placeholder="Legal Full Name">
+                <input type="number" id="pAge" placeholder="Chronological Age">
             </div>
             <div class="grid-3">
                 <select id="pGender">
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
-                    <option value="Other">Other</option>
+                    <option value="Non-Binary">Non-Binary</option>
                 </select>
                 <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)" value="0">
-                <input type="text" id="pSymptoms" placeholder="Symptoms (e.g. Fever, Chest Pain)" onkeyup="suggestClinic()">
+                <input type="text" id="pSymptoms" placeholder="Symptoms Analysis" onkeyup="analyzeSymptoms()">
             </div>
             <div class="grid-3" id="admitOnlyFields">
                 <select id="pRoom">
-                    <option value="1500">General Ward (1,500/day)</option>
-                    <option value="5000">Private Suite (5,000/day)</option>
-                    <option value="12000">Intensive Care Unit (12,000/day)</option>
-                    <option value="25000">Emergency Critical Care (25,000/day)</option>
+                    <option value="2500">General Ward (2,500/day)</option>
+                    <option value="8500">Private Glass Suite (8,500/day)</option>
+                    <option value="18000">Intensive Care Unit (18,000/day)</option>
+                    <option value="35000">Emergency Trauma Suite (35,000/day)</option>
                 </select>
                 <select id="pDoctorAssign">
-                    <option value="Not Assigned">Select Assigning Doctor...</option>
+                    <option value="Not Assigned">Select Attending Physician...</option>
                 </select>
             </div>
-            <div style="margin: 10px 0; font-size: 13px; color: var(--accent); font-weight: 700;" id="clinicSuggestion"></div>
-            <textarea id="pDiagnosis" style="height: 120px;" placeholder="Full Clinical Diagnosis, Allergies, and Vitals..."></textarea>
-            <button class="btn-primary" style="width: auto;" onclick="admitPatient()">Finalize Entry</button>
+            <div style="margin: 10px 0; font-size: 14px; color: var(--accent); font-weight: 800; display: flex; align-items: center; gap: 10px;" id="clinicSuggestion"></div>
+            <textarea id="pClinicalNotes" style="height: 150px;" placeholder="Comprehensive Clinical Notes, Vital Observations, and Medical History..."></textarea>
+            <button class="btn-primary" style="width: auto;" onclick="admitPatient()">Finalize Node Entry</button>
         </div>
         <div class="card">
-            <h3>Active Clinical List</h3>
+            <h3>Active Clinical Status Matrix</h3>
             <div id="activePatientsList"></div>
         </div>
     </div>
 
+    <!-- PHARMACY MODULE -->
     <div id="pharmaSec" class="content-sec hidden">
         <div class="card">
-            <h3>Logistics & Drug Inventory</h3>
-            <div class="grid-3">
-                <input type="text" id="medName" placeholder="Medication Title">
-                <input type="number" id="medStock" placeholder="In-Stock Units">
-                <input type="number" id="medPrice" placeholder="M.R.P Per Unit (Rs)">
+            <h2>Pharma Logistics & Drug Repository</h2>
+            <div class="grid-3" style="margin-top: 30px;">
+                <input type="text" id="medName" placeholder="Medication UID">
+                <input type="number" id="medStock" placeholder="Available Units">
+                <input type="number" id="medPrice" placeholder="Unit Fiscal Value (Rs)">
             </div>
-            <button class="btn-primary" style="background: var(--success); width: auto;" onclick="addInventory()">Update Stock Inventory</button>
+            <button class="btn-primary" style="background: var(--success); width: auto;" onclick="addInventory()">Commit to Inventory</button>
         </div>
 
         <div class="card">
-            <h3>Assign Medicine Bill to Patient</h3>
-            <div id="pharmaPrescriptionView" style="margin-bottom: 15px; color: var(--warning); font-weight: bold; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; display: none;"></div>
+            <h2>Assign Medication Charge</h2>
+            <div id="pharmaPrescriptionView" style="margin-bottom: 20px; color: var(--warning); font-weight: 800; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; display: none; border-left: 5px solid var(--warning);"></div>
             <div class="grid-3">
                 <select id="pharmaPatientSelect" onchange="showPharmaPrescription()"></select>
-                <input type="text" id="pharmaMedTitle" placeholder="Medicine Name (Required)">
-                <input type="number" id="pharmaMedCost" placeholder="Total Medicine Cost (Rs)">
+                <input type="text" id="pharmaMedTitle" placeholder="Medication Identifier">
+                <input type="number" id="pharmaMedCost" placeholder="Total Node Cost (Rs)">
             </div>
-            <button class="btn-primary" style="width: auto;" onclick="assignMedicineBill()">Charge Patient</button>
+            <button class="btn-primary" style="width: auto;" onclick="assignMedicineBill()">Execute Charge</button>
         </div>
 
         <div class="card" id="inventoryList"></div>
     </div>
 
+    <!-- FINANCE MODULE -->
     <div id="financeSec" class="content-sec hidden">
         <div class="card">
-            <h3>Internal Profit & Loss Tracker</h3>
+            <h1 style="font-size: 40px; font-weight: 800; letter-spacing: -2px; margin-bottom: 40px;">Global Fiscal Command</h1>
             <div id="pnlData">
                 <div class="grid-3">
-                    <div style="padding:20px; background:rgba(255,255,255,0.05); border-radius:15px;">
-                        <small>Total Collected Revenue</small>
-                        <h2 id="fin-total-rev">Rs 0</h2>
+                    <div class="card" style="background: rgba(255, 255, 255, 0.03); text-align: center;">
+                        <small style="text-transform: uppercase; letter-spacing: 2px;">Gross Collected Revenue</small>
+                        <h2 id="fin-total-rev" style="color: var(--success); font-size: 42px;">Rs 0</h2>
                     </div>
-                    <div style="padding:20px; background:rgba(255,255,255,0.05); border-radius:15px;">
-                        <small>Doctor Payouts (Commissions)</small>
-                        <h2 id="fin-total-comm" style="color: var(--warning)">Rs 0</h2>
+                    <div class="card" style="background: rgba(255, 255, 255, 0.03); text-align: center;">
+                        <small style="text-transform: uppercase; letter-spacing: 2px;">Professional Payouts</small>
+                        <h2 id="fin-total-comm" style="color: var(--warning); font-size: 42px;">Rs 0</h2>
                     </div>
-                    <div style="padding:20px; background:rgba(255,255,255,0.05); border-radius:15px;">
-                        <small>Hospital Net Profit</small>
-                        <h2 id="fin-net-profit" style="color: var(--success)">Rs 0</h2>
+                    <div class="card" style="background: rgba(255, 255, 255, 0.03); text-align: center;">
+                        <small style="text-transform: uppercase; letter-spacing: 2px;">Net Node Profit</small>
+                        <h2 id="fin-net-profit" style="color: var(--accent); font-size: 42px;">Rs 0</h2>
                     </div>
                 </div>
             </div>
-            <button class="btn-primary" style="width: auto; background: var(--secondary); margin-top:20px;" onclick="resetFinances()">⚠️ Clear All Financial Records</button>
+            <button class="btn-primary btn-danger" style="margin-top: 40px; border: none; background: var(--danger);" onclick="resetFinances()">CRITICAL: WIPE ALL FISCAL DATA</button>
         </div>
     </div>
 
+    <!-- STAFF BREAK ROOM -->
     <div id="gameSec" class="content-sec hidden">
         <div class="card" style="text-align: center;">
-            <h3>Recreational Training: Snake</h3>
-            <canvas id="snakeGame" width="400" height="400" style="background:#020617; border: 2px solid var(--accent); border-radius: 20px; margin: 25px auto; display: block;"></canvas>
-            <h2 style="color: var(--accent);">Score: <span id="snakeScore">0</span></h2>
+            <h1 style="font-size: 40px; font-weight: 800; letter-spacing: -2px; margin-bottom: 40px;">Staff Reflex Training</h1>
+            <canvas id="snakeGame" width="500" height="500" style="background:#000; border: 4px solid var(--accent); border-radius: 40px; margin: 0 auto; display: block;"></canvas>
+            <h2 style="color: var(--accent); margin-top: 30px; font-size: 32px;">SCORE: <span id="snakeScore">0</span></h2>
         </div>
     </div>
 
 </div>
 
+<!-- 
+    ==================================================================================
+    CORE INTELLIGENCE ENGINE v19.0
+    ==================================================================================
+-->
 <script>
-/** * HMS ENTERPRISE ENGINE v12.0 
- * C-FILE INTEGRATION MODULE + ABSOLUTE NEGATIVE FIX
+/**
+ * HMS GLOBAL DATABASE & CONFIG
  */
+const SYSTEM_AUTH_KEYS = [
+    { u: "admin", p: "admin123", role: "admin", name: "System Administrator" },
+    { u: "doc1", p: "123", role: "doctor", name: "Dr. Alexander" },
+    { u: "pharm1", p: "pharm123", role: "pharmacist", name: "Lead Pharmacist" },
+    { u: "user1", p: "0000", role: "patient", name: "Patient Portal" }
+];
 
-const SYSTEM_USERS = [
-    { u: "admin", p: "admin123", role: "admin", name: "System Controller" },
-    { u: "doc1", p: "doc123", role: "doctor", name: "Dr. Alexander" },
-    { u: "pharm1", p: "pharm123", role: "pharmacist", name: "Chief Pharmacist" },
-    { u: "user", p: "0000", role: "patient", name: "External Portal" }
+const GALLERY_SOURCE = [
+    "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d", "https://images.unsplash.com/photo-1516549655169-df83a0774514",
+    "https://images.unsplash.com/photo-1586773860418-d37222d8fce2", "https://images.unsplash.com/photo-1512678080530-7760d81faba6",
+    "https://images.unsplash.com/photo-1551076805-e1869033e561", "https://images.unsplash.com/photo-1579684385127-1ef15d508118",
+    "https://images.unsplash.com/photo-1581594632702-f235ae89b022", "https://images.unsplash.com/photo-1505751172107-57324a0834d8",
+    "https://images.unsplash.com/photo-1538108197017-c1c9868bb2e3", "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b",
+    "https://images.unsplash.com/photo-1527613426441-4da17471b66d", "https://images.unsplash.com/photo-1504813184591-01572f98c85f",
+    "https://images.unsplash.com/photo-1512102438733-bfa4ed29aef7", "https://images.unsplash.com/photo-1631217818202-90ef4a8a0593",
+    "https://images.unsplash.com/photo-1666214280557-f1b5022eb634", "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7",
+    "https://images.unsplash.com/photo-1513224502586-d1e602410265", "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb",
+    "https://images.unsplash.com/photo-1551601651-0a30d973273c", "https://images.unsplash.com/photo-1530497610245-94d3c16cda28"
 ];
 
 let currentUser = null;
 
-// --- AUTHENTICATION MODULE ---
+/**
+ * UTILITY: SYSTEM TOAST NOTIFICATIONS
+ */
+function showToast(msg, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span>${type === 'success' ? '🛡️' : '⚠️'}</span> ${msg}`;
+    container.appendChild(toast);
+    setTimeout(() => { 
+        toast.style.opacity = '0'; 
+        toast.style.transform = 'translateX(100px)'; 
+        setTimeout(() => toast.remove(), 600); 
+    }, 3500);
+}
+
+/**
+ * AUTHENTICATION MODULE (Enhanced RBAC)
+ */
 function handleLogin() {
     const u = document.getElementById('userIn').value;
     const p = document.getElementById('passIn').value;
-    const found = SYSTEM_USERS.find(x => x.u === u && x.p === p);
+    const found = SYSTEM_AUTH_KEYS.find(x => x.u === u && x.p === p);
 
-    if(found) {
+    if (found) {
         currentUser = found;
         document.getElementById('loginOverlay').classList.add('hidden');
         document.getElementById('sidebar').classList.remove('hidden');
         document.getElementById('main').classList.remove('hidden');
         
         document.getElementById('displayUser').innerText = found.name;
-        document.getElementById('displayRole').innerText = found.role + " ACCESS";
+        document.getElementById('displayRole').innerText = found.role.toUpperCase() + "_COMMAND";
         
         applyRBAC(found.role);
-        logAudit(`SEC_EVENT: Authentication successful for ${found.u}`);
-        updateUI();
-        initChart();
-        populateDoctorDropdown();
-        refreshPharmaPatientList();
-        refreshLabPatientList();
+        
+        // FIX: AUDIT LOGS FOR EVERY LOGIN
+        logAudit(`SEC_EVENT: Authentication successful for [${found.u}] | ROLE: ${found.role}`);
+        
+        showToast(`Uplink Synchronized. Welcome ${found.name}`, 'info');
+        initSystem();
     } else {
-        document.getElementById('loginMsg').innerText = "FATAL: Access Denied. Integrity check failed.";
+        document.getElementById('loginMsg').innerText = "FATAL: Biometric Mismatch Detected. Access Denied.";
     }
 }
 
 function applyRBAC(role) {
-    document.querySelectorAll('.sec-admin, .sec-doc-admin, .sec-pharma-admin, .sec-patient').forEach(el => el.classList.add('hidden'));
-
-    if(role === 'admin') {
-        document.querySelectorAll('.sec-admin, .sec-doc-admin, .sec-pharma-admin, .sec-patient').forEach(el => el.classList.remove('hidden'));
-        nav('dashSec');
-    } else if (role === 'doctor') {
-        document.querySelectorAll('.sec-doc-admin, .sec-patient').forEach(el => el.classList.remove('hidden'));
-        nav('admitSec');
-    } else if (role === 'pharmacist') {
-        document.querySelectorAll('.sec-pharma-admin').forEach(el => el.classList.remove('hidden'));
-        nav('pharmaSec');
-    } else if (role === 'patient') {
-        document.querySelectorAll('.sec-patient').forEach(el => el.classList.remove('hidden'));
-        nav('patientPortalSec');
-    }
-}
-
-function toggleStaffFields() {
-    let role = document.getElementById('stRole').value;
-    document.getElementById('doctorSpecificInputs').style.display = (role === 'Doctor') ? 'grid' : 'none';
-}
-
-function populateDoctorDropdown() {
-    let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
-    let docs = staff.filter(s => s.role === "Doctor");
-    let select = document.getElementById('pDoctorAssign');
-    select.innerHTML = '<option value="Not Assigned">Select Doctor...</option>';
-    docs.forEach(d => {
-        let opt = document.createElement('option');
-        opt.value = d.name;
-        opt.innerHTML = `${d.name} (Fee: Rs ${d.consultFee})`;
-        select.appendChild(opt);
-    });
-}
-
-function refreshPharmaPatientList() {
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let active = p.filter(x => x.status === 'active');
-    let select = document.getElementById('pharmaPatientSelect');
-    if(!select) return;
-    select.innerHTML = '<option value="">Select Patient...</option>';
-    active.forEach(x => {
-        select.innerHTML += `<option value="${x.id}">${x.name} (#${x.id.toString().slice(-4)})</option>`;
-    });
-}
-
-function refreshLabPatientList() {
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let active = p.filter(x => x.status === 'active');
-    let select = document.getElementById('labPatientSelect');
-    if(!select) return;
-    select.innerHTML = '<option value="">Select Patient for Diagnostic Test...</option>';
-    active.forEach(x => {
-        select.innerHTML += `<option value="${x.id}">${x.name} (#${x.id.toString().slice(-4)})</option>`;
-    });
-}
-
-function toggleAdmitFields() {
-    let type = document.getElementById('pVisitType').value;
-    let roomSelect = document.getElementById('pRoom');
-    if(type === 'checkup') {
-        roomSelect.disabled = true;
-        roomSelect.style.opacity = '0.3';
-    } else {
-        roomSelect.disabled = false;
-        roomSelect.style.opacity = '1';
-        if(type === 'emergency') {
-            roomSelect.value = "25000";
-        }
-    }
-}
-
-// --- C-LOGIC: SYMPTOM ANALYSIS ---
-function suggestClinic() {
-    const sym = document.getElementById('pSymptoms').value.toLowerCase();
-    const suggestionEl = document.getElementById('clinicSuggestion');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.add('hidden'));
     
-    if (sym.includes('chest pain') || sym.includes('heart')) {
-        suggestionEl.innerText = "Symptom Match: Suggesting Cardiology Clinic";
-    } else if (sym.includes('fracture') || sym.includes('bone') || sym.includes('joint')) {
-        suggestionEl.innerText = "Symptom Match: Suggesting Orthopedic Clinic";
-    } else if (sym.includes('fever') || sym.includes('cough')) {
-        suggestionEl.innerText = "Symptom Match: Suggesting General Medicine";
-    } else if (sym.includes('skin') || sym.includes('rash')) {
-        suggestionEl.innerText = "Symptom Match: Suggesting Dermatology Clinic";
-    } else if (sym.includes('accident') || sym.includes('bleeding')) {
-        suggestionEl.innerText = "🚨 PRIORITY: Routing to Emergency Trauma Unit";
-    } else {
-        suggestionEl.innerText = "";
+    if (role === 'admin') {
+        document.querySelectorAll('.role-admin, .role-doctor, .role-pharmacist, .role-patient').forEach(el => el.classList.remove('hidden'));
+        nav('dashSec', document.getElementById('nav-dash'));
+    } 
+    else if (role === 'doctor') {
+        document.querySelectorAll('.role-doctor, .role-patient').forEach(el => el.classList.remove('hidden'));
+        nav('admitSec', document.getElementById('nav-admit'));
+    } 
+    else if (role === 'pharmacist') {
+        document.querySelectorAll('.role-pharmacist, .role-patient').forEach(el => el.classList.remove('hidden'));
+        nav('pharmaSec', document.getElementById('nav-pharma'));
+    } 
+    else if (role === 'patient') {
+        document.querySelectorAll('.role-patient').forEach(el => el.classList.remove('hidden'));
+        nav('patientPortalSec', document.getElementById('nav-search'));
     }
 }
 
-// --- STAFF MANAGEMENT MODULE ---
+/**
+ * SYSTEM INITIALIZATION
+ */
+function initSystem() {
+    initChart();
+    renderGallery();
+    updateUI();
+    populateDoctorDropdown();
+    refreshPharmaPatientList();
+    refreshLabPatientList();
+}
+
+/**
+ * REVENUE ENGINE: THE ABSOLUTE NON-NEGATIVE PROTECTION
+ */
+function calculateLiveBill(p) {
+    let sub = 0;
+    const consult = Math.max(0, parseInt(p.consultFee) || 0);
+    const meds = Math.max(0, parseInt(p.meds) || 0);
+    const lab = Math.max(0, parseInt(p.labCharges) || 0);
+    const room = Math.max(0, parseInt(p.roomTypePrice) || 0);
+    const deposit = Math.max(0, parseInt(p.deposit) || 0);
+
+    if (p.visitType === 'checkup') {
+        sub = consult + meds + lab;
+    } else {
+        const admitTime = new Date(p.admitDate);
+        const currentTime = new Date();
+        const diffDays = Math.ceil((currentTime - admitTime) / (1000 * 60 * 60 * 24)) || 1;
+        sub = (diffDays * room) + meds + consult + lab;
+    }
+
+    const tax = sub * 0.18;
+    const gross = sub + tax;
+    
+    // ABSOLUTE FIX: Revenue cannot be negative. If credit > bill, balance is 0.
+    const due = Math.max(0, gross - deposit);
+    
+    return { sub, tax, gross, due, total: due };
+}
+
+/**
+ * NAVIGATION MODULE
+ */
+function nav(id, el) {
+    document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
+    if (el) el.classList.add('active-nav');
+    
+    if (id === 'gameSec') initSnake();
+    if (id === 'financeSec') updateFinanceDashboard();
+    if (id === 'billingSec') searchPatientBill();
+}
+
+/**
+ * HR MODULE: PERSONNEL MANAGEMENT
+ */
+function toggleStaffFields() {
+    const role = document.getElementById('stRole').value;
+    document.getElementById('doctorSpecificInputs').style.display = (role.includes('Doctor') || role.includes('Surgeon')) ? 'grid' : 'none';
+}
+
 function addStaff() {
     const n = document.getElementById('stName').value;
     const r = document.getElementById('stRole').value;
     const s = document.getElementById('stSalary').value;
     const f = document.getElementById('stConsultCharge').value || 0;
     
-    if(!n || !s) return alert("All fields are mandatory.");
+    if (!n || !s) return showToast("Data Integrity Error: Missing Fields", "danger");
 
-    let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
+    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
     staff.push({ 
         id: Date.now(), 
         name: n, 
@@ -603,24 +832,28 @@ function addStaff() {
         consultFee: parseInt(f) || 0, 
         totalCommission: 0 
     });
-    localStorage.setItem('hms_staff', JSON.stringify(staff));
+    localStorage.setItem('hms_staff_v19', JSON.stringify(staff));
     
-    logAudit(`HR_EVENT: ${n} (${r}) registered with Rs ${f} Fee`);
+    logAudit(`HR_EVENT: ${n} (${r}) registered. Basic: Rs ${s}`);
+    showToast(`${n} Synchronized to System`);
+    
+    // Auto-Reset
+    document.getElementById('stName').value = "";
+    document.getElementById('stSalary').value = "";
     renderStaff();
     populateDoctorDropdown();
 }
 
 function renderStaff() {
-    let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
-    let html = `<table><tr><th>Employee</th><th>Designation</th><th>Consult Fee</th><th>Dr. Earned</th><th>Action</th></tr>`;
+    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
+    let html = `<table><tr><th>Professional Node</th><th>Designation</th><th>Earnings (Comm)</th><th>Action</th></tr>`;
     staff.forEach(x => {
         html += `<tr>
             <td>${x.name}</td>
             <td>${x.role}</td>
-            <td>${x.role === 'Doctor' ? 'Rs ' + (x.consultFee || 0) : '-'}</td>
             <td style="color:var(--success); font-weight:bold;">Rs ${(x.totalCommission || 0).toLocaleString()}</td>
             <td>
-                <button onclick="removeStaff(${x.id})" style="background:var(--danger); padding:5px 10px; font-size:10px; border:none; color:white; border-radius:5px; cursor:pointer;">Terminate</button>
+                <button onclick="removeStaff(${x.id})" style="background:var(--danger); padding:8px 15px; border:none; color:white; border-radius:10px; cursor:pointer;">TERMINATE</button>
             </td>
         </tr>`;
     });
@@ -628,343 +861,370 @@ function renderStaff() {
 }
 
 function removeStaff(id) {
-    let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
+    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
     staff = staff.filter(x => x.id !== id);
-    localStorage.setItem('hms_staff', JSON.stringify(staff));
+    localStorage.setItem('hms_staff_v19', JSON.stringify(staff));
     renderStaff();
     populateDoctorDropdown();
 }
 
-// --- PATIENT SEARCH & BILLING ---
+/**
+ * CLINICAL INTAKE MODULE
+ */
+function toggleAdmitFields() {
+    const type = document.getElementById('pVisitType').value;
+    const roomSelect = document.getElementById('pRoom');
+    if (type === 'checkup') {
+        roomSelect.disabled = true;
+        roomSelect.style.opacity = '0.3';
+    } else {
+        roomSelect.disabled = false;
+        roomSelect.style.opacity = '1';
+        if (type === 'emergency') roomSelect.value = "35000";
+    }
+}
+
+function analyzeSymptoms() {
+    const sym = document.getElementById('pSymptoms').value.toLowerCase();
+    const hint = document.getElementById('clinicSuggestion');
+    
+    const rules = [
+        { key: ['chest', 'heart', 'breath'], msg: "🚨 Cardiology / Trauma Unit Suggested" },
+        { key: ['bone', 'fracture', 'joint'], msg: "🦴 Orthopedic Unit Suggested" },
+        { key: ['fever', 'cough', 'viral'], msg: "🌡️ General Medicine Node Suggested" },
+        { key: ['head', 'seizure', 'vision'], msg: "🧠 Neurology Assessment Required" }
+    ];
+
+    let found = rules.find(r => r.key.some(k => sym.includes(k)));
+    hint.innerText = found ? found.msg : "";
+}
+
+function populateDoctorDropdown() {
+    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
+    let docs = staff.filter(s => s.role.includes('Doctor') || s.role.includes('Surgeon'));
+    let select = document.getElementById('pDoctorAssign');
+    if(!select) return;
+    select.innerHTML = '<option value="Not Assigned">Assign Physician...</option>';
+    docs.forEach(d => {
+        let opt = document.createElement('option');
+        opt.value = d.name;
+        opt.innerHTML = `${d.name} (${d.role})`;
+        select.appendChild(opt);
+    });
+}
+
+function admitPatient() {
+    const name = document.getElementById('pName').value;
+    const docName = document.getElementById('pDoctorAssign').value;
+    if (!name || docName === "Not Assigned") return showToast("Clinical Profile Incomplete", "danger");
+
+    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
+    let doctor = staff.find(s => s.name === docName);
+    let fee = doctor ? (parseInt(doctor.consultFee) || 0) : 0;
+
+    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
+    const entry = {
+        id: Date.now(),
+        name: name,
+        age: document.getElementById('pAge').value,
+        gender: document.getElementById('pGender').value,
+        visitType: document.getElementById('pVisitType').value,
+        symptoms: document.getElementById('pSymptoms').value,
+        roomTypePrice: document.getElementById('pVisitType').value === 'checkup' ? 0 : (parseInt(document.getElementById('pRoom').value) || 0),
+        consultFee: fee,
+        deposit: parseInt(document.getElementById('pDeposit').value) || 0,
+        labCharges: 0,
+        admitDate: new Date().toISOString(),
+        notes: document.getElementById('pClinicalNotes').value,
+        assignedDoctor: docName,
+        meds: 0,
+        status: 'active'
+    };
+    p.push(entry);
+    localStorage.setItem('hms_patients_v19', JSON.stringify(p));
+    
+    logAudit(`CLINIC: Node admitted [${name}]. Assigned to Dr. ${docName}`);
+    showToast(`Intake Complete: Node Synchronized`);
+    
+    // Reset Form
+    ['pName', 'pAge', 'pDeposit', 'pSymptoms', 'pClinicalNotes'].forEach(id => document.getElementById(id).value = "");
+    updateUI();
+}
+
+/**
+ * FISCAL SETTLEMENT MODULE
+ */
 function searchPatientBill() {
     const query = document.getElementById('patientSearchIn').value.toLowerCase();
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
     let results = p.filter(x => (x.name.toLowerCase().includes(query) || x.id.toString().includes(query)) && x.status === 'active');
 
     let html = "";
-    if(results.length > 0 && query !== "") {
+    if (results.length > 0 && query !== "") {
         results.forEach(x => {
             let bill = calculateLiveBill(x);
+            
+            let settlementBtn = currentUser.role === 'admin' ? 
+                `<button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">EXECUTE SETTLEMENT & DISCHARGE</button>` : 
+                `<div style="margin-top:20px; padding:15px; background:rgba(245, 158, 11, 0.1); color:var(--warning); border-radius:12px; font-weight:800;">PENDING_ADMIN_FINALIZATION</div>`;
+
             html += `
             <div class="card">
                 <div class="grid-3">
-                    <div><small>Patient</small><h3>${x.name} (${x.age}, ${x.gender})</h3></div>
-                    <div><small>Type</small><h3 style="color:var(--warning)">${x.visitType.toUpperCase()}</h3></div>
-                    <div><small>Due</small><h3 style="color:var(--accent)">Rs ${bill.total.toFixed(2)}</h3></div>
+                    <div><small>Identity Node</small><h3>${x.name}</h3></div>
+                    <div><small>Intake Mode</small><h3 style="color:var(--warning)">${x.visitType.toUpperCase()}</h3></div>
+                    <div><small>Settlement Outstanding</small><h2 style="color:var(--accent); font-family:'JetBrains Mono'">Rs ${bill.total.toLocaleString()}</h2></div>
                 </div>
-                <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
-                <p><strong>Clinical Note:</strong> ${x.diagnosis}</p>
-                <p><strong>Primary Symptoms:</strong> ${x.symptoms || 'None recorded'}</p>
-                <div class="grid-3">
-                    <span>Tax (18%): Rs ${bill.tax.toFixed(2)}</span>
-                    <span>Service: Rs ${bill.sub.toFixed(2)}</span>
-                    <span>Advance Paid: Rs ${x.deposit}</span>
+                <hr style="border:0; border-top:1px solid var(--glass-border); margin:25px 0;">
+                <p><strong>Clinical Note:</strong> ${x.notes || "None recorded"}</p>
+                <div class="grid-3" style="margin-top:20px;">
+                    <span>Bio-Tax (18%): Rs ${bill.tax.toFixed(2)}</span>
+                    <span>Service Flux: Rs ${bill.sub.toFixed(2)}</span>
+                    <span>Advance Node: Rs ${x.deposit.toLocaleString()}</span>
                 </div>
-                
-                ${currentUser.role === 'admin' ? 
-                    `<button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">Admin: Pay & Discharge</button>` : 
-                    `<p style="color:var(--warning); margin-top:20px; font-weight:700;">Please contact Admin for billing.</p>`}
+                ${settlementBtn}
             </div>`;
         });
-    } else if(query !== "") {
-        html = `<div class="card" style="text-align:center">Record Not Found.</div>`;
+    } else if (query !== "") {
+        html = `<div class="card" style="text-align:center; padding:60px;">IDENTITY NOT FOUND IN ACTIVE WARD.</div>`;
     }
     document.getElementById('searchResultArea').innerHTML = html;
 }
 
-// --- CORE CLINICAL MODULES ---
-function admitPatient() {
-    const name = document.getElementById('pName').value;
-    const age = parseInt(document.getElementById('pAge').value) || 0;
-    const gender = document.getElementById('pGender').value;
-    const type = document.getElementById('pVisitType').value;
-    const docName = document.getElementById('pDoctorAssign').value;
-    const depositInput = document.getElementById('pDeposit').value;
-    const deposit = parseInt(depositInput) || 0; 
-
-    if(!name || docName === "Not Assigned") return alert("Name and Doctor selection required.");
-
-    let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
-    let doctor = staff.find(s => s.name === docName);
-    let fee = doctor ? (parseInt(doctor.consultFee) || 0) : 0;
-
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    const entry = {
-        id: Date.now(),
-        name: name,
-        age: age,
-        gender: gender,
-        visitType: type,
-        symptoms: document.getElementById('pSymptoms').value,
-        roomTypePrice: type === 'checkup' ? 0 : (parseInt(document.getElementById('pRoom').value) || 0),
-        consultFee: fee,
-        deposit: deposit,
-        labCharges: 0,
-        admitDate: new Date().toISOString(),
-        diagnosis: document.getElementById('pDiagnosis').value,
-        assignedDoctor: docName,
-        meds: 0,
-        medicationHistory: [],
-        prescribedMeds: "",
-        status: 'active'
-    };
-    p.push(entry);
-    localStorage.setItem('hms_patients', JSON.stringify(p));
-    logAudit(`CLINIC: ${name} (${age}y/o) registered for ${type}`);
-    updateUI();
-    refreshPharmaPatientList();
-    refreshLabPatientList();
-}
-
-// --- ABSOLUTE FIX FOR MINUS / NaN BILLING ERROR ---
-function calculateLiveBill(p) {
-    let sub = 0;
-    let consult = Math.max(0, parseInt(p.consultFee) || 0);
-    let medsTotal = Math.max(0, parseInt(p.meds) || 0);
-    let labTotal = Math.max(0, parseInt(p.labCharges) || 0);
-    let roomPrice = Math.max(0, parseInt(p.roomTypePrice) || 0);
-    let depositAmount = Math.max(0, parseInt(p.deposit) || 0);
-
-    if(p.visitType === 'checkup') {
-        sub = consult + medsTotal + labTotal;
-    } else {
-        let diff = new Date() - new Date(p.admitDate);
-        let days = Math.ceil(diff / (1000 * 60 * 60 * 24)) || 1;
-        sub = (days * roomPrice) + medsTotal + consult + labTotal;
-    }
-    
-    let tax = Math.max(0, sub * 0.18);
-    let total = (sub + tax) - depositAmount;
-    
-    // THE FIX: If total is negative (deposit > bill), we show 0 or handle refund logic.
-    // For this UI, we will display 0 as the "Amount Due".
-    let finalTotal = Math.max(0, total);
-    
-    return { 
-        total: isNaN(finalTotal) ? 0 : finalTotal, 
-        sub: isNaN(sub) ? 0 : sub, 
-        tax: isNaN(tax) ? 0 : tax 
-    };
-}
-
-function assignLabBill() {
-    const pid = document.getElementById('labPatientSelect').value;
-    const cost = parseInt(document.getElementById('labTestType').value) || 0;
-    if(!pid) return alert("Select a patient.");
-
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let idx = p.findIndex(x => x.id == pid);
-    if(idx !== -1) {
-        p[idx].labCharges = (parseInt(p[idx].labCharges) || 0) + cost;
-        localStorage.setItem('hms_patients', JSON.stringify(p));
-        logAudit(`LAB: Diagnostic test assigned to ${p[idx].name}`);
-        alert("Lab Fee Applied.");
-        updateUI();
-    }
-}
-
-function showPharmaPrescription() {
-    let pid = document.getElementById('pharmaPatientSelect').value;
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let patient = p.find(x => x.id == pid);
-    let view = document.getElementById('pharmaPrescriptionView');
-    if(patient && patient.prescribedMeds) {
-        view.style.display = 'block';
-        view.innerText = "Prescription: " + patient.prescribedMeds;
-        document.getElementById('pharmaMedTitle').value = patient.prescribedMeds;
-    } else { view.style.display = 'none'; }
-}
-
-function assignMedicineBill() {
-    const pid = document.getElementById('pharmaPatientSelect').value;
-    const title = document.getElementById('pharmaMedTitle').value;
-    const cost = parseInt(document.getElementById('pharmaMedCost').value) || 0;
-    if(!pid || cost === 0 || !title) return alert("Missing details.");
-
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let idx = p.findIndex(x => x.id == pid);
-    if(idx !== -1) {
-        p[idx].meds = (parseInt(p[idx].meds) || 0) + cost;
-        p[idx].medicationHistory.push({ title: title, cost: cost, date: new Date().toLocaleDateString() });
-        localStorage.setItem('hms_patients', JSON.stringify(p));
-        logAudit(`PHARMA: ${title} charged to ${p[idx].name}`);
-        alert("Bill Updated.");
-        updateUI();
-    }
-}
-
-// --- DISCHARGE ENGINE ---
 function dischargePatient(id) {
-    if(currentUser.role !== 'admin') return;
+    if (currentUser.role !== 'admin') return;
 
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
     let idx = p.findIndex(x => x.id == id);
-    if(idx === -1) return;
+    if (idx === -1) return;
 
     let bill = calculateLiveBill(p[idx]);
-    let finalAmount = bill.total;
+    
+    // Node Payout Calculation (15% Facility Fee)
+    let facilityFee = bill.sub * 0.15;
+    let commission = (p[idx].consultFee * 0.85) + (bill.sub * 0.1); 
 
-    let commission = (p[idx].consultFee * 0.8) + (bill.sub * 0.05); 
-    let staff = JSON.parse(localStorage.getItem('hms_staff')) || [];
+    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
     let docIdx = staff.findIndex(s => s.name === p[idx].assignedDoctor);
-    if(docIdx !== -1) {
+    if (docIdx !== -1) {
         staff[docIdx].totalCommission = (staff[docIdx].totalCommission || 0) + commission;
-        localStorage.setItem('hms_staff', JSON.stringify(staff));
+        localStorage.setItem('hms_staff_v19', JSON.stringify(staff));
     }
 
-    let totalRev = parseFloat(localStorage.getItem('hms_total_revenue')) || 0;
-    let totalComm = parseFloat(localStorage.getItem('hms_total_commissions')) || 0;
+    let totalRev = parseFloat(localStorage.getItem('hms_fiscal_rev')) || 0;
+    let totalComm = parseFloat(localStorage.getItem('hms_fiscal_payout')) || 0;
     
-    // Revenue fix: We only add what was actually paid at discharge.
-    localStorage.setItem('hms_total_revenue', totalRev + finalAmount);
-    localStorage.setItem('hms_total_commissions', totalComm + commission);
+    localStorage.setItem('hms_fiscal_rev', totalRev + bill.total);
+    localStorage.setItem('hms_fiscal_payout', totalComm + commission);
 
     p[idx].status = 'discharged';
-    localStorage.setItem('hms_patients', JSON.stringify(p));
+    localStorage.setItem('hms_patients_v19', JSON.stringify(p));
     
-    logAudit(`FINANCE: ${p[idx].name} discharged. Collected: Rs ${finalAmount}`);
+    logAudit(`FINANCE: Settlement complete [${p[idx].name}]. Collected: Rs ${bill.total}`);
     
-    let report = `
-        -------------------------------------------
-        HMS ENTERPRISE OFFICIAL RECEIPT (V12)
-        -------------------------------------------
-        Patient: ${p[idx].name}
-        Profile: ${p[idx].age} Years | ${p[idx].gender}
-        -------------------------------------------
-        Consultation Fee: Rs ${p[idx].consultFee}
-        Lab Charges: Rs ${p[idx].labCharges}
-        Facility Charges: Rs ${(bill.sub - p[idx].meds - p[idx].consultFee - p[idx].labCharges).toFixed(2)}
-        Pharmacy Total: Rs ${p[idx].meds}
-        GST (18%): Rs ${bill.tax.toFixed(2)}
-        Total Deposit: Rs ${p[idx].deposit}
-        -------------------------------------------
-        FINAL AMOUNT PAID: Rs ${finalAmount.toFixed(2)}
-        -------------------------------------------
-        STATUS: PAID & DISCHARGED
-        -------------------------------------------
-    `;
-    let win = window.open('', '_blank');
-    win.document.write("<pre>" + report + "</pre>");
-    win.print();
-
+    triggerDigitalInvoice(p[idx], bill);
     updateUI();
-    refreshPharmaPatientList();
-    refreshLabPatientList();
     searchPatientBill();
+}
+
+function triggerDigitalInvoice(p, b) {
+    const text = `
+    INVOICE_UID: ${p.id.toString().slice(-10)}
+    NODE_NAME:   ${p.name.toUpperCase()}
+    PHYSICIAN:   DR. ${p.assignedDoctor.toUpperCase()}
+    --------------------------------------------
+    CONSULTATION:     Rs ${p.consultFee.toLocaleString()}
+    LAB_DIAGNOSTICS:  Rs ${p.labCharges.toLocaleString()}
+    PHARMA_LEDGER:    Rs ${p.meds.toLocaleString()}
+    CLINICAL_STAY:    Rs ${(b.sub - p.consultFee - p.meds - p.labCharges).toFixed(2)}
+    --------------------------------------------
+    BIO_TAX (18%):    Rs ${b.tax.toFixed(2)}
+    ADVANCE_CREDIT: - Rs ${p.deposit.toLocaleString()}
+    --------------------------------------------
+    FINAL_SETTLED:    Rs ${b.due.toLocaleString()}
+    
+    STATUS: [FULLY_DISCHARGED]
+    `;
+    document.getElementById('receiptPayload').innerText = text;
+    document.getElementById('receiptModal').style.display = 'flex';
+}
+
+function closeReceipt() { document.getElementById('receiptModal').style.display = 'none'; }
+
+/**
+ * PHARMACY MODULE
+ */
+function refreshPharmaPatientList() {
+    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
+    let sel = document.getElementById('pharmaPatientSelect');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Target Patient Node...</option>';
+    p.filter(x => x.status === 'active').forEach(x => {
+        sel.innerHTML += `<option value="${x.id}">${x.name}</option>`;
+    });
 }
 
 function addInventory() {
     const n = document.getElementById('medName').value;
     const s = document.getElementById('medStock').value;
     const p = document.getElementById('medPrice').value;
-    if(!n || !s) return;
+    if (!n || !s) return;
 
-    let inv = JSON.parse(localStorage.getItem('hms_inv')) || [];
-    inv.push({ name: n, stock: parseInt(s) || 0, price: parseInt(p) || 0, date: new Date().toLocaleDateString() });
-    localStorage.setItem('hms_inv', JSON.stringify(inv));
+    let inv = JSON.parse(localStorage.getItem('hms_inv_v19')) || [];
+    inv.push({ name: n, stock: parseInt(s), price: parseInt(p), date: new Date().toLocaleDateString() });
+    localStorage.setItem('hms_inv_v19', JSON.stringify(inv));
     renderInventory();
+    showToast("Inventory Matrix Updated", "success");
 }
 
 function renderInventory() {
-    let inv = JSON.parse(localStorage.getItem('hms_inv')) || [];
-    let html = `<table><tr><th>Drug Name</th><th>Stock</th><th>Price</th></tr>`;
+    let inv = JSON.parse(localStorage.getItem('hms_inv_v19')) || [];
+    let html = `<table><tr><th>Drug Identifier</th><th>Stock</th><th>Unit Price</th></tr>`;
     inv.forEach(x => html += `<tr><td>${x.name}</td><td>${x.stock} Units</td><td>Rs ${x.price}</td></tr>`);
     document.getElementById('inventoryList').innerHTML = html + "</table>";
 }
 
-// --- DASHBOARD ---
-function initChart() {
-    const canvas = document.getElementById('revenueChart');
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-            datasets: [{
-                label: 'Growth',
-                data: [45000, 82000, 61000, 115000],
-                borderColor: '#3b82f6',
-                tension: 0.4,
-                fill: true,
-                backgroundColor: 'rgba(59, 130, 246, 0.05)'
-            }]
-        },
-        options: { plugins: { legend: { display: false } } }
+function assignMedicineBill() {
+    const pid = document.getElementById('pharmaPatientSelect').value;
+    const cost = parseInt(document.getElementById('pharmaMedCost').value) || 0;
+    if (!pid || cost === 0) return showToast("Vector Error: Missing Data", "danger");
+
+    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
+    let idx = p.findIndex(x => x.id == pid);
+    if (idx !== -1) {
+        p[idx].meds = (parseInt(p[idx].meds) || 0) + cost;
+        localStorage.setItem('hms_patients_v19', JSON.stringify(p));
+        logAudit(`PHARMA: Medication charged to ${p[idx].name}`);
+        showToast("Ledger Updated", "success");
+        updateUI();
+    }
+}
+
+/**
+ * LAB MODULE
+ */
+function refreshLabPatientList() {
+    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
+    let sel = document.getElementById('labPatientSelect');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Diagnostic Target Node...</option>';
+    p.filter(x => x.status === 'active').forEach(x => {
+        sel.innerHTML += `<option value="${x.id}">${x.name}</option>`;
     });
 }
 
-function logAudit(msg) {
-    let logs = JSON.parse(localStorage.getItem('hms_logs')) || [];
-    logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
-    localStorage.setItem('hms_logs', JSON.stringify(logs.slice(-50)));
-    let container = document.getElementById('auditContainer');
-    if(container) container.innerHTML = logs.reverse().join('<br>');
+function assignLabBill() {
+    const pid = document.getElementById('labPatientSelect').value;
+    const cost = parseInt(document.getElementById('labTestType').value) || 0;
+    if (!pid) return showToast("Select a patient.", "danger");
+
+    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
+    let idx = p.findIndex(x => x.id == pid);
+    if (idx !== -1) {
+        p[idx].labCharges = (parseInt(p[idx].labCharges) || 0) + cost;
+        localStorage.setItem('hms_patients_v19', JSON.stringify(p));
+        logAudit(`LAB: Bio-Diagnostic test assigned to ${p[idx].name}`);
+        showToast("Lab Fee Executed", "success");
+        updateUI();
+    }
 }
 
-function nav(id, el) {
-    document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
-    if(el) el.classList.add('active-nav');
-    if(id === 'gameSec') initSnake();
-    if(id === 'financeSec') updateFinanceDashboard();
+/**
+ * FISCAL COMMAND & DASHBOARD
+ */
+function initChart() {
+    const canvas = document.getElementById('revenueChart');
+    if (!canvas) return;
+    new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: ['Node_A', 'Node_B', 'Node_C', 'Node_D', 'Node_E'],
+            datasets: [{
+                label: 'System Flux',
+                data: [45, 82, 61, 115, 98],
+                borderColor: '#3b82f6',
+                tension: 0.5,
+                fill: true,
+                backgroundColor: 'rgba(59, 130, 246, 0.08)'
+            }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+    });
+}
+
+function renderGallery() {
+    const mount = document.getElementById('galleryMount');
+    mount.innerHTML = GALLERY_SOURCE.map((url, i) => `
+        <div class="gallery-item">
+            <img src="${url}?auto=format&fit=crop&q=80&w=600" alt="Facility_Node_${i}">
+            <div class="gallery-label">NODE_00${i+1}</div>
+        </div>
+    `).join('');
+}
+
+function logAudit(msg) {
+    let logs = JSON.parse(localStorage.getItem('hms_audit_v19')) || [];
+    logs.push(`> [${new Date().toLocaleTimeString()}] ${msg}`);
+    localStorage.setItem('hms_audit_v19', JSON.stringify(logs.slice(-50)));
+    const container = document.getElementById('auditContainer');
+    if (container) container.innerHTML = logs.reverse().join('<br>');
 }
 
 function updateFinanceDashboard() {
-    let rev = Math.max(0, parseFloat(localStorage.getItem('hms_total_revenue')) || 0);
-    let comm = Math.max(0, parseFloat(localStorage.getItem('hms_total_commissions')) || 0);
+    let rev = parseFloat(localStorage.getItem('hms_fiscal_rev')) || 0;
+    let payout = parseFloat(localStorage.getItem('hms_fiscal_payout')) || 0;
     document.getElementById('fin-total-rev').innerText = "Rs " + rev.toLocaleString();
-    document.getElementById('fin-total-comm').innerText = "Rs " + comm.toLocaleString();
-    document.getElementById('fin-net-profit').innerText = "Rs " + Math.max(0, (rev - comm)).toLocaleString();
+    document.getElementById('fin-total-comm').innerText = "Rs " + payout.toLocaleString();
+    document.getElementById('fin-net-profit').innerText = "Rs " + Math.max(0, (rev - payout)).toLocaleString();
 }
 
 function resetFinances() {
-    if(confirm("Confirm Wipe: This will reset all financial records to zero. Continue?")) {
-        localStorage.setItem('hms_total_revenue', '0');
-        localStorage.setItem('hms_total_commissions', '0');
+    if (confirm("CRITICAL: Wipe all fiscal telemetry data?")) {
+        localStorage.setItem('hms_fiscal_rev', '0');
+        localStorage.setItem('hms_fiscal_payout', '0');
         updateUI();
-        logAudit("ADMIN: Financial records wiped.");
+        logAudit("ADMIN: Global financial reset executed.");
     }
 }
 
 function updateUI() {
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
+    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
     let active = p.filter(x => x.status === 'active');
     document.getElementById('stat-p').innerText = active.length;
     
-    let currentLiveTotal = active.reduce((a, b) => {
-        let bill = calculateLiveBill(b);
-        return a + (isNaN(bill.total) ? 0 : bill.total);
-    }, 0);
-    
+    let currentLiveTotal = active.reduce((a, b) => a + calculateLiveBill(b).total, 0);
     document.getElementById('stat-profit').innerText = "Rs " + currentLiveTotal.toLocaleString();
     
     renderPatientTable();
     renderInventory();
     renderStaff();
     updateFinanceDashboard();
+    refreshPharmaPatientList();
+    refreshLabPatientList();
 }
 
 function renderPatientTable() {
-    let p = JSON.parse(localStorage.getItem('hms_patients')) || [];
-    let html = `<table><tr><th>ID</th><th>Patient</th><th>Assigned Doctor</th><th>Due</th></tr>`;
-    p.filter(x => x.status === 'active').forEach(x => {
+    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
+    let active = p.filter(x => x.status === 'active');
+    let html = `<table><tr><th>Identity Node</th><th>Physician</th><th>Due (Rs)</th></tr>`;
+    active.forEach(x => {
         let b = calculateLiveBill(x);
-        html += `<tr><td>#${x.id.toString().slice(-4)}</td><td>${x.name}</td><td>${x.assignedDoctor}</td><td style="color:var(--accent)">Rs ${b.total.toFixed(0)}</td></tr>`;
+        html += `<tr><td>${x.name}</td><td>${x.assignedDoctor}</td><td style="color:var(--accent); font-weight:800;">Rs ${b.due.toLocaleString()}</td></tr>`;
     });
     document.getElementById('activePatientsList').innerHTML = html + "</table>";
 }
 
 function logout() { location.reload(); }
 
+/**
+ * STAFF LOUNGE: SNAKE REFLEX SIMULATION
+ */
 function initSnake() {
     const canvas = document.getElementById("snakeGame");
-    if(!canvas) return;
     const ctx = canvas.getContext("2d");
-    let box = 20, score = 0, dir, game;
-    let snake = [{x: 9 * box, y: 10 * box}];
-    let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
+    let box = 25, score = 0, dir, game;
+    let snake = [{x: 10 * box, y: 10 * box}];
+    let food = { x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box };
 
     document.onkeydown = e => {
         if(e.keyCode == 37 && dir != "RIGHT") dir = "LEFT";
@@ -974,27 +1234,21 @@ function initSnake() {
     };
 
     function draw() {
-        ctx.fillStyle = "#020617";
-        ctx.fillRect(0, 0, 400, 400);
+        ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 500, 500);
         for(let i = 0; i < snake.length; i++) {
             ctx.fillStyle = (i == 0) ? "#3b82f6" : "#1e293b";
             ctx.fillRect(snake[i].x, snake[i].y, box, box);
         }
-        ctx.fillStyle = "#ef4444";
-        ctx.fillRect(food.x, food.y, box, box);
+        ctx.fillStyle = "#ef4444"; ctx.fillRect(food.x, food.y, box, box);
         let headX = snake[0].x, headY = snake[0].y;
-        if(dir == "LEFT") headX -= box;
-        if(dir == "UP") headY -= box;
-        if(dir == "RIGHT") headX += box;
-        if(dir == "DOWN") headY += box;
+        if(dir == "LEFT") headX -= box; if(dir == "UP") headY -= box;
+        if(dir == "RIGHT") headX += box; if(dir == "DOWN") headY += box;
         if(headX == food.x && headY == food.y) {
-            score++; 
-            let scoreBoard = document.getElementById('snakeScore');
-            if(scoreBoard) scoreBoard.innerText = score;
-            food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
+            score++; document.getElementById('snakeScore').innerText = score;
+            food = { x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box };
         } else snake.pop();
         let nH = {x: headX, y: headY};
-        if(headX < 0 || headX >= 400 || headY < 0 || headY >= 400) { clearInterval(game); alert("Done. Score: " + score); }
+        if(headX < 0 || headX >= 500 || headY < 0 || headY >= 500) { clearInterval(game); showToast("Simulation Failed. Final Reflex: " + score, "danger"); }
         snake.unshift(nH);
     }
     game = setInterval(draw, 100);
