@@ -1,54 +1,95 @@
-# 🏥 HMS Enterprise v12.0
-> **Next-Generation Hospital Management & Financial Intelligence System**
+# 🏥 HMS Enterprise v19.0: Infinity Glass Edition
+> **Absolute Financial Integrity | Next-Gen Liquid Glass Architecture | Multi-Role RBAC**
 
-![Platform](https://img.shields.io/badge/Platform-Web-blue)
-![Version](https://img.shields.io/badge/Version-12.0.0--Stable-green)
-![License](https://img.shields.io/badge/Security-RBAC%20Enabled-red)
-![Build](https://img.shields.io/badge/Logic-C--Engine%20Integrated-orange)
+![Version](https://img.shields.io/badge/Version-19.0-3b82f6?style=for-the-badge)
+![UI](https://img.shields.io/badge/UI-iOS_26_Liquid_Glass-10b981?style=for-the-badge)
+![Logic](https://img.shields.io/badge/Logic-Strict_RBAC-ef4444?style=for-the-badge)
 
-HMS Enterprise is a sophisticated, single-page medical management solution designed for high-traffic clinical environments. Integrating advanced **C-Logic algorithms** for symptom analysis and a **Zero-Deficit Financial Engine**, this system ensures 100% accuracy in patient billing and hospital revenue tracking.
-
----
-
-## 🚀 Live Demo
-**[PASTE YOUR GITHUB PAGES LINK HERE]**
+Welcome to **HMS Enterprise v19.0**, a high-fidelity Hospital Management System built with a focus on **Liquid Glass Aesthetics** (inspired by iOS 26/VisionOS) and **Absolute Fiscal Integrity**. This system provides a seamless experience for administrators, medical professionals, and patients alike.
 
 ---
 
-## 💎 Core High-End Features
-
-### 🔐 1. Multi-Role Security (RBAC)
-The system features a strict **Role-Based Access Control** biometric-simulated login. Access is segmented into four tiers:
-* **Administrator:** Full financial control, HR management, and clinical overrides.
-* **Senior Physician:** Patient intake, clinical diagnosis, and lab prescriptions.
-* **Lead Pharmacist:** Inventory logistics, drug pricing, and patient billing.
-* **Patient Portal:** Public-facing interface for real-time bill verification.
-
-### 📊 2. Financial Integrity Engine (v12.0 Update)
-* **Zero-Negative Logic:** Prevents "Minus" values in bills using `Math.max()` validation.
-* **Live Revenue Tracking:** Real-time calculation of Net Profit vs. Doctor Commissions.
-* **Tax/GST Compliance:** Automatic 18% tax calculation on all medical services.
-* **Audit Logging:** Every financial transaction is recorded in the Terminal Security Audit.
-
-### 🩺 3. Intelligent Clinical Intake
-* **Symptom Analyzer:** Uses logic from `hospital_management.c` to suggest specialized clinics (Cardiology, Orthopedics, etc.) based on keywords.
-* **Dynamic Ward Management:** Supports General Wards, Private Suites, and Emergency Critical Care (ICU) logic.
-* **Laboratory Integration:** Full diagnostic suite including MRI, X-Ray, and ECG charging modules.
+## 💎 Design Philosophy: "Infinity Glass"
+The system utilizes a custom-built **Liquid Glass Engine** featuring:
+*   **Dynamic Mesh Gradients:** A radial-depth background that shifts with user interaction.
+*   **Frosted Glass Logic:** 45px backdrop blurs with 210% color saturation for a premium feel.
+*   **Spring Physics:** All buttons and modals utilize high-frequency cubic-bezier curves for a "snappy" tactile response.
+*   **Responsive Engine:** Fully optimized for Mobile, Tablet, and Desktop environments.
 
 ---
 
-## 🛠️ Technical Architecture
+## 🔐 Access Credentials Matrix
+The system is protected by a biometric-style authentication layer with four distinct access tiers. Access the terminal using the following identity nodes:
 
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Frontend** | HTML5 / CSS3 | Glassmorphic UI & Responsive Grid |
-| **Engine** | JavaScript (ES6+) | Patient Logic & Financial Calculations |
-| **Analytics** | Chart.js | Visual Revenue Growth Matrix |
-| **Data** | LocalStorage | Browser-side persistent database |
+| Role | Username | Password | Access Level |
+| :--- | :--- | :--- | :--- |
+| **🛡️ Admin** | `admin` | `admin123` | Full Control, Fiscal Settlement, HR, & Logs |
+| **👨‍⚕️ Doctor** | `doc1` | `123` | Intake Engine, Lab Requests, & Break Room |
+| **💊 Pharmacist**| `pharm1` | `pharm123` | Drug Inventory & Prescription Dispensing |
+| **👤 Patient** | `user1` | `0000` | Billing Search, Features, & Facility Gallery |
 
 ---
 
-## 📂 Project Structure
-```text
-├── index.html       # The Core HMS Engine (HTML, CSS, and JS)
-└── README.md        # Technical Documentation
+## 🚀 Key Modules & Features
+
+### 📊 System Analytics Matrix
+Real-time telemetry for global admissions, bed occupancy, and revenue flow. Integrated with **Chart.js** for high-fidelity fiscal trajectory tracking.
+
+### 🛌 Clinical Intake Engine
+Enhanced with **C-Logic Symptom Analysis**, providing instant medical routing recommendations (Cardiology, Orthopedic, etc.) based on patient input. Includes a dedicated **Clinical Notes** area for detailed observations.
+
+### 💰 Fiscal Command & Integrity
+*   **Absolute Non-Negative Protection:** Hard-coded `Math.max(0, x)` logic ensures no negative values ever appear in the ledger.
+*   **Settlement Node:** Admin-only power to finalize bills and discharge patients.
+*   **Print Perfect:** A professional, print-optimized invoice system that automatically strips UI elements (sidebars/buttons) during hardware printing.
+
+### 🔬 Diagnostic Laboratory
+Bio-diagnostic services integration allowing doctors to assign complex tests (MRI, Hematology, Bio-Scans) directly to the patient's node.
+
+### 💊 Pharma Logistics
+A dedicated drug repository management system for tracking inventory units and unit pricing with real-time bill synchronization.
+
+### 🎮 Staff Break Room
+A fully integrated **Reflex Training Simulation (Snake Game)** built on the Canvas API to help medical staff maintain precision reflexes during downtime.
+
+---
+
+## 📜 Security Audit Protocol
+The system tracks every professional identity interaction. The **Terminal Security Audit Log** captures:
+*   ✅ Authentication Success (Timestamped by Role)
+*   ✅ Patient Admission Events
+*   ✅ Financial Settlement Completions
+*   ✅ Inventory Modifications
+
+---
+
+## 🛠️ Tech Stack
+*   **UI Engine:** HTML5 / CSS3 (Liquid Glass Framework)
+*   **Core Logic:** Pure Vanilla JavaScript (ES6+)
+*   **Data Vis:** Chart.js
+*   **Typography:** Inter & JetBrains Mono
+*   **Persistence:** Browser `LocalStorage` (Zero-Server Architecture)
+
+---
+
+## 📸 Facility Tour Gallery
+Includes a **Facility Visual Telemetry** section with 20+ high-resolution architectural and medical nodes, showcasing the state-of-the-art infrastructure of HMS Enterprise.
+
+---
+
+## 📥 Installation & Usage
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/hms-enterprise-v19.git
+    ```
+2.  Open `index.html` in any modern web browser (Chrome/Edge/Safari recommended for backdrop-blur support).
+3.  Authenticate using the credentials provided in the **Access Matrix**.
+
+---
+
+## ⚖️ License
+Distributed under the **Absolute Integrity License**. 
+*Copyright © 2024 HMS Enterprise Group. All Rights Reserved.*
+
+---
+**Developed with ❤️ for Medical Professionals everywhere.**
