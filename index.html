@@ -6,355 +6,688 @@
     <title>HMS Enterprise | Synchronized Crystal v26.0</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
+        /* ══════════════════════════════════════════════
+           iOS 26 LIQUID GLASS DESIGN SYSTEM
+           Three-layer glass: effect → tint → shine → content
+           SVG feDisplacementMap + feSpecularLighting refraction
+        ══════════════════════════════════════════════ */
         :root {
-            --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+            --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
             --font-mono: "JetBrains Mono", "SF Mono", monospace;
-            --bg-base: #f5f5f7;
-            --glass-bg: rgba(255, 255, 255, 0.45);
-            --glass-thick: rgba(255, 255, 255, 0.75);
-            --glass-edge: rgba(255, 255, 255, 0.9);
-            --text-primary: #1d1d1f;
-            --text-secondary: #48484a;
-            --text-tertiary: #86868b;
-            --input-bg: rgba(255, 255, 255, 0.6);
-            --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
-            --blob-color: #007aff;
-            --ios-blue: #007aff;
-            --ios-indigo: #5856d6;
-            --ios-green: #34c759;
-            --ios-red: #ff3b30;
-            --ios-orange: #ff9500;
-            --radius-xl: 32px;
-            --radius-lg: 20px;
-            --sidebar-width: 340px;
-            --trans-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            --trans-liquid: all 0.7s cubic-bezier(0.7, 0, 0.3, 1);
+
+            /* iOS 26 semantic palette */
+            --ios-blue:    #007aff;
+            --ios-green:   #34c759;
+            --ios-red:     #ff3b30;
+            --ios-orange:  #ff9500;
+            --ios-indigo:  #5856d6;
+            --ios-teal:    #5ac8fa;
+
+            /* Light mode surfaces */
+            --bg: #f2f2f7;
+            --text-1: #1c1c1e;
+            --text-2: #3a3a3c;
+            --text-3: #8e8e93;
+
+            /* Liquid Glass layers */
+            --lg-blur:      saturate(180%) blur(28px);
+            --lg-tint:      rgba(255,255,255,0.18);
+            --lg-shine-top: rgba(255,255,255,0.82);
+            --lg-shine-bot: rgba(255,255,255,0.08);
+            --lg-border:    rgba(255,255,255,0.55);
+            --lg-shadow:    0 8px 32px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.9) inset, 0 -1px 0 rgba(0,0,0,0.04) inset;
+            --lg-shadow-lg: 0 20px 60px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.9) inset;
+
+            --r-pill:  9999px;
+            --r-xl:    28px;
+            --r-lg:    22px;
+            --r-md:    16px;
+            --sidebar: 320px;
+            --ease:    cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+            --liquid:  cubic-bezier(0.7, 0, 0.3, 1);
         }
-        body.dark-mode {
-            --bg-base: #000000;
-            --glass-bg: rgba(28, 28, 30, 0.65);
-            --glass-thick: rgba(44, 44, 46, 0.85);
-            --glass-edge: rgba(255, 255, 255, 0.1);
-            --text-primary: #ffffff;
-            --text-secondary: #ebebf5;
-            --text-tertiary: #8e8e93;
-            --input-bg: rgba(58, 58, 60, 0.6);
-            --card-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
-            --blob-color: #0a84ff;
+
+        body.dark {
+            --bg: #000000;
+            --text-1: #ffffff;
+            --text-2: #ebebf5cc;
+            --text-3: #8e8e93;
+            --lg-tint:      rgba(28,28,30,0.55);
+            --lg-shine-top: rgba(255,255,255,0.18);
+            --lg-shine-bot: rgba(255,255,255,0.02);
+            --lg-border:    rgba(255,255,255,0.12);
+            --lg-shadow:    0 8px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.12) inset;
+            --lg-shadow-lg: 0 24px 80px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.1) inset;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-font-smoothing: antialiased; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; outline: none; }
+
         body {
-            font-family: var(--font-apple);
-            background-color: var(--bg-base);
-            color: var(--text-primary);
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text-1);
             height: 100vh; width: 100vw;
             display: flex; overflow: hidden;
-            transition: background-color 0.8s var(--trans-smooth);
+            transition: background 0.6s var(--ease), color 0.6s;
         }
-        #bg-mesh {
-            position: fixed; inset: -50%; width: 200%; height: 200%; z-index: -1;
-            animation: meshFlow 35s linear infinite alternate;
-            background-image: 
-                radial-gradient(at 0% 0%, #e3f2fd 0, transparent 50%),
-                radial-gradient(at 50% 0%, #f3e5f5 0, transparent 50%),
-                radial-gradient(at 100% 0%, #e8f5e9 0, transparent 50%);
+
+        /* ── ANIMATED MESH WALLPAPER ── */
+        #wallpaper {
+            position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 10% 20%, rgba(0,122,255,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 90% 10%, rgba(88,86,214,0.14) 0%, transparent 55%),
+                radial-gradient(ellipse 70% 50% at 50% 90%, rgba(52,199,89,0.10) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 70% at 80% 70%, rgba(255,149,0,0.10) 0%, transparent 55%),
+                var(--bg);
+            animation: wallShift 18s ease-in-out infinite alternate;
         }
-        body.dark-mode #bg-mesh {
-            background-image: 
-                radial-gradient(at 0% 0%, #1c1c1e 0, transparent 50%),
-                radial-gradient(at 50% 0%, #000000 0, transparent 50%),
-                radial-gradient(at 100% 0%, #1a1a1a 0, transparent 50%);
+        body.dark #wallpaper {
+            background:
+                radial-gradient(ellipse 80% 60% at 10% 20%, rgba(10,132,255,0.22) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 90% 10%, rgba(94,92,230,0.18) 0%, transparent 55%),
+                radial-gradient(ellipse 70% 50% at 50% 90%, rgba(48,209,88,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 70% at 80% 70%, rgba(255,159,10,0.12) 0%, transparent 55%),
+                #000;
         }
-        @keyframes meshFlow {
-            from { transform: scale(1) rotate(0deg); }
-            to { transform: scale(1.15) rotate(4deg); }
+        @keyframes wallShift {
+            0%   { filter: hue-rotate(0deg) brightness(1); }
+            50%  { filter: hue-rotate(15deg) brightness(1.03); }
+            100% { filter: hue-rotate(-10deg) brightness(0.97); }
         }
+
+        /* ══════════════════════════════════════════════
+           LIQUID GLASS COMPONENT — 4 Layered Divs
+        ══════════════════════════════════════════════ */
+
+        /* The wrapper: just sets position + shape */
+        .lg {
+            position: relative;
+            border-radius: var(--r-xl);
+            overflow: hidden;
+            isolation: isolate;
+            transition: transform 0.5s var(--spring), box-shadow 0.4s var(--ease);
+        }
+        .lg:hover { transform: translateY(-2px); }
+
+        /* Layer 0: distortion filter (SVG feDisplacementMap) */
+        .lg-distort {
+            position: absolute; inset: 0; z-index: 0;
+            backdrop-filter: var(--lg-blur);
+            -webkit-backdrop-filter: var(--lg-blur);
+            filter: url(#lg-refract);
+        }
+        /* Layer 1: tinted translucent fill */
+        .lg-tint {
+            position: absolute; inset: 0; z-index: 1;
+            background: var(--lg-tint);
+            border-radius: inherit;
+        }
+        /* Layer 2: specular shine — bright top-left rim */
+        .lg-shine {
+            position: absolute; inset: 0; z-index: 2;
+            border-radius: inherit;
+            box-shadow:
+                inset 1.5px 1.5px 0 rgba(255,255,255,0.85),
+                inset -1px -1px 0 rgba(255,255,255,0.1),
+                inset 0 0 12px rgba(255,255,255,0.12);
+            border: 1px solid var(--lg-border);
+        }
+        /* Layer 3: actual content */
+        .lg-content {
+            position: relative; z-index: 3;
+            height: 100%;
+        }
+
+        /* Shorthand: the whole glass panel */
+        .glass {
+            position: relative;
+            border-radius: var(--r-xl);
+            overflow: hidden;
+            isolation: isolate;
+            box-shadow: var(--lg-shadow);
+            transition: box-shadow 0.4s, transform 0.5s var(--spring);
+        }
+        .glass::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 0;
+            backdrop-filter: var(--lg-blur);
+            -webkit-backdrop-filter: var(--lg-blur);
+            border-radius: inherit;
+        }
+        .glass::after {
+            content: '';
+            position: absolute; inset: 0; z-index: 1;
+            background: var(--lg-tint);
+            border-radius: inherit;
+        }
+        /* Shine ring sits above ::after but below content */
+        .glass > * { position: relative; z-index: 3; }
+        .glass-shine {
+            position: absolute; inset: 0; z-index: 2; pointer-events: none;
+            border-radius: inherit;
+            box-shadow:
+                inset 1.5px 1.5px 0 rgba(255,255,255,0.8),
+                inset -1px -1px 0 rgba(255,255,255,0.08),
+                inset 0 0 14px rgba(255,255,255,0.08);
+            border: 1px solid var(--lg-border);
+        }
+        .glass:hover { box-shadow: var(--lg-shadow-lg); }
+
+        /* Pill variant */
+        .glass-pill { border-radius: var(--r-pill); }
+
+        /* ══ LOGIN ══ */
         #loginOverlay {
-            position: fixed; inset: 0;
+            position: fixed; inset: 0; z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
             background: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=2000') center/cover;
-            z-index: 100000; display: flex; align-items: center; justify-content: center;
-            transition: opacity 1s var(--trans-smooth);
+            transition: opacity 0.9s var(--ease);
         }
         #loginOverlay::before {
-            content: ""; position: absolute; inset: 0;
-            background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(40px) saturate(200%);
+            content: ''; position: absolute; inset: 0;
+            backdrop-filter: blur(60px) saturate(200%) brightness(0.85);
+            -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(0.85);
+            background: rgba(255,255,255,0.2);
         }
-        body.dark-mode #loginOverlay::before { background: rgba(0, 0, 0, 0.75); }
+        body.dark #loginOverlay::before { background: rgba(0,0,0,0.5); }
+
         .login-card {
-            position: relative; background: var(--glass-thick);
-            border: 1px solid var(--glass-edge);
-            padding: 60px; border-radius: 45px;
-            width: 90%; max-width: 440px; text-align: center;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.15);
-            z-index: 10;
+            position: relative; z-index: 2;
+            width: 90%; max-width: 400px;
+            padding: 52px 44px;
+            border-radius: 38px;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.2), 0 2px 0 rgba(255,255,255,0.9) inset;
         }
+
+        /* ══ SIDEBAR ══ */
         #sidebar {
-            width: var(--sidebar-width); margin: 20px;
-            display: flex; flex-direction: column; z-index: 1000;
+            position: relative; z-index: 100;
+            width: var(--sidebar);
+            margin: 16px;
+            display: flex; flex-direction: column;
+            border-radius: var(--r-xl);
+            overflow: hidden;
+            isolation: isolate;
+            box-shadow: var(--lg-shadow-lg);
+            flex-shrink: 0;
         }
+        #sidebar::before {
+            content: ''; position: absolute; inset: 0; z-index: 0;
+            backdrop-filter: var(--lg-blur);
+            -webkit-backdrop-filter: var(--lg-blur);
+        }
+        #sidebar::after {
+            content: ''; position: absolute; inset: 0; z-index: 1;
+            background: var(--lg-tint);
+        }
+        .sidebar-shine {
+            position: absolute; inset: 0; z-index: 2; pointer-events: none;
+            border-radius: inherit;
+            box-shadow:
+                inset 1.5px 1.5px 0 rgba(255,255,255,0.75),
+                inset -1px -1px 0 rgba(255,255,255,0.06);
+            border: 1px solid var(--lg-border);
+        }
+        .sidebar-inner { position: relative; z-index: 3; display: flex; flex-direction: column; height: 100%; }
+
         .sidebar-header {
-            padding: 40px 35px; border-bottom: 1px solid rgba(0,0,0,0.03);
-            display: flex; flex-direction: column; gap: 8px;
+            padding: 36px 28px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.25);
         }
-        .nav-list { flex: 1; padding: 20px; position: relative; overflow-y: auto; }
-        #nav-blob-container {
-            position: absolute; inset: 0; filter: url('#liquid-fusion');
-            pointer-events: none; z-index: 0;
+        body.dark .sidebar-header { border-bottom-color: rgba(255,255,255,0.07); }
+
+        /* ══ NAV ITEMS ══ */
+        .nav-list { flex: 1; padding: 16px; overflow-y: auto; position: relative; }
+
+        /* Liquid blob — the morphing highlight */
+        #nav-blob {
+            position: absolute; left: 12px;
+            width: calc(100% - 24px); height: 52px;
+            border-radius: 18px;
+            background: var(--ios-blue);
+            transition: top 0.55s var(--liquid), opacity 0.3s;
+            opacity: 0; z-index: 0;
+            box-shadow: 0 4px 16px rgba(0,122,255,0.35);
+            /* specular on blob */
+            overflow: hidden;
         }
-        .nav-blob {
-            position: absolute; left: 20px; width: calc(100% - 40px); height: 56px;
-            background: var(--blob-color); border-radius: 18px;
-            transition: var(--trans-liquid); 
-            box-shadow: 0 10px 25px rgba(0,122,255,0.3);
-            opacity: 0;
+        #nav-blob::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 50%);
+            border-radius: inherit;
         }
+
         .nav-item {
-            position: relative; z-index: 10; padding: 18px 25px;
-            border-radius: 20px; cursor: pointer; display: flex;
-            align-items: center; gap: 18px; font-size: 15px; font-weight: 600;
-            color: var(--text-secondary); transition: var(--trans-smooth);
-            margin-bottom: 10px;
+            position: relative; z-index: 2;
+            display: flex; align-items: center; gap: 14px;
+            padding: 15px 18px;
+            border-radius: 18px;
+            font-size: 14.5px; font-weight: 600;
+            color: var(--text-2);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: color 0.3s;
+            user-select: none;
         }
-        .nav-item:hover { color: var(--text-primary); }
-        .nav-item.active { 
-            color: #ffffff !important; 
-            font-weight: 800;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(40px) saturate(210%);
-            -webkit-backdrop-filter: blur(40px) saturate(210%);
-            border: 1px solid var(--glass-edge);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--card-shadow);
-            position: relative; overflow: hidden;
-            transition: var(--trans-smooth);
-        }
-        .glass-panel::after {
-            content: ""; position: absolute; inset: 0;
-            background: radial-gradient(circle at var(--lx) var(--ly), rgba(255,255,255,0.15) 0%, transparent 45%);
-            pointer-events: none; z-index: 1;
-        }
+        .nav-item:hover { color: var(--text-1); }
+        .nav-item.active { color: #fff !important; font-weight: 700; }
+
+        /* ══ VIEWPORT ══ */
         #viewport {
-            flex: 1; margin: 20px 20px 20px 0; padding: 45px;
-            display: flex; flex-direction: column; gap: 35px;
-            overflow-y: auto; position: relative;
+            flex: 1; margin: 16px 16px 16px 0;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative; z-index: 10;
+            display: flex; flex-direction: column; gap: 28px;
         }
-        .section-node { animation: sectionIn 0.6s var(--trans-smooth) forwards; }
-        @keyframes sectionIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
-        .data-card { padding: 35px; min-height: 190px; display: flex; flex-direction: column; justify-content: space-between; z-index: 5; }
-        .stat-label { font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--text-tertiary); letter-spacing: 2px; }
-        .stat-val { font-size: 46px; font-weight: 800; letter-spacing: -2.5px; }
+
+        /* ══ PAGE TITLE ══ */
+        .page-title { font-size: 48px; font-weight: 900; letter-spacing: -3px; line-height: 1; }
+        .page-subtitle { color: var(--text-3); font-size: 17px; font-weight: 500; margin-top: 6px; }
+
+        /* ══ CARDS ══ */
+        .section-in { animation: secIn 0.5s var(--spring) forwards; }
+        @keyframes secIn {
+            from { opacity: 0; transform: translateY(22px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+        .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+        .stat-card { padding: 32px; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; }
+        .stat-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--text-3); }
+        .stat-val { font-size: 44px; font-weight: 800; letter-spacing: -2.5px; line-height: 1; margin: 12px 0 8px; }
+        .stat-note { font-size: 11px; font-weight: 700; }
+
+        /* ══ INPUTS ══ */
         input, select, textarea {
-            width: 100%; background: var(--input-bg); border: 1px solid var(--glass-edge);
-            padding: 18px 24px; border-radius: 16px; color: var(--text-primary);
-            font-size: 15px; font-family: var(--font-apple); transition: var(--trans-smooth);
-            margin-bottom: 15px;
+            width: 100%;
+            background: rgba(255,255,255,0.35);
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 16px 20px;
+            border-radius: var(--r-md);
+            color: var(--text-1);
+            font-size: 14px; font-family: var(--font);
+            margin-bottom: 14px;
+            transition: all 0.3s;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
-        input:focus { border-color: var(--ios-blue); background: #ffffff; color: #000000; box-shadow: 0 0 0 5px rgba(0,122,255,0.15); }
-        body.dark-mode input:focus { background: #000000; color: #ffffff; }
-        .btn-ios {
-            padding: 18px 38px; border: none; border-radius: 18px; font-weight: 700;
-            cursor: pointer; transition: all 0.2s; display: inline-flex;
-            align-items: center; justify-content: center; gap: 12px; font-size: 15px;
+        body.dark input, body.dark select, body.dark textarea {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.12);
         }
-        .btn-ios:active { transform: scale(0.96); }
-        .btn-primary { background: var(--ios-blue); color: #fff; box-shadow: 0 10px 25px rgba(0,122,255,0.3); }
-        .btn-danger { background: var(--ios-red); color: #fff; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        th { text-align: left; padding: 0 20px; font-size: 10px; text-transform: uppercase; color: var(--text-tertiary); font-weight: 900; }
-        td { background: var(--glass-thick); padding: 22px 20px; font-weight: 600; border-top: 1px solid var(--glass-edge); }
-        td:first-child { border-radius: 18px 0 0 18px; }
-        td:last-child { border-radius: 0 18px 18px 0; }
-        .audit-trail {
-            background: rgba(0,0,0,0.05); font-family: var(--font-mono);
-            padding: 25px; border-radius: 24px; height: 300px;
-            overflow-y: auto; font-size: 12px; line-height: 1.8;
-            color: var(--text-secondary); border: 1px solid var(--glass-edge);
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--ios-blue);
+            background: rgba(255,255,255,0.7);
+            box-shadow: 0 0 0 4px rgba(0,122,255,0.15);
+            color: #000;
         }
-        .gallery-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 30px; padding: 10px;
+        body.dark input:focus { background: rgba(0,122,255,0.12); color: #fff; }
+
+        /* ══ BUTTONS ══ */
+        .btn {
+            padding: 16px 34px;
+            border: none; border-radius: var(--r-pill);
+            font-size: 14px; font-weight: 700;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.2s var(--ease);
+            position: relative; overflow: hidden;
+            isolation: isolate;
         }
+        .btn::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 55%);
+            border-radius: inherit;
+        }
+        .btn::after {
+            content: '';
+            position: absolute; inset: 0;
+            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.5), inset -1px -1px 0 rgba(0,0,0,0.08);
+            border-radius: inherit;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+
+        .btn-primary { background: var(--ios-blue); color: #fff; box-shadow: 0 6px 20px rgba(0,122,255,0.4); }
+        .btn-danger  { background: var(--ios-red);  color: #fff; box-shadow: 0 6px 20px rgba(255,59,48,0.3); }
+        .btn-glass {
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.5);
+            color: var(--text-1);
+            backdrop-filter: blur(12px);
+        }
+
+        /* ══ TABLES ══ */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        th { text-align: left; padding: 0 18px; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-3); font-weight: 900; }
+        td {
+            background: rgba(255,255,255,0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 18px; font-weight: 600; font-size: 13.5px;
+        }
+        body.dark td { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.07); }
+        td:first-child { border-radius: 16px 0 0 16px; border-right: none; }
+        td:last-child  { border-radius: 0 16px 16px 0; border-left: none; }
+        td:not(:first-child):not(:last-child) { border-left: none; border-right: none; }
+
+        /* ══ AUDIT LOG ══ */
+        .audit {
+            background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06);
+            font-family: var(--font-mono); padding: 22px; border-radius: 20px;
+            height: 280px; overflow-y: auto; font-size: 11px; line-height: 1.9;
+            color: var(--text-2);
+        }
+        body.dark .audit { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
+
+        /* ══ GALLERY ══ */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
         .gallery-node {
-            border-radius: 30px; overflow: hidden; height: 220px;
-            border: 2px solid var(--glass-edge); background: var(--glass-bg); cursor: pointer;
-            transition: transform 0.8s var(--trans-smooth), border-color 0.4s;
-            position: relative;
+            border-radius: 26px; overflow: hidden; height: 210px;
+            border: 1.5px solid rgba(255,255,255,0.5);
+            cursor: pointer; position: relative;
+            transition: transform 0.7s var(--spring), box-shadow 0.4s;
         }
-        .gallery-node img { width: 100%; height: 100%; object-fit: cover; transition: 1.2s var(--trans-smooth); }
-        .gallery-node:hover { transform: translateY(-15px) scale(1.04); border-color: var(--ios-blue); z-index: 50; }
-        .gallery-node:hover img { transform: scale(1.18); }
-        .presc-badge {
-            background: var(--ios-orange); color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 900;
+        .gallery-node::after {
+            content: ''; position: absolute; inset: 0;
+            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.6);
+            border-radius: inherit;
         }
+        .gallery-node img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+        .gallery-node:hover { transform: translateY(-12px) scale(1.03); box-shadow: 0 24px 60px rgba(0,0,0,0.15); }
+        .gallery-node:hover img { transform: scale(1.12); }
+
+        /* ══ PILLS / BADGES ══ */
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: var(--r-pill);
+            font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-orange { background: rgba(255,149,0,0.15); color: var(--ios-orange); border: 1px solid rgba(255,149,0,0.25); }
+
+        /* ══ SECTOR CHIP ══ */
         #sectorChip {
-            display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px;
-            background: var(--ios-blue); color: #fff; border-radius: 40px;
-            font-size: 13px; font-weight: 800; margin-bottom: 20px;
-            opacity: 0; transform: translateY(10px); transition: 0.4s;
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 18px; border-radius: var(--r-pill);
+            font-size: 12px; font-weight: 700;
+            background: var(--ios-blue); color: #fff;
+            box-shadow: 0 4px 14px rgba(0,122,255,0.35);
+            margin-bottom: 18px;
+            opacity: 0; transform: translateY(8px) scale(0.95);
+            transition: opacity 0.4s, transform 0.5s var(--spring);
         }
-        #sectorChip.active { opacity: 1; transform: translateY(0); }
-        #toasts {
-            position: fixed; top: 30px; right: 30px;
-            z-index: 2000000; display: flex; flex-direction: column; gap: 15px;
+        #sectorChip.active { opacity: 1; transform: translateY(0) scale(1); }
+
+        /* ══ TOASTS ══ */
+        #toasts { position: fixed; top: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 12px; }
+        .toast {
+            padding: 16px 28px; border-radius: var(--r-pill);
+            font-size: 13.5px; font-weight: 700;
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1), inset 1px 1px 0 rgba(255,255,255,0.9);
+            color: var(--text-1);
+            animation: toastIn 0.5s var(--spring) forwards;
         }
-        .toast-node {
-            background: var(--glass-thick); backdrop-filter: blur(25px);
-            padding: 20px 35px; border-radius: 20px; color: var(--text-primary);
-            font-size: 15px; font-weight: 700; border-left: 6px solid var(--ios-blue);
-            box-shadow: 0 20px 45px rgba(0,0,0,0.1);
-            animation: toastIn 0.6s var(--trans-liquid) forwards;
-        }
-        @keyframes toastIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+        body.dark .toast { background: rgba(44,44,46,0.9); border-color: rgba(255,255,255,0.1); }
+        @keyframes toastIn { from { transform: translateX(110%) scale(0.9); opacity:0; } to { transform: translateX(0) scale(1); opacity:1; } }
+
+        /* ══ MODAL ══ */
         #modal-root {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(20px);
-            z-index: 500000; display: none; align-items: center; justify-content: center;
+            position: fixed; inset: 0; z-index: 500000;
+            backdrop-filter: blur(24px) brightness(0.9);
+            -webkit-backdrop-filter: blur(24px) brightness(0.9);
+            background: rgba(0,0,0,0.25);
+            display: none; align-items: center; justify-content: center;
         }
         .invoice-card {
-            background: #ffffff; color: #000000; width: 560px; padding: 65px; border-radius: 48px;
-            box-shadow: 0 60px 130px rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            color: #000; width: 520px; padding: 56px;
+            border-radius: 40px;
+            box-shadow: 0 60px 120px rgba(0,0,0,0.25), inset 1.5px 1.5px 0 rgba(255,255,255,0.95);
+            border: 1px solid rgba(255,255,255,0.7);
         }
-        .theme-switch {
-            width: 64px; height: 34px; background: rgba(0, 0, 0, 0.1);
-            border-radius: 30px; position: relative; cursor: pointer;
-            transition: background 0.3s; border: 1px solid var(--glass-edge);
+
+        /* ══ DARK TOGGLE ══ */
+        .toggle-wrap {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.06);
+            margin-top: 20px;
         }
-        body.dark-mode .theme-switch { background: var(--ios-green); }
-        .theme-knob {
-            width: 28px; height: 28px; background: #ffffff; border-radius: 50%;
-            position: absolute; top: 2px; left: 2px; transition: transform 0.3s;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        body.dark .toggle-wrap { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); }
+        .toggle-track {
+            width: 52px; height: 30px;
+            border-radius: var(--r-pill);
+            background: rgba(120,120,128,0.2);
+            position: relative; cursor: pointer;
+            transition: background 0.3s;
+            border: 1px solid rgba(0,0,0,0.08);
         }
-        body.dark-mode .theme-knob { transform: translateX(30px); }
+        body.dark .toggle-track { background: var(--ios-green); }
+        .toggle-knob {
+            width: 26px; height: 26px;
+            background: #fff; border-radius: 50%;
+            position: absolute; top: 1px; left: 1px;
+            transition: transform 0.3s var(--spring);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        body.dark .toggle-knob { transform: translateX(22px); }
+
+        /* ══ FINANCE ══ */
+        .fin-hero { text-align: center; padding: 80px 60px; }
+        .fin-num { font-size: 100px; font-weight: 900; color: var(--ios-green); letter-spacing: -6px; line-height: 1; margin: 30px 0 50px; }
+
+        /* ══ PRESCRIPTION BADGE ══ */
+        .rx-badge { background: rgba(255,149,0,0.12); color: var(--ios-orange); border: 1px solid rgba(255,149,0,0.2); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; }
+
+        /* ══ UTILS ══ */
         .hidden { display: none !important; }
         .v-stack { display: flex; flex-direction: column; }
         .h-stack { display: flex; align-items: center; }
+        .gap-12 { gap: 12px; }
+        .p-40 { padding: 40px; }
+        .p-48 { padding: 48px; }
+        .mb-24 { margin-bottom: 24px; }
+        .mb-32 { margin-bottom: 32px; }
+        .mt-24 { margin-top: 24px; }
+
+        /* ══ SCROLLBAR ══ */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 99px; }
+        body.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+
+        /* ══ MOBILE ══ */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             #sidebar {
-                width: 100%; margin: 0; height: 85px; flex-direction: row;
+                width: 100%; margin: 0; height: 80px;
+                border-radius: 0; flex-direction: row;
                 position: fixed; bottom: 0; left: 0; z-index: 2000;
-                border: none; border-top: 1px solid var(--glass-edge);
-                border-radius: 0; background: var(--glass-thick); padding: 0 15px;
             }
-            .sidebar-header, .btn-danger, #nav-blob-container, #sys-role { display: none !important; }
-            .nav-list { display: flex; flex-direction: row; justify-content: space-around; width: 100%; padding: 0; align-items: center; }
-            .nav-item { flex-direction: column; margin: 0; padding: 8px; gap: 4px; font-size: 10px; text-align: center; }
-            .nav-item span { font-size: 8px; font-weight: 600; }
-            #viewport { margin: 0; padding: 25px 25px 110px 25px; }
-            .grid-3 { grid-template-columns: 1fr; }
+            .sidebar-header, #nav-blob, .sidebar-logout, #sys-role { display: none !important; }
+            .nav-list { display: flex; flex-direction: row; justify-content: space-around; align-items: center; padding: 0; }
+            .nav-item { flex-direction: column; margin: 0; padding: 8px; gap: 3px; font-size: 9px; }
+            #viewport { margin: 0; padding: 20px 20px 100px; }
+            .grid-3, .grid-2-1 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<svg style="visibility: hidden; position: absolute;" width="0" height="0">
-    <defs>
-        <filter id="liquid-fusion">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" result="liquid" />
-        </filter>
-    </defs>
+<!-- ══════════════════════════════
+     iOS 26 LIQUID GLASS SVG FILTERS
+     feDisplacementMap = edge refraction
+     feSpecularLighting = specular rim
+══════════════════════════════ -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden;">
+  <defs>
+
+    <!-- Primary glass refraction filter -->
+    <filter id="lg-refract" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="3" result="turb"/>
+      <feComponentTransfer in="turb" result="mapped">
+        <feFuncR type="gamma" amplitude="1" exponent="8" offset="0.5"/>
+        <feFuncG type="gamma" amplitude="0" exponent="1" offset="0"/>
+        <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="mapped" stdDeviation="2.5" result="softMap"/>
+      <!-- Edge displacement — refracts background at borders -->
+      <feDisplacementMap in="SourceGraphic" in2="softMap" scale="22" xChannelSelector="R" yChannelSelector="B" result="displaced"/>
+      <!-- Specular lighting layer -->
+      <feSpecularLighting in="softMap" surfaceScale="4" specularConstant="0.8" specularExponent="80" lighting-color="white" result="spec">
+        <fePointLight x="-100" y="-150" z="250"/>
+      </feSpecularLighting>
+      <feComposite in="spec" in2="SourceAlpha" operator="in" result="specMasked"/>
+      <feBlend in="displaced" in2="specMasked" mode="screen"/>
+    </filter>
+
+    <!-- Nav blob metaball morphing -->
+    <filter id="metaball">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10"/>
+    </filter>
+
+    <!-- Stronger refraction for sidebar/header elements -->
+    <filter id="lg-strong" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.006" numOctaves="2" seed="7" result="t"/>
+      <feGaussianBlur in="t" stdDeviation="3" result="sm"/>
+      <feDisplacementMap in="SourceGraphic" in2="sm" scale="35" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+
+  </defs>
 </svg>
 
-<div id="bg-mesh"></div>
+<div id="wallpaper"></div>
 <div id="toasts"></div>
 
+<!-- ══ MODAL ══ -->
 <div id="modal-root">
     <div class="invoice-card v-stack">
-        <h2 style="font-size: 34px; font-weight: 900; letter-spacing: -2px; border-bottom: 4px solid #f2f2f7; padding-bottom: 25px; margin: 0;">FISCAL RECEIPT</h2>
-        <div id="invoice-payload" style="padding: 45px 0; font-family: var(--font-mono); line-height: 2.3; font-size: 14px; color: #2c2c2e; white-space: pre-wrap;"></div>
-        <div class="h-stack" style="gap: 20px;">
-            <button class="btn-ios btn-primary" style="flex: 1;" onclick="window.print()">PRINT NODE</button>
-            <button class="btn-ios" style="flex: 1; background: #1c1c1e; color: #fff;" onclick="closeModal()">DISMISS</button>
+        <div class="glass-shine" style="position:absolute;inset:0;pointer-events:none;border-radius:40px;z-index:10;"></div>
+        <h2 style="font-size:30px;font-weight:900;letter-spacing:-1.5px;border-bottom:1px solid rgba(0,0,0,0.08);padding-bottom:22px;margin:0;">FISCAL RECEIPT</h2>
+        <div id="invoice-payload" style="padding:36px 0;font-family:var(--font-mono);line-height:2.2;font-size:13px;white-space:pre-wrap;flex:1;"></div>
+        <div class="h-stack gap-12">
+            <button class="btn btn-primary" style="flex:1;" onclick="window.print()">PRINT NODE</button>
+            <button class="btn btn-glass" style="flex:1;" onclick="closeModal()">DISMISS</button>
         </div>
     </div>
 </div>
 
+<!-- ══ LOGIN ══ -->
 <div id="loginOverlay">
-    <div class="login-card v-stack">
-        <div style="font-size: 75px; margin-bottom: 25px;">🏥</div>
-        <h2 style="font-size: 32px; font-weight: 800;">HMS Enterprise</h2>
-        <p style="color: var(--text-tertiary); margin-bottom: 40px; font-weight: 800; letter-spacing: 2px;">SECURE ACCESS V26.0.3</p>
+    <div class="glass login-card v-stack">
+        <div class="glass-shine"></div>
+        <div style="font-size:64px;margin-bottom:20px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15));">🏥</div>
+        <h2 style="font-size:30px;font-weight:800;letter-spacing:-1px;">HMS Enterprise</h2>
+        <p style="color:rgba(60,60,67,0.6);margin-bottom:36px;font-size:11px;font-weight:800;letter-spacing:3px;margin-top:4px;">SECURE ACCESS V26.0.3</p>
         <input type="text" id="lU" placeholder="IDENTITY UID">
         <input type="password" id="lP" placeholder="SECURITY KEY">
-        <button class="btn-ios btn-primary" style="width: 100%;" onclick="runAuth()">
-            INITIALIZE NEURAL LINK
-        </button>
-        <p id="auth-msg" style="color: var(--ios-red); margin-top: 25px; font-weight: 800; font-size: 13px;"></p>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="runAuth()">INITIALIZE NEURAL LINK</button>
+        <p id="auth-msg" style="color:var(--ios-red);margin-top:18px;font-weight:800;font-size:12px;"></p>
     </div>
 </div>
 
-<nav id="sidebar" class="glass-panel hidden">
-    <div class="sidebar-header">
-        <h1 id="sys-user">USER_NULL</h1>
-        <p id="sys-role" style="font-size: 9px; letter-spacing: 4px; color: var(--ios-blue); font-weight: 900;">NODE_LINK_ACTIVE</p>
-        <div class="h-stack" style="margin-top: 25px; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.04); border-radius: 16px;">
-            <span style="font-size: 11px; font-weight: 900; color: var(--text-tertiary);">DARK MODE</span>
-            <div class="theme-switch" onclick="toggleTheme()">
-                <div class="theme-knob"></div>
+<!-- ══ SIDEBAR ══ -->
+<nav id="sidebar" class="hidden">
+    <div class="sidebar-shine"></div>
+    <div class="sidebar-inner">
+
+        <div class="sidebar-header">
+            <h1 id="sys-user" style="font-size:20px;font-weight:800;letter-spacing:-0.5px;">USER_NULL</h1>
+            <p id="sys-role" style="font-size:9px;letter-spacing:3px;color:var(--ios-blue);font-weight:900;margin-top:3px;">NODE_LINK_ACTIVE</p>
+            <div class="toggle-wrap">
+                <span style="font-size:11px;font-weight:800;color:var(--text-3);">DARK MODE</span>
+                <div class="toggle-track" onclick="toggleTheme()"><div class="toggle-knob"></div></div>
             </div>
         </div>
-    </div>
-    <div class="nav-list">
-        <div id="nav-blob-container"><div id="blob" class="nav-blob"></div></div>
-        <div class="nav-item active ni-admin" id="ni-0" onclick="morphTo('dashSec', this)">📊 <span>Dashboard Matrix</span></div>
-        <div class="nav-item ni-admin" id="ni-1" onclick="morphTo('hrSec', this)">👨‍⚕️ <span>Human Resources</span></div>
-        <div class="nav-item ni-admin ni-doctor" id="ni-2" onclick="morphTo('admitSec', this)">🛌 <span>Clinical Intake</span></div>
-        <div class="nav-item ni-admin ni-pharm" id="ni-3" onclick="morphTo('pharmaSec', this)">💊 <span>Inventory</span></div>
-        <div class="nav-item ni-admin ni-doctor" id="ni-4" onclick="morphTo('labSec', this)">🔬 <span>Laboratory</span></div>
-        <div class="nav-item ni-admin" id="ni-5" onclick="morphTo('financeSec', this)">💰 <span>Revenue & GST</span></div>
-        <div class="nav-item ni-all" id="ni-6" onclick="morphTo('searchSec', this)">🔍 <span>My Medical Bill</span></div>
-        <div class="nav-item ni-all" id="ni-7" onclick="morphTo('featSec', this)">✨ <span>Specifications</span></div>
-        <div class="nav-item ni-all" id="ni-8" onclick="morphTo('galSec', this)">🖼️ <span>Facility Gallery</span></div>
-        <div class="nav-item ni-clinical" id="ni-9" onclick="morphTo('gameSec', this)">🎮 <span>Staff Break Room</span></div>
-    </div>
-    <div style="padding: 25px;">
-        <button class="btn-ios btn-danger" style="width: 100%; border-radius: 18px;" onclick="location.reload()">🚪 VOID SESSION</button>
+
+        <div class="nav-list">
+            <div id="nav-blob"></div>
+            <div class="nav-item active ni-admin"   id="ni-0" onclick="morphTo('dashSec',   this)">📊 <span>Dashboard Matrix</span></div>
+            <div class="nav-item ni-admin"           id="ni-1" onclick="morphTo('hrSec',     this)">👨‍⚕️ <span>Human Resources</span></div>
+            <div class="nav-item ni-admin ni-doctor" id="ni-2" onclick="morphTo('admitSec',  this)">🛌 <span>Clinical Intake</span></div>
+            <div class="nav-item ni-admin ni-pharm"  id="ni-3" onclick="morphTo('pharmaSec', this)">💊 <span>Inventory</span></div>
+            <div class="nav-item ni-admin ni-doctor" id="ni-4" onclick="morphTo('labSec',    this)">🔬 <span>Laboratory</span></div>
+            <div class="nav-item ni-admin"           id="ni-5" onclick="morphTo('financeSec',this)">💰 <span>Revenue & GST</span></div>
+            <div class="nav-item ni-all"             id="ni-6" onclick="morphTo('searchSec', this)">🔍 <span>My Medical Bill</span></div>
+            <div class="nav-item ni-all"             id="ni-7" onclick="morphTo('featSec',   this)">✨ <span>Specifications</span></div>
+            <div class="nav-item ni-all"             id="ni-8" onclick="morphTo('galSec',    this)">🖼️ <span>Facility Gallery</span></div>
+            <div class="nav-item ni-clinical"        id="ni-9" onclick="morphTo('gameSec',   this)">🎮 <span>Staff Break Room</span></div>
+        </div>
+
+        <div class="sidebar-logout" style="padding:20px;">
+            <button class="btn btn-danger" style="width:100%;" onclick="location.reload()">🚪 VOID SESSION</button>
+        </div>
+
     </div>
 </nav>
 
+<!-- ══ VIEWPORT ══ -->
 <main id="viewport" class="hidden">
-    
-    <section id="dashSec" class="section-node hidden">
-        <h2 style="font-size: 52px; font-weight: 900; letter-spacing: -3.5px; margin-bottom: 12px;">Admin Telemetry</h2>
-        <p style="color: var(--text-secondary); font-size: 20px; margin-bottom: 60px;">System Resource Flow Sync</p>
+
+    <!-- DASHBOARD -->
+    <section id="dashSec" class="hidden section-in">
+        <div class="mb-32">
+            <div class="page-title">Admin Telemetry</div>
+            <div class="page-subtitle">System Resource Flow Sync</div>
+        </div>
         <div class="grid-3">
-            <div class="glass-panel data-card">
+            <div class="glass stat-card">
+                <div class="glass-shine"></div>
                 <span class="stat-label">Bio-Nodes Admitted</span>
                 <div class="stat-val" id="dash-p-count">0</div>
-                <span style="color: var(--ios-green); font-size: 12px; font-weight: 900;">↑ 18.4% FLUX GAIN</span>
+                <span class="stat-note" style="color:var(--ios-green);">↑ 18.4% FLUX GAIN</span>
             </div>
-            <div class="glass-panel data-card">
+            <div class="glass stat-card">
+                <div class="glass-shine"></div>
                 <span class="stat-label">Neural Integrity</span>
                 <div class="stat-val">99.9%</div>
-                <span style="color: var(--ios-blue); font-size: 12px; font-weight: 900;">SECURE_ALPHA_UPLINK</span>
+                <span class="stat-note" style="color:var(--ios-blue);">SECURE_ALPHA_UPLINK</span>
             </div>
-            <div class="glass-panel data-card">
+            <div class="glass stat-card">
+                <div class="glass-shine"></div>
                 <span class="stat-label">Liquid Yield</span>
                 <div class="stat-val" id="dash-rev">Rs 0</div>
-                <span style="color: var(--ios-orange); font-size: 12px; font-weight: 900;">NET_POST_TAX_REVENUE</span>
+                <span class="stat-note" style="color:var(--ios-orange);">NET_POST_TAX_REVENUE</span>
             </div>
         </div>
-        <div class="grid-3" style="grid-template-columns: 2fr 1fr; margin-top: 40px;">
-            <div class="glass-panel" style="padding: 45px;">
-                <h3 style="margin-bottom: 35px; letter-spacing: -1.5px;">Revenue Entropy Matrix</h3>
-                <canvas id="mainChart" height="135"></canvas>
+        <div class="grid-2-1 mt-24">
+            <div class="glass p-40">
+                <div class="glass-shine"></div>
+                <h3 style="margin-bottom:28px;font-size:18px;font-weight:800;letter-spacing:-0.5px;">Revenue Entropy Matrix</h3>
+                <canvas id="mainChart" height="130"></canvas>
             </div>
-            <div class="glass-panel v-stack" style="padding: 45px;">
-                <h3 style="margin-bottom: 25px; letter-spacing: -1px;">Security Audit</h3>
-                <div id="auditContainer" class="audit-trail"></div>
+            <div class="glass p-40 v-stack">
+                <div class="glass-shine"></div>
+                <h3 style="margin-bottom:18px;font-size:18px;font-weight:800;">Security Audit</h3>
+                <div id="auditContainer" class="audit" style="flex:1;"></div>
             </div>
         </div>
     </section>
 
-    <section id="hrSec" class="section-node hidden">
-        <div class="glass-panel" style="padding: 55px;">
-            <h2 style="font-size: 42px; font-weight: 900; letter-spacing: -2px; margin-bottom: 45px;">Personnel Registry 👨‍⚕️</h2>
+    <!-- HR -->
+    <section id="hrSec" class="hidden section-in">
+        <div class="glass p-48">
+            <div class="glass-shine"></div>
+            <div class="page-title mb-32">Personnel Registry 👨‍⚕️</div>
             <div class="grid-3">
                 <input type="text" id="stName" placeholder="Full Professional Name">
                 <select id="stRole">
@@ -374,17 +707,20 @@
                     <option>24/7 On-Call</option>
                 </select>
             </div>
-            <button class="btn-ios btn-primary" onclick="onboardStaff()">COMMIT RECORD TO CORE</button>
+            <button class="btn btn-primary" onclick="onboardStaff()">COMMIT RECORD TO CORE</button>
         </div>
-        <div class="glass-panel" style="margin-top: 40px; padding: 45px;">
-            <h3 style="margin-bottom: 20px;">Active Professional Roster</h3>
-            <div id="staffListMount" style="overflow-x: auto;"></div>
+        <div class="glass mt-24 p-40">
+            <div class="glass-shine"></div>
+            <h3 style="margin-bottom:18px;font-size:18px;font-weight:800;">Active Professional Roster</h3>
+            <div id="staffListMount" style="overflow-x:auto;"></div>
         </div>
     </section>
 
-    <section id="admitSec" class="section-node hidden">
-        <div class="glass-panel" style="padding: 55px;">
-            <h2 style="font-size: 42px; font-weight: 900; letter-spacing: -2px; margin-bottom: 45px;">Bio-Intake Engine 🛌</h2>
+    <!-- ADMISSIONS -->
+    <section id="admitSec" class="hidden section-in">
+        <div class="glass p-48">
+            <div class="glass-shine"></div>
+            <div class="page-title mb-32">Bio-Intake Engine 🛌</div>
             <div id="sectorChip">✨ AI Recommendation: <span id="recText">Analyze Symptoms</span></div>
             <div class="grid-3">
                 <input type="text" id="pName" placeholder="Legal Identity Name">
@@ -413,130 +749,156 @@
                 <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)">
                 <input type="text" id="pDiagnosis" placeholder="Clinical Diagnosis Matrix">
             </div>
-            <textarea id="pSymptoms" style="height: 120px;" placeholder="SYMPTOMS MATRIX (AI will suggest sector based on input...)" onkeyup="analyzeSymptoms()"></textarea>
-            <button class="btn-ios btn-primary" onclick="admitPatient()">AUTHORIZE ADMISSION</button>
+            <textarea id="pSymptoms" style="height:110px;" placeholder="SYMPTOMS MATRIX (AI will suggest sector based on input...)" onkeyup="analyzeSymptoms()"></textarea>
+            <button class="btn btn-primary" onclick="admitPatient()">AUTHORIZE ADMISSION</button>
         </div>
-        <div class="glass-panel ni-doctor" style="margin-top: 40px; padding: 50px;">
-            <h2 style="margin-bottom: 30px;">Digital Prescription Console 🩺</h2>
+
+        <div class="glass ni-doctor mt-24 p-48">
+            <div class="glass-shine"></div>
+            <h2 style="font-size:22px;font-weight:800;margin-bottom:24px;">Digital Prescription Console 🩺</h2>
             <div class="grid-3">
                 <select id="prescPatSel"></select>
                 <input type="text" id="prescMedName" placeholder="Medicine Name (e.g. Paracetamol)">
-                <button class="btn-ios btn-primary" onclick="addPrescription()">PRESCRIBE COMPOUND</button>
+                <button class="btn btn-primary" onclick="addPrescription()">PRESCRIBE COMPOUND</button>
             </div>
         </div>
-        <div class="glass-panel" style="margin-top: 40px; padding: 45px;">
-            <h3 style="margin-bottom: 20px;">Active Clinical Bio-Nodes</h3>
-            <div id="pListMount" style="overflow-x: auto;"></div>
+
+        <div class="glass mt-24 p-40">
+            <div class="glass-shine"></div>
+            <h3 style="margin-bottom:18px;font-size:18px;font-weight:800;">Active Clinical Bio-Nodes</h3>
+            <div id="pListMount" style="overflow-x:auto;"></div>
         </div>
     </section>
 
-    <section id="pharmaSec" class="section-node hidden">
+    <!-- PHARMACY -->
+    <section id="pharmaSec" class="hidden section-in">
         <div class="grid-3">
-            <div class="glass-panel v-stack" style="padding: 45px;">
-                <h3 style="margin-bottom: 20px;">Pending Dispensing 💊</h3>
-                <label class="stat-label">Target Bio-Node</label>
+            <div class="glass p-40 v-stack">
+                <div class="glass-shine"></div>
+                <h3 style="margin-bottom:18px;font-size:18px;font-weight:800;">Pending Dispensing 💊</h3>
+                <span class="stat-label" style="margin-bottom:8px;">Target Bio-Node</span>
                 <select id="pharmaPSelect" onchange="showPrescribed()"></select>
-                <div id="prescView" style="margin-bottom: 20px; padding: 15px; background: rgba(255,149,0,0.1); border-radius: 12px; display: none;">
+                <div id="prescView" style="margin-bottom:16px;padding:14px;background:rgba(255,149,0,0.08);border:1px solid rgba(255,149,0,0.15);border-radius:14px;display:none;">
                     <span class="stat-label">Doctor Prescribed:</span>
-                    <h3 id="prescVal" style="color: var(--ios-orange); margin-top: 5px;">None</h3>
+                    <h3 id="prescVal" style="color:var(--ios-orange);margin-top:5px;font-size:16px;">None</h3>
                 </div>
-                <label class="stat-label">Dispense Price</label>
+                <span class="stat-label" style="margin-bottom:8px;">Dispense Price</span>
                 <input type="number" id="pharmaMedCost" placeholder="Final Compound Price (Rs)">
-                <button class="btn-ios btn-primary" style="width: 100%;" onclick="dispenseMed()">DISPENSE & BILL</button>
+                <button class="btn btn-primary" style="width:100%;margin-top:auto;" onclick="dispenseMed()">DISPENSE & BILL</button>
             </div>
-            <div class="glass-panel" style="padding: 45px; grid-column: span 2;">
-                <h3 style="margin-bottom: 30px;">Pharmacy Ledger Sync</h3>
-                <div id="pharmaLogMount" class="audit-trail" style="height: 410px;"></div>
+            <div class="glass p-40" style="grid-column:span 2;">
+                <div class="glass-shine"></div>
+                <h3 style="margin-bottom:24px;font-size:18px;font-weight:800;">Pharmacy Ledger Sync</h3>
+                <div id="pharmaLogMount" class="audit" style="height:380px;"></div>
             </div>
         </div>
     </section>
 
-    <section id="labSec" class="section-node hidden">
+    <!-- LAB -->
+    <section id="labSec" class="hidden section-in">
         <div class="grid-3">
-            <div class="glass-panel v-stack" style="padding: 45px;">
-                <h3 style="margin-bottom: 35px;">Diagnostic Scan 🔬</h3>
-                <label class="stat-label">Bio-Identifier</label>
+            <div class="glass p-40 v-stack">
+                <div class="glass-shine"></div>
+                <h3 style="margin-bottom:28px;font-size:18px;font-weight:800;">Diagnostic Scan 🔬</h3>
+                <span class="stat-label" style="margin-bottom:8px;">Bio-Identifier</span>
                 <select id="labPSelect"></select>
-                <label class="stat-label">Process Suite</label>
+                <span class="stat-label" style="margin-bottom:8px;">Process Suite</span>
                 <select id="labTestSelect">
                     <option value="2800">Hematology Core (2.8k)</option>
                     <option value="24000">Neural MRI Suite (24k)</option>
                     <option value="85000">Full Genomic Sequencing (85k)</option>
                 </select>
-                <button class="btn-ios btn-primary" style="width: 100%;" onclick="issueLab()">EXECUTE SUITE</button>
+                <button class="btn btn-primary" style="width:100%;margin-top:auto;" onclick="issueLab()">EXECUTE SUITE</button>
             </div>
-            <div class="glass-panel" style="padding: 45px; grid-column: span 2;">
-                <h3 style="margin-bottom: 30px;">Laboratory Workflow Queue</h3>
-                <div id="labLogMount" class="audit-trail" style="height: 380px;"></div>
+            <div class="glass p-40" style="grid-column:span 2;">
+                <div class="glass-shine"></div>
+                <h3 style="margin-bottom:24px;font-size:18px;font-weight:800;">Laboratory Workflow Queue</h3>
+                <div id="labLogMount" class="audit" style="height:360px;"></div>
             </div>
         </div>
     </section>
 
-    <section id="financeSec" class="section-node hidden">
-        <div class="glass-panel v-stack h-stack" style="padding: 120px; text-align: center;">
+    <!-- FINANCE -->
+    <section id="financeSec" class="hidden section-in">
+        <div class="glass fin-hero v-stack h-stack">
+            <div class="glass-shine"></div>
             <span class="stat-label">GLOBAL_NET_LIQUIDITY_LEDGER_MASTER</span>
-            <h1 id="fin-net" style="font-size: 140px; font-weight: 900; color: var(--ios-green); margin: 45px 0; letter-spacing: -10px;">Rs 0</h1>
-            <div class="grid-3" style="width: 100%;">
-                <div class="glass-panel" style="padding: 40px; background: rgba(52, 199, 89, 0.05);">
+            <div class="fin-num" id="fin-net">Rs 0</div>
+            <div class="grid-3" style="width:100%;">
+                <div class="glass p-40" style="background:rgba(52,199,89,0.06);">
+                    <div class="glass-shine"></div>
                     <small class="stat-label">Gross Revenue</small>
-                    <h3 id="fin-gross" style="margin-top: 15px; font-size: 32px;">Rs 0</h3>
+                    <h3 id="fin-gross" style="margin-top:12px;font-size:28px;font-weight:800;">Rs 0</h3>
                 </div>
-                <div class="glass-panel" style="padding: 40px; background: rgba(255, 59, 48, 0.05);">
+                <div class="glass p-40" style="background:rgba(255,59,48,0.06);">
+                    <div class="glass-shine"></div>
                     <small class="stat-label">Payout Nodes</small>
-                    <h3 id="fin-pay" style="margin-top: 15px; font-size: 32px;">Rs 0</h3>
+                    <h3 id="fin-pay" style="margin-top:12px;font-size:28px;font-weight:800;">Rs 0</h3>
                 </div>
-                <div class="glass-panel" style="padding: 40px; background: rgba(0, 122, 255, 0.05);">
+                <div class="glass p-40" style="background:rgba(0,122,255,0.06);">
+                    <div class="glass-shine"></div>
                     <small class="stat-label">GST Liability (18%)</small>
-                    <h3 id="fin-tax" style="margin-top: 15px; font-size: 32px;">Rs 0</h3>
+                    <h3 id="fin-tax" style="margin-top:12px;font-size:28px;font-weight:800;">Rs 0</h3>
                 </div>
             </div>
-            <button class="btn-ios btn-danger" style="margin-top: 80px; padding: 30px 100px;" onclick="wipeFiscal()">WIPE GLOBAL FISCAL LEDGER</button>
+            <button class="btn btn-danger" style="margin-top:60px;padding:24px 80px;" onclick="wipeFiscal()">WIPE GLOBAL FISCAL LEDGER</button>
         </div>
     </section>
 
-    <section id="searchSec" class="section-node hidden">
-        <div class="glass-panel" style="padding: 60px; text-align: center;">
-            <input type="text" id="searchBar" style="font-size: 36px; text-align: center; border-radius: 25px; padding: 45px;" placeholder="SCAN IDENTITY NODE TO FETCH BILL..." onkeyup="runSearch()">
+    <!-- SEARCH -->
+    <section id="searchSec" class="hidden section-in">
+        <div class="glass p-48" style="text-align:center;">
+            <div class="glass-shine"></div>
+            <input type="text" id="searchBar" style="font-size:28px;text-align:center;border-radius:20px;padding:36px;" placeholder="SCAN IDENTITY NODE TO FETCH BILL..." onkeyup="runSearch()">
         </div>
-        <div id="searchMount" style="margin-top: 50px;"></div>
+        <div id="searchMount" class="mt-24"></div>
     </section>
 
-    <section id="featSec" class="section-node hidden">
-        <div class="glass-panel" style="padding: 60px;">
-            <h2 style="font-size: 44px; font-weight: 900; letter-spacing: -2px; margin-bottom: 50px;">System Specifications ✨</h2>
-            <p style="color: var(--text-secondary); font-size: 18px; line-height: 1.8;">HMS Enterprise v26.0 — Built on Liquid Glass Design System v34. Multi-role access control, real-time fiscal ledger, AI symptom analysis, and full clinical workflow integration.</p>
+    <!-- SPECS -->
+    <section id="featSec" class="hidden section-in">
+        <div class="glass p-48">
+            <div class="glass-shine"></div>
+            <div class="page-title mb-32">Specifications ✨</div>
+            <p style="color:var(--text-2);font-size:17px;line-height:1.8;max-width:680px;">HMS Enterprise v26.0 — Built on iOS 26 Liquid Glass Design System. Multi-role access control, real-time fiscal ledger, AI symptom analysis, and full clinical workflow integration. Featuring SVG feDisplacementMap refraction, specular highlights, and physics-based fluid animations.</p>
         </div>
     </section>
 
-    <section id="galSec" class="section-node hidden">
-        <div class="glass-panel" style="padding: 60px;">
-            <h2 style="font-size: 44px; font-weight: 900; letter-spacing: -2px; margin-bottom: 50px;">Facility Matrix 🖼️</h2>
+    <!-- GALLERY -->
+    <section id="galSec" class="hidden section-in">
+        <div class="glass p-48">
+            <div class="glass-shine"></div>
+            <div class="page-title mb-32">Facility Matrix 🖼️</div>
             <div class="gallery-grid" id="galleryMount"></div>
         </div>
     </section>
 
-    <section id="gameSec" class="section-node hidden">
-        <div class="glass-panel v-stack h-stack" style="padding: 100px;">
-            <h2 style="font-size: 38px; font-weight: 800; letter-spacing: -2px; margin-bottom: 40px;">Staff Reflex Trainer 🎮</h2>
-            <canvas id="snakeGame" width="500" height="500" style="background:var(--bg-base); border-radius:45px; border: 10px solid var(--ios-blue);"></canvas>
-            <h3 style="color: var(--ios-blue); margin-top: 45px; font-size: 44px; font-weight: 900; letter-spacing: -2px;">REFLEX: <span id="snakeScore">0</span></h3>
+    <!-- BREAK ROOM -->
+    <section id="gameSec" class="hidden section-in">
+        <div class="glass p-48 v-stack h-stack" style="text-align:center;align-items:center;">
+            <div class="glass-shine"></div>
+            <h2 style="font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:32px;">Staff Reflex Trainer 🎮</h2>
+            <canvas id="snakeGame" width="500" height="500" style="background:rgba(0,0,0,0.04);border-radius:36px;border:2px solid rgba(255,255,255,0.4);box-shadow:inset 1px 1px 0 rgba(255,255,255,0.6),0 12px 40px rgba(0,0,0,0.08);"></canvas>
+            <h3 style="color:var(--ios-blue);margin-top:36px;font-size:40px;font-weight:900;letter-spacing:-2px;">REFLEX: <span id="snakeScore">0</span></h3>
         </div>
     </section>
 
 </main>
 
 <script>
+/* ══════════════════════════════════════
+   HMS CORE STATE
+══════════════════════════════════════ */
 const SYS_CREDENTIALS = [
-    { u: "admin", p: "admin", role: "admin", name: "Administrator" },
-    { u: "doc", p: "123", role: "doctor", name: "Dr. Samip" },
-    { u: "pharm", p: "123", role: "pharm", name: "Lead Pharmacist" },
-    { u: "user", p: "0", role: "user", name: "Guest Portal" }
+    { u: "admin", p: "admin", role: "admin",  name: "Administrator"    },
+    { u: "doc",   p: "123",   role: "doctor", name: "Dr. Samip"        },
+    { u: "pharm", p: "123",   role: "pharm",  name: "Lead Pharmacist"  },
+    { u: "user",  p: "0",     role: "user",   name: "Guest Portal"     }
 ];
 
-let CORE_STATE = {
-    ROSTER: JSON.parse(localStorage.getItem('hms_v34_roster')) || [],
+let S = {
+    ROSTER:   JSON.parse(localStorage.getItem('hms_v34_roster'))   || [],
     PATIENTS: JSON.parse(localStorage.getItem('hms_v34_patients')) || [],
-    AUDIT: JSON.parse(localStorage.getItem('hms_v34_audit')) || [],
+    AUDIT:    JSON.parse(localStorage.getItem('hms_v34_audit'))    || [],
     FISCAL: {
         rev: parseFloat(localStorage.getItem('hms_v34_rev')) || 0,
         pay: parseFloat(localStorage.getItem('hms_v34_pay')) || 0
@@ -545,411 +907,329 @@ let CORE_STATE = {
 };
 
 const IMAGES = [
-    { url: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d", l: "FACILITY_MAIN" },
-    { url: "https://images.unsplash.com/photo-1516549655169-df83a0774514", l: "CRYSTAL_WARD" },
-    { url: "https://images.unsplash.com/photo-1586773860418-d37222d8fce2", l: "NEURAL_LAB" },
-    { url: "https://images.unsplash.com/photo-1512678080530-7760d81faba6", l: "ATRIUM_NORTH" },
-    { url: "https://images.unsplash.com/photo-1551076805-e1869033e561", l: "ICU_SYNC" },
-    { url: "https://images.unsplash.com/photo-1579684385127-1ef15d508118", l: "PHARMA_CORE" },
-    { url: "https://images.unsplash.com/photo-1581594632702-f235ae89b022", l: "DNA_MATRIX" },
-    { url: "https://images.unsplash.com/photo-1505751172107-57324a0834d8", l: "SCALING_TECH" },
-    { url: "https://images.unsplash.com/photo-1538108197017-c1c9868bb2e3", l: "SURGERY_UNIT" },
-    { url: "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b", l: "RECOVERY_1" },
-    { url: "https://images.unsplash.com/photo-1527613426441-4da17471b66d", l: "AMBULANCE" },
-    { url: "https://images.unsplash.com/photo-1504813184591-01572f98c85f", l: "TECH_ROOM" }
+    { url:"https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d", l:"FACILITY_MAIN" },
+    { url:"https://images.unsplash.com/photo-1516549655169-df83a0774514", l:"CRYSTAL_WARD"  },
+    { url:"https://images.unsplash.com/photo-1586773860418-d37222d8fce2", l:"NEURAL_LAB"    },
+    { url:"https://images.unsplash.com/photo-1512678080530-7760d81faba6", l:"ATRIUM_NORTH"  },
+    { url:"https://images.unsplash.com/photo-1551076805-e1869033e561", l:"ICU_SYNC"         },
+    { url:"https://images.unsplash.com/photo-1579684385127-1ef15d508118", l:"PHARMA_CORE"   },
+    { url:"https://images.unsplash.com/photo-1581594632702-f235ae89b022", l:"DNA_MATRIX"    },
+    { url:"https://images.unsplash.com/photo-1505751172107-57324a0834d8", l:"SCALING_TECH"  },
+    { url:"https://images.unsplash.com/photo-1538108197017-c1c9868bb2e3", l:"SURGERY_UNIT"  },
+    { url:"https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b", l:"RECOVERY_1"    },
+    { url:"https://images.unsplash.com/photo-1527613426441-4da17471b66d", l:"AMBULANCE"     },
+    { url:"https://images.unsplash.com/photo-1504813184591-01572f98c85f", l:"TECH_ROOM"     }
 ];
 
+/* Mouse-driven light refraction on glass panels */
 document.addEventListener('mousemove', e => {
-    const x = e.clientX; const y = e.clientY;
-    document.querySelectorAll('.glass-panel').forEach(p => {
-        const r = p.getBoundingClientRect();
-        p.style.setProperty('--lx', `${((x - r.left) / r.width) * 100}%`);
-        p.style.setProperty('--ly', `${((y - r.top) / r.height) * 100}%`);
+    document.querySelectorAll('.glass').forEach(el => {
+        const r = el.getBoundingClientRect();
+        el.style.setProperty('--mx', `${((e.clientX - r.left) / r.width)  * 100}%`);
+        el.style.setProperty('--my', `${((e.clientY - r.top)  / r.height) * 100}%`);
     });
 });
 
+/* ══ AUTH ══ */
 function runAuth() {
-    const uInput = document.getElementById('lU').value.trim().toLowerCase();
-    const pInput = document.getElementById('lP').value.trim();
-    const match = SYS_CREDENTIALS.find(x => x.u === uInput && x.p === pInput);
-    if (match) {
-        CORE_STATE.USER = match;
-        document.getElementById('loginOverlay').style.opacity = '0';
-        setTimeout(() => document.getElementById('loginOverlay').classList.add('hidden'), 800);
+    const u = document.getElementById('lU').value.trim().toLowerCase();
+    const p = document.getElementById('lP').value.trim();
+    const m = SYS_CREDENTIALS.find(x => x.u === u && x.p === p);
+    if (m) {
+        S.USER = m;
+        const lo = document.getElementById('loginOverlay');
+        lo.style.opacity = '0'; lo.style.pointerEvents = 'none';
+        setTimeout(() => lo.classList.add('hidden'), 900);
         document.getElementById('sidebar').classList.remove('hidden');
         document.getElementById('viewport').classList.remove('hidden');
-        document.getElementById('sys-user').innerText = match.name;
-        applyPermissions(match.role);
-        toast("Neural link established.", "success");
-        audit("SEC: Auth verification successful for Node ID " + match.u);
-        if (match.role === 'admin') morphTo('dashSec', document.getElementById('ni-0'));
-        else if (match.role === 'doctor') morphTo('admitSec', document.getElementById('ni-2'));
-        else if (match.role === 'pharm') morphTo('pharmaSec', document.getElementById('ni-3'));
-        else morphTo('searchSec', document.getElementById('ni-6'));
+        document.getElementById('sys-user').innerText = m.name;
+        applyPermissions(m.role);
+        toast('Neural link established.');
+        audit('SEC: Auth OK for ' + m.u);
+        if      (m.role === 'admin')  morphTo('dashSec',   document.getElementById('ni-0'));
+        else if (m.role === 'doctor') morphTo('admitSec',  document.getElementById('ni-2'));
+        else if (m.role === 'pharm')  morphTo('pharmaSec', document.getElementById('ni-3'));
+        else                          morphTo('searchSec', document.getElementById('ni-6'));
     } else {
-        document.getElementById('auth-msg').innerText = "FATAL: BIOMETRIC MISMATCH.";
+        document.getElementById('auth-msg').innerText = 'FATAL: BIOMETRIC MISMATCH.';
+        document.getElementById('auth-msg').style.animation = 'none';
+        setTimeout(() => document.getElementById('auth-msg').style.animation = '', 10);
     }
 }
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !document.getElementById('loginOverlay').classList.contains('hidden')) runAuth();
+});
 
 function applyPermissions(role) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.add('hidden'));
     document.querySelectorAll('.ni-all').forEach(n => n.classList.remove('hidden'));
-    if (role === 'admin') {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('hidden'));
-    } else if (role === 'doctor') {
-        document.querySelectorAll('.ni-doctor, .ni-clinical').forEach(n => n.classList.remove('hidden'));
-    } else if (role === 'pharm') {
-        document.querySelectorAll('.ni-pharm, .ni-clinical').forEach(n => n.classList.remove('hidden'));
-    }
+    if (role === 'admin')  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('hidden'));
+    else if (role === 'doctor') document.querySelectorAll('.ni-doctor,.ni-clinical').forEach(n => n.classList.remove('hidden'));
+    else if (role === 'pharm')  document.querySelectorAll('.ni-pharm,.ni-clinical').forEach(n => n.classList.remove('hidden'));
 }
 
+/* ══ NAV MORPHING ══ */
+function morphTo(id, navEl) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (navEl) navEl.classList.add('active');
+
+    const blob = document.getElementById('nav-blob');
+    blob.style.opacity = '1';
+    blob.style.top = navEl ? navEl.offsetTop + 'px' : '0';
+
+    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+    const tgt = document.getElementById(id);
+    if (tgt) { tgt.classList.remove('hidden'); tgt.classList.remove('section-in'); void tgt.offsetWidth; tgt.classList.add('section-in'); }
+
+    if (id === 'dashSec')   updateDashboard();
+    if (id === 'hrSec')     renderRoster();
+    if (id === 'admitSec')  renderPatients();
+    if (id === 'financeSec') updateFinance();
+    if (id === 'galSec')    renderGallery();
+    if (id === 'gameSec')   initSnake();
+    refreshSelects();
+}
+
+/* ══ THEME ══ */
+function toggleTheme() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('hms_v34_theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    toast('Theme synchronized.');
+    if (S.USER && S.USER.role === 'admin') initChart();
+}
+
+/* ══ TOAST ══ */
+function toast(msg) {
+    const wrap = document.getElementById('toasts');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerText = '⚡ ' + msg;
+    wrap.appendChild(el);
+    setTimeout(() => { el.style.opacity='0'; el.style.transform='translateX(110%)'; el.style.transition='all 0.4s'; setTimeout(()=>el.remove(),400); }, 3500);
+}
+
+/* ══ AI SYMPTOM ANALYZER ══ */
 function analyzeSymptoms() {
     const s = document.getElementById('pSymptoms').value.toLowerCase();
     const chip = document.getElementById('sectorChip');
-    const text = document.getElementById('recText');
     const rules = [
-        { keys: ['chest', 'heart', 'breath'], sector: "Cardiology Unit" },
-        { keys: ['head', 'brain', 'seizure'], sector: "Neurology Matrix" },
-        { keys: ['bone', 'fracture', 'joint'], sector: "Orthopedic Suite" },
-        { keys: ['fever', 'cough', 'cold'], sector: "General Medicine" },
-        { keys: ['blood', 'accident', 'cut'], sector: "Trauma/Emergency" }
+        { keys: ['chest','heart','breath'], sector: 'Cardiology Unit'   },
+        { keys: ['head','brain','seizure'], sector: 'Neurology Matrix'  },
+        { keys: ['bone','fracture','joint'],sector: 'Orthopedic Suite'  },
+        { keys: ['fever','cough','cold'],   sector: 'General Medicine'  },
+        { keys: ['blood','accident','cut'], sector: 'Trauma/Emergency'  }
     ];
-    let suggestion = rules.find(r => r.keys.some(k => s.includes(k)));
-    if (s.length > 3 && suggestion) {
-        text.innerText = suggestion.sector;
-        chip.classList.add('active');
-    } else {
-        chip.classList.remove('active');
-    }
+    const hit = rules.find(r => r.keys.some(k => s.includes(k)));
+    if (s.length > 3 && hit) { document.getElementById('recText').innerText = hit.sector; chip.classList.add('active'); }
+    else chip.classList.remove('active');
 }
 
 function updateIntakeFields() {
     const type = document.getElementById('pType').value;
     const room = document.getElementById('pRoom');
-    if (type === 'checkup') {
-        room.disabled = true; room.style.opacity = '0.3'; room.value = "0";
-    } else {
-        room.disabled = false; room.style.opacity = '1';
-    }
+    room.disabled = type === 'checkup';
+    room.style.opacity = type === 'checkup' ? '0.35' : '1';
+    if (type === 'checkup') room.value = '0';
 }
 
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    localStorage.setItem('hms_v34_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-    toast("Theme Engine Synchronized.");
-    if(CORE_STATE.USER && CORE_STATE.USER.role === 'admin') initDashboard(); 
-}
-
-// ============================================================
-// FIX: morphTo now uses offsetTop for accurate blob positioning
-// regardless of how many nav items are visible/hidden by role.
-// ============================================================
-function morphTo(id, navEl) {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if(navEl) navEl.classList.add('active');
-    
-    const blob = document.getElementById('blob');
-    blob.style.opacity = "1";
-
-    // Use actual DOM offsetTop of the nav element so blob tracks
-    // correctly even when some items are hidden due to permissions
-    if(navEl) {
-        const navList = navEl.parentElement;
-        blob.style.top = (navEl.offsetTop) + "px";
-    }
-
-    document.querySelectorAll('.section-node').forEach(s => s.classList.add('hidden'));
-    const target = document.getElementById(id);
-    if(target) target.classList.remove('hidden');
-    
-    if (id === 'dashSec') updateDashboard();
-    if (id === 'hrSec') renderRoster();
-    if (id === 'admitSec') renderPatients();
-    if (id === 'financeSec') updateFinance();
-    if (id === 'galSec') renderGallery();
-    if (id === 'gameSec') initSnake();
-    refreshSelects();
-}
-
-function toast(msg, type = 'success') {
-    const stack = document.getElementById('toasts');
-    const node = document.createElement('div');
-    node.className = 'toast-node';
-    node.innerText = "⚡ " + msg;
-    stack.appendChild(node);
-    setTimeout(() => { node.style.opacity = '0'; setTimeout(() => node.remove(), 600); }, 4000);
-}
-
-function addPrescription() {
-    const pid = document.getElementById('prescPatSel').value;
-    const med = document.getElementById('prescMedName').value.trim();
-    if(!pid || !med) return toast("Error: Target Identity Undefined.", "danger");
-    const idx = CORE_STATE.PATIENTS.findIndex(p => p.id == pid);
-    CORE_STATE.PATIENTS[idx].prescription = med;
-    save();
-    toast("Digital Prescription committed.");
-    audit("CLINIC: Dr prescribed [" + med + "] for patient " + CORE_STATE.PATIENTS[idx].name);
-    document.getElementById('prescMedName').value = "";
-    renderPatients();
-}
-
-function showPrescribed() {
-    const pid = document.getElementById('pharmaPSelect').value;
-    const view = document.getElementById('prescView');
-    const text = document.getElementById('prescVal');
-    if(!pid) return view.style.display = 'none';
-    const p = CORE_STATE.PATIENTS.find(x => x.id == pid);
-    if(p && p.prescription) {
-        text.innerText = p.prescription;
-        view.style.display = 'block';
-    } else {
-        text.innerText = "No Pending Prescriptions";
-        view.style.display = 'block';
-    }
-}
-
-function dispenseMed() {
-    const pid = document.getElementById('pharmaPSelect').value;
-    const cost = parseInt(document.getElementById('pharmaMedCost').value);
-    if(!pid || isNaN(cost)) return toast("Error: Price Null or Identity Null.", "danger");
-    const idx = CORE_STATE.PATIENTS.findIndex(p => p.id == pid);
-    CORE_STATE.PATIENTS[idx].phaCost += cost;
-    const medName = CORE_STATE.PATIENTS[idx].prescription || "Compound Class-X";
-    CORE_STATE.PATIENTS[idx].prescription = "";
-    save();
-    document.getElementById('pharmaLogMount').innerHTML += `> [${new Date().toLocaleTimeString()}] DISPENSED [${medName}] TO NODE [${CORE_STATE.PATIENTS[idx].name}] (Rs ${cost})<br>`;
-    toast("Dispensed & Billed.");
-    showPrescribed();
-    document.getElementById('pharmaMedCost').value = "";
-}
-
+/* ══ HR ══ */
 function onboardStaff() {
-    const n = document.getElementById('stName').value;
-    const r = document.getElementById('stRole').value;
-    const s = document.getElementById('stSalary').value;
-    const f = document.getElementById('stFee').value || 0;
-    const sp = document.getElementById('stSpec').value || "General";
-    if(!n || !s) return toast("Registry nodes incomplete.", "danger");
-    CORE_STATE.ROSTER.push({ id: Date.now(), n, r, s: parseFloat(s), f: parseFloat(f), sp, sh: document.getElementById('stShift').value, earnings: 0 });
-    save(); renderRoster();
-    toast("Professional node synchronized.");
-    audit("HR: Synchronized node " + n);
-    ['stName', 'stSalary', 'stFee', 'stSpec'].forEach(i => document.getElementById(i).value = "");
+    const n  = document.getElementById('stName').value;
+    const sl = document.getElementById('stSalary').value;
+    if (!n || !sl) return toast('Registry nodes incomplete.');
+    S.ROSTER.push({ id: Date.now(), n, r: document.getElementById('stRole').value, s: parseFloat(sl), f: parseFloat(document.getElementById('stFee').value)||0, sp: document.getElementById('stSpec').value||'General', sh: document.getElementById('stShift').value, earnings: 0 });
+    save(); renderRoster(); toast('Professional node synchronized.'); audit('HR: '+n);
+    ['stName','stSalary','stFee','stSpec'].forEach(i => document.getElementById(i).value='');
 }
 
 function renderRoster() {
-    const mount = document.getElementById('staffListMount');
+    const m = document.getElementById('staffListMount');
     let h = `<table><tr><th>Professional Identity</th><th>Role / Specialty</th><th>Earnings</th><th>Action</th></tr>`;
-    CORE_STATE.ROSTER.forEach(r => {
-        h += `<tr><td>${r.n}<br><small>Shift: ${r.sh}</small></td><td>${r.r}<br><small>${r.sp}</small></td>
-        <td style="color:var(--ios-green)">Rs ${r.earnings.toLocaleString()}</td>
-        <td><button onclick="voidStaff(${r.id})" class="btn-ios btn-danger" style="padding:10px 18px; font-size:11px;">VOID</button></td></tr>`;
+    S.ROSTER.forEach(r => {
+        h += `<tr><td><strong>${r.n}</strong><br><small style="color:var(--text-3)">Shift: ${r.sh}</small></td><td>${r.r}<br><small style="color:var(--text-3)">${r.sp}</small></td><td style="color:var(--ios-green)">Rs ${r.earnings.toLocaleString()}</td><td><button onclick="voidStaff(${r.id})" class="btn btn-danger" style="padding:8px 16px;font-size:11px;">VOID</button></td></tr>`;
     });
-    mount.innerHTML = h + "</table>";
-    refreshDocSelect();
+    m.innerHTML = h + '</table>'; refreshDocSelect();
 }
 
-function voidStaff(id) {
-    CORE_STATE.ROSTER = CORE_STATE.ROSTER.filter(x => x.id !== id);
-    save(); renderRoster();
-}
+function voidStaff(id) { S.ROSTER = S.ROSTER.filter(x=>x.id!==id); save(); renderRoster(); }
 
 function refreshDocSelect() {
-    const sel = document.getElementById('pDocAssign');
-    if(!sel) return;
+    const sel = document.getElementById('pDocAssign'); if(!sel) return;
     sel.innerHTML = '<option value="">Target Physician...</option>';
-    CORE_STATE.ROSTER.filter(r => r.r.includes('Specialist') || r.r.includes('Surgeon')).forEach(d => {
-        sel.innerHTML += `<option value="${d.n}">${d.n} (${d.sp})</option>`;
-    });
+    S.ROSTER.filter(r=>r.r.includes('Specialist')||r.r.includes('Surgeon')).forEach(d => sel.innerHTML += `<option value="${d.n}">${d.n} (${d.sp})</option>`);
 }
 
+/* ══ ADMISSIONS ══ */
 function admitPatient() {
-    const n = document.getElementById('pName').value;
-    const doc = document.getElementById('pDocAssign').value;
-    if(!n || !doc) return toast("Bio-profile failure.", "danger");
-    const docObj = CORE_STATE.ROSTER.find(x => x.n === doc);
-    CORE_STATE.PATIENTS.push({
-        id: Date.now(), name: n, age: document.getElementById('pAge').value, doc: doc,
-        roomPrice: parseInt(document.getElementById('pRoom').value), diagnosis: document.getElementById('pDiagnosis').value,
-        blood: document.getElementById('pBlood').value, type: document.getElementById('pType').value,
-        deposit: parseFloat(document.getElementById('pDeposit').value) || 0, intakeDate: new Date(), status: 'active',
-        labCost: 0, phaCost: 0, f: docObj ? docObj.f : 0, prescription: ""
-    });
-    save(); renderPatients();
-    toast("Bio-node intake successful.");
-    audit("CLINIC: Ward Sync for " + n);
-    ['pName', 'pAge', 'pDiagnosis', 'pDeposit', 'pSymptoms'].forEach(i => document.getElementById(i).value = "");
-    document.getElementById('sectorChip').classList.remove('active');
-    refreshSelects();
+    const n = document.getElementById('pName').value; const doc = document.getElementById('pDocAssign').value;
+    if (!n||!doc) return toast('Bio-profile failure.');
+    const docObj = S.ROSTER.find(x=>x.n===doc);
+    S.PATIENTS.push({ id:Date.now(), name:n, age:document.getElementById('pAge').value, doc, roomPrice:parseInt(document.getElementById('pRoom').value), diagnosis:document.getElementById('pDiagnosis').value, blood:document.getElementById('pBlood').value, type:document.getElementById('pType').value, deposit:parseFloat(document.getElementById('pDeposit').value)||0, intakeDate:new Date(), status:'active', labCost:0, phaCost:0, f:docObj?docObj.f:0, prescription:'' });
+    save(); renderPatients(); toast('Bio-node intake successful.'); audit('CLINIC: '+n);
+    ['pName','pAge','pDiagnosis','pDeposit','pSymptoms'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('sectorChip').classList.remove('active'); refreshSelects();
 }
 
 function renderPatients() {
-    const mount = document.getElementById('pListMount');
-    let active = CORE_STATE.PATIENTS.filter(p => p.status === 'active');
+    const m = document.getElementById('pListMount');
+    let active = S.PATIENTS.filter(p=>p.status==='active');
     let h = `<table><tr><th>Bio-Node Identity</th><th>Type / Blood</th><th>Pending Doc Sync</th><th>Flux Outstanding</th></tr>`;
     active.forEach(p => {
-        let b = calculateBill(p);
-        h += `<tr><td>${p.name}<br><small>Lead: ${p.doc}</small></td><td>${p.type.toUpperCase()}<br><small>Group: ${p.blood}</small></td>
-        <td>${p.prescription ? '<span class="presc-badge">PRESCRIPTION_PENDING</span>' : '<small>Cleared</small>'}</td>
-        <td style="color:var(--ios-blue)">Rs ${b.total.toLocaleString()}</td></tr>`;
+        let b = calcBill(p);
+        h += `<tr><td><strong>${p.name}</strong><br><small style="color:var(--text-3)">Lead: ${p.doc}</small></td><td>${p.type.toUpperCase()}<br><small style="color:var(--text-3)">Group: ${p.blood}</small></td><td>${p.prescription?'<span class="rx-badge">PRESCRIPTION_PENDING</span>':'<small style="color:var(--ios-green)">Cleared</small>'}</td><td style="color:var(--ios-blue);font-weight:800;">Rs ${b.total.toLocaleString()}</td></tr>`;
     });
-    mount.innerHTML = h + "</table>";
+    m.innerHTML = h + '</table>';
 }
 
+/* ══ PRESCRIPTIONS ══ */
+function addPrescription() {
+    const pid = document.getElementById('prescPatSel').value; const med = document.getElementById('prescMedName').value.trim();
+    if (!pid||!med) return toast('Error: Target Identity Undefined.');
+    const idx = S.PATIENTS.findIndex(p=>p.id==pid);
+    S.PATIENTS[idx].prescription = med; save(); toast('Prescription committed.'); audit('Rx: '+med+' → '+S.PATIENTS[idx].name);
+    document.getElementById('prescMedName').value=''; renderPatients();
+}
+
+/* ══ PHARMACY ══ */
+function showPrescribed() {
+    const pid = document.getElementById('pharmaPSelect').value;
+    const view = document.getElementById('prescView'); const text = document.getElementById('prescVal');
+    if (!pid) return view.style.display='none';
+    const p = S.PATIENTS.find(x=>x.id==pid);
+    text.innerText = (p&&p.prescription) ? p.prescription : 'No Pending Prescriptions';
+    view.style.display = 'block';
+}
+
+function dispenseMed() {
+    const pid = document.getElementById('pharmaPSelect').value; const cost = parseInt(document.getElementById('pharmaMedCost').value);
+    if (!pid||isNaN(cost)) return toast('Error: Price Null or Identity Null.');
+    const idx = S.PATIENTS.findIndex(p=>p.id==pid);
+    S.PATIENTS[idx].phaCost += cost;
+    const med = S.PATIENTS[idx].prescription||'Compound Class-X'; S.PATIENTS[idx].prescription='';
+    save(); document.getElementById('pharmaLogMount').innerHTML += `> [${new Date().toLocaleTimeString()}] DISPENSED [${med}] → [${S.PATIENTS[idx].name}] Rs ${cost}<br>`; toast('Dispensed & Billed.'); showPrescribed(); document.getElementById('pharmaMedCost').value='';
+}
+
+/* ══ LAB ══ */
 function refreshSelects() {
-    const active = CORE_STATE.PATIENTS.filter(x => x.status === 'active');
-    const s1 = document.getElementById('pharmaPSelect'); 
-    const s2 = document.getElementById('labPSelect');
-    const s3 = document.getElementById('prescPatSel');
-    [s1, s2, s3].forEach(s => {
-        if(!s) return;
+    const active = S.PATIENTS.filter(x=>x.status==='active');
+    ['pharmaPSelect','labPSelect','prescPatSel'].forEach(id => {
+        const s = document.getElementById(id); if(!s) return;
         s.innerHTML = '<option value="">Select identity...</option>';
-        active.forEach(p => s.innerHTML += `<option value="${p.id}">${p.name}</option>`);
+        active.forEach(p=>s.innerHTML+=`<option value="${p.id}">${p.name}</option>`);
     });
 }
 
 function issueLab() {
     const pid = document.getElementById('labPSelect').value; const cost = parseInt(document.getElementById('labTestSelect').value);
-    if(!pid) return; const idx = CORE_STATE.PATIENTS.findIndex(p => p.id == pid);
-    CORE_STATE.PATIENTS[idx].labCost += cost; save();
-    document.getElementById('labLogMount').innerHTML += `> [${new Date().toLocaleTimeString()}] PROCESS_DONE ON NODE [${CORE_STATE.PATIENTS[idx].name}] (Rs ${cost})<br>`;
-    toast("Lab suite executed.");
+    if (!pid) return; const idx = S.PATIENTS.findIndex(p=>p.id==pid);
+    S.PATIENTS[idx].labCost += cost; save();
+    document.getElementById('labLogMount').innerHTML += `> [${new Date().toLocaleTimeString()}] SCAN DONE [${S.PATIENTS[idx].name}] Rs ${cost}<br>`; toast('Lab suite executed.');
 }
 
-function calculateBill(p) {
-    const diff = Math.ceil((new Date() - new Date(p.intakeDate)) / 86400000) || 1;
-    const sub = (p.type === 'checkup' ? 0 : (diff * p.roomPrice)) + p.labCost + p.phaCost + p.f;
-    const tax = sub * 0.18;
-    return { s: sub, x: tax, total: Math.max(0, sub + tax - p.deposit) };
+/* ══ BILLING ══ */
+function calcBill(p) {
+    const days = Math.ceil((new Date()-new Date(p.intakeDate))/86400000)||1;
+    const sub = (p.type==='checkup'?0:(days*p.roomPrice))+p.labCost+p.phaCost+p.f;
+    const tax = sub*0.18;
+    return { s:sub, x:tax, total:Math.max(0,sub+tax-p.deposit) };
 }
 
+/* ══ FINANCE ══ */
 function updateFinance() {
-    if(CORE_STATE.USER.role !== 'admin') return;
-    document.getElementById('fin-net').innerText = "Rs " + (CORE_STATE.FISCAL.rev - CORE_STATE.FISCAL.pay).toLocaleString();
-    document.getElementById('fin-gross').innerText = "Rs " + CORE_STATE.FISCAL.rev.toLocaleString();
-    document.getElementById('fin-pay').innerText = "Rs " + CORE_STATE.FISCAL.pay.toLocaleString();
-    document.getElementById('fin-tax').innerText = "Rs " + (CORE_STATE.FISCAL.rev * 0.18).toLocaleString();
+    if (S.USER.role!=='admin') return;
+    document.getElementById('fin-net').innerText   = 'Rs '+(S.FISCAL.rev-S.FISCAL.pay).toLocaleString();
+    document.getElementById('fin-gross').innerText = 'Rs '+S.FISCAL.rev.toLocaleString();
+    document.getElementById('fin-pay').innerText   = 'Rs '+S.FISCAL.pay.toLocaleString();
+    document.getElementById('fin-tax').innerText   = 'Rs '+(S.FISCAL.rev*0.18).toLocaleString();
 }
+function wipeFiscal() { if(confirm('VOID FISCAL MATRIX?')){S.FISCAL={rev:0,pay:0};save();updateFinance();} }
 
-function wipeFiscal() { if(confirm("VOID FISCAL MATRIX?")) { CORE_STATE.FISCAL = { rev: 0, pay: 0 }; save(); updateFinance(); } }
-
+/* ══ SEARCH & SETTLE ══ */
 function runSearch() {
-    const q = document.getElementById('searchBar').value.toLowerCase(); const mount = document.getElementById('searchMount');
-    if(!q) { mount.innerHTML = ""; return; }
-    const matches = CORE_STATE.PATIENTS.filter(p => p.name.toLowerCase().includes(q) && p.status === 'active');
-    let h = "";
-    matches.forEach(p => {
-        let b = calculateBill(p);
-        let settleBtn = CORE_STATE.USER.role === 'admin' ? 
-            `<button class="btn-ios btn-primary" onclick="settle(${p.id})">FINAL SETTLEMENT</button>` :
-            `<div style="font-size:10px; color:var(--ios-red); font-weight:800;">ADMIN_AUTHORIZATION_REQUIRED</div>`;
-        h += `<div class="glass-panel section-node" style="padding:40px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
-            <div><span class="stat-label">Identity Node</span><h3>${p.name}</h3></div>
-            <div><span class="stat-label">Active Flux Due</span><h3 style="color:var(--ios-blue)">Rs ${b.total.toLocaleString()}</h3></div>
-            ${settleBtn}
-        </div>`;
-    });
-    mount.innerHTML = h || "<p style='text-align:center; opacity:0.3; font-weight:800;'>NODE_NOT_RESOLVED.</p>";
+    const q = document.getElementById('searchBar').value.toLowerCase(); const m = document.getElementById('searchMount');
+    if (!q) { m.innerHTML=''; return; }
+    const hits = S.PATIENTS.filter(p=>p.name.toLowerCase().includes(q)&&p.status==='active');
+    let h = hits.map(p=>{
+        let b = calcBill(p);
+        let btn = S.USER.role==='admin' ? `<button class="btn btn-primary" onclick="settle(${p.id})">FINAL SETTLEMENT</button>` : `<div style="font-size:10px;color:var(--ios-red);font-weight:800;">ADMIN_AUTHORIZATION_REQUIRED</div>`;
+        return `<div class="glass section-in" style="padding:32px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;"><div class="glass-shine"></div><div><span class="stat-label">Identity Node</span><h3 style="font-size:20px;font-weight:800;margin-top:4px;">${p.name}</h3></div><div style="text-align:right;"><span class="stat-label">Active Flux Due</span><h3 style="color:var(--ios-blue);font-size:22px;font-weight:800;margin-top:4px;">Rs ${b.total.toLocaleString()}</h3></div>${btn}</div>`;
+    }).join('');
+    m.innerHTML = h || '<p style="text-align:center;opacity:0.3;font-weight:800;padding:40px;">NODE_NOT_RESOLVED.</p>';
 }
 
 function settle(id) {
-    if(CORE_STATE.USER.role !== 'admin') return;
-    const idx = CORE_STATE.PATIENTS.findIndex(p => p.id == id); const bill = calculateBill(CORE_STATE.PATIENTS[idx]);
-    const comm = bill.s * 0.15; const docIdx = CORE_STATE.ROSTER.findIndex(d => d.n === CORE_STATE.PATIENTS[idx].doc);
-    if(docIdx !== -1) CORE_STATE.ROSTER[docIdx].earnings += comm;
-    CORE_STATE.FISCAL.rev += bill.total; CORE_STATE.FISCAL.pay += comm; CORE_STATE.PATIENTS[idx].status = 'discharged';
-    save(); renderInvoice(CORE_STATE.PATIENTS[idx], bill); runSearch(); audit("FIN: Discharge for " + CORE_STATE.PATIENTS[idx].name);
+    if (S.USER.role!=='admin') return;
+    const idx = S.PATIENTS.findIndex(p=>p.id==id); const bill = calcBill(S.PATIENTS[idx]);
+    const comm = bill.s*0.15; const di = S.ROSTER.findIndex(d=>d.n===S.PATIENTS[idx].doc);
+    if (di!==-1) S.ROSTER[di].earnings+=comm;
+    S.FISCAL.rev+=bill.total; S.FISCAL.pay+=comm; S.PATIENTS[idx].status='discharged';
+    save(); renderInvoice(S.PATIENTS[idx],bill); runSearch(); audit('FIN: Discharge '+S.PATIENTS[idx].name);
 }
 
 function renderInvoice(p, b) {
-    const payload = `NODE: ${p.id}\nIDENTITY: ${p.name.toUpperCase()}\nPHYSICIAN: ${p.doc.toUpperCase()}\n--------------------\nWARD: Rs ${(b.s-p.labCost-p.phaCost-p.f).toLocaleString()}\nDIAG: Rs ${p.labCost.toLocaleString()}\nMEDS: Rs ${p.phaCost.toLocaleString()}\nTAX: Rs ${b.x.toLocaleString()}\n--------------------\nSETTLED: Rs ${b.total.toLocaleString()}`;
-    document.getElementById('invoice-payload').innerText = payload;
-    document.getElementById('modal-root').style.display = 'flex';
+    document.getElementById('invoice-payload').innerText = `NODE: ${p.id}\nIDENTITY: ${p.name.toUpperCase()}\nPHYSICIAN: ${p.doc.toUpperCase()}\n─────────────────────\nWARD:  Rs ${(b.s-p.labCost-p.phaCost-p.f).toLocaleString()}\nDIAG:  Rs ${p.labCost.toLocaleString()}\nMEDS:  Rs ${p.phaCost.toLocaleString()}\nTAX:   Rs ${b.x.toLocaleString()}\n─────────────────────\nSETTLED: Rs ${b.total.toLocaleString()}`;
+    document.getElementById('modal-root').style.display='flex';
 }
+function closeModal() { document.getElementById('modal-root').style.display='none'; }
 
-function closeModal() { document.getElementById('modal-root').style.display = 'none'; }
-
+/* ══ DASHBOARD ══ */
 function updateDashboard() {
-    if(CORE_STATE.USER.role !== 'admin') return;
-    const active = CORE_STATE.PATIENTS.filter(p => p.status === 'active');
+    if (S.USER.role!=='admin') return;
+    const active = S.PATIENTS.filter(p=>p.status==='active');
     document.getElementById('dash-p-count').innerText = active.length;
-    const flux = active.reduce((acc, curr) => acc + calculateBill(curr).total, 0);
-    document.getElementById('dash-rev').innerText = "Rs " + flux.toLocaleString();
-    document.getElementById('auditContainer').innerHTML = CORE_STATE.AUDIT.slice().reverse().join('<br>');
+    const flux = active.reduce((a,c)=>a+calcBill(c).total, 0);
+    document.getElementById('dash-rev').innerText = 'Rs '+flux.toLocaleString();
+    document.getElementById('auditContainer').innerHTML = S.AUDIT.slice().reverse().join('<br>');
     initChart();
 }
 
-function audit(msg) {
-    CORE_STATE.AUDIT.push("> [" + new Date().toLocaleTimeString() + "] " + msg);
-    if(CORE_STATE.AUDIT.length > 80) CORE_STATE.AUDIT.shift();
-    save();
-}
+function audit(msg) { S.AUDIT.push('> ['+new Date().toLocaleTimeString()+'] '+msg); if(S.AUDIT.length>80) S.AUDIT.shift(); save(); }
 
+/* ══ GALLERY ══ */
 function renderGallery() {
-    document.getElementById('galleryMount').innerHTML = IMAGES.map(item => `
-        <div class="gallery-node"><img src="${item.url}?auto=format&fit=crop&q=80&w=600">
-        <div class="gallery-label">${item.l}</div></div>`).join('');
+    document.getElementById('galleryMount').innerHTML = IMAGES.map(i=>`<div class="gallery-node"><img src="${i.url}?auto=format&fit=crop&q=80&w=600" alt="${i.l}" loading="lazy"></div>`).join('');
 }
 
+/* ══ SAVE ══ */
 function save() {
-    localStorage.setItem('hms_v34_roster', JSON.stringify(CORE_STATE.ROSTER));
-    localStorage.setItem('hms_v34_patients', JSON.stringify(CORE_STATE.PATIENTS));
-    localStorage.setItem('hms_v34_audit', JSON.stringify(CORE_STATE.AUDIT));
-    localStorage.setItem('hms_v34_rev', CORE_STATE.FISCAL.rev);
-    localStorage.setItem('hms_v34_pay', CORE_STATE.FISCAL.pay);
+    localStorage.setItem('hms_v34_roster',   JSON.stringify(S.ROSTER));
+    localStorage.setItem('hms_v34_patients', JSON.stringify(S.PATIENTS));
+    localStorage.setItem('hms_v34_audit',    JSON.stringify(S.AUDIT));
+    localStorage.setItem('hms_v34_rev', S.FISCAL.rev);
+    localStorage.setItem('hms_v34_pay', S.FISCAL.pay);
 }
 
+/* ══ SNAKE ══ */
 function initSnake() {
-    const canvas = document.getElementById("snakeGame"); const x = canvas.getContext("2d");
-    let box = 25, score = 0, dir, game;
-    let snake = [{x: 9 * box, y: 10 * box}];
-    let food = { x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box };
-    const blue = getComputedStyle(document.documentElement).getPropertyValue('--ios-blue').trim();
-    const dark = document.body.classList.contains('dark-mode');
-    document.onkeydown = e => {
-        if(e.keyCode == 37 && dir != "RIGHT") dir = "LEFT";
-        else if(e.keyCode == 38 && dir != "DOWN") dir = "UP";
-        else if(e.keyCode == 39 && dir != "LEFT") dir = "RIGHT";
-        else if(e.keyCode == 40 && dir != "UP") dir = "DOWN";
-    };
-    function draw() {
-        x.fillStyle = dark ? "#1c1c1e" : "#f5f5f7"; x.fillRect(0,0,500,500);
-        for(let i=0; i<snake.length; i++) {
-            x.fillStyle = (i==0) ? blue : (dark ? "#48484a" : "#e5e5ea");
-            x.fillRect(snake[i].x, snake[i].y, box, box);
-        }
-        x.fillStyle = "#ff3b30"; x.fillRect(food.x, food.y, box, box);
-        let sX = snake[0].x, sY = snake[0].y;
-        if(dir == "LEFT") sX -= box; if(dir == "UP") sY -= box;
-        if(dir == "RIGHT") sX += box; if(dir == "DOWN") sY += box;
-        if(sX == food.x && sY == food.y) {
-            score++; document.getElementById('snakeScore').innerText = score;
-            food = { x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box };
-        } else snake.pop();
-        if(sX < 0 || sX >= 500 || sY < 0 || sY >= 500) { clearInterval(window.snakeTimer); toast("Reflex Failure."); }
-        snake.unshift({x:sX, y:sY});
+    const canvas=document.getElementById('snakeGame'); const ctx=canvas.getContext('2d');
+    let box=25, score=0, dir; let snake=[{x:9*box,y:10*box}];
+    let food={x:Math.floor(Math.random()*19)*box,y:Math.floor(Math.random()*19)*box};
+    const dark=document.body.classList.contains('dark');
+    document.onkeydown=e=>{if(e.keyCode==37&&dir!='RIGHT')dir='LEFT';else if(e.keyCode==38&&dir!='DOWN')dir='UP';else if(e.keyCode==39&&dir!='LEFT')dir='RIGHT';else if(e.keyCode==40&&dir!='UP')dir='DOWN';};
+    function draw(){
+        ctx.fillStyle=dark?'#1c1c1e':'rgba(242,242,247,0.8)';ctx.fillRect(0,0,500,500);
+        snake.forEach((s,i)=>{ctx.fillStyle=i===0?'#007aff':(dark?'#48484a':'#c7c7cc');ctx.beginPath();ctx.roundRect(s.x+1,s.y+1,box-2,box-2,6);ctx.fill();});
+        ctx.fillStyle='#ff3b30';ctx.beginPath();ctx.roundRect(food.x+1,food.y+1,box-2,box-2,8);ctx.fill();
+        let hX=snake[0].x,hY=snake[0].y;
+        if(dir=='LEFT')hX-=box;if(dir=='UP')hY-=box;if(dir=='RIGHT')hX+=box;if(dir=='DOWN')hY+=box;
+        if(hX==food.x&&hY==food.y){score++;document.getElementById('snakeScore').innerText=score;food={x:Math.floor(Math.random()*19)*box,y:Math.floor(Math.random()*19)*box};}else snake.pop();
+        if(hX<0||hX>=500||hY<0||hY>=500){clearInterval(window.snakeT);toast('Reflex Failure.');}
+        snake.unshift({x:hX,y:hY});
     }
-    clearInterval(window.snakeTimer);
-    window.snakeTimer = setInterval(draw, 115);
+    clearInterval(window.snakeT); window.snakeT=setInterval(draw,115);
 }
 
+/* ══ CHART ══ */
 function initChart() {
-    const ctx = document.getElementById('mainChart').getContext('2d');
-    if (window.myChart) window.myChart.destroy();
-    window.myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['00:00','04:00','08:00','12:00','16:00','20:00'],
-            datasets: [{
-                data:[35, 60, 45, 95, 75, 90], borderColor:'#007aff', fill:true, 
-                backgroundColor: 'rgba(0, 122, 255, 0.05)', tension:0.4, borderWidth: 4, pointRadius: 0
-            }]
-        },
-        options: { plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
-    });
+    const ctx=document.getElementById('mainChart').getContext('2d');
+    if(window.myChart) window.myChart.destroy();
+    const isDark=document.body.classList.contains('dark');
+    window.myChart=new Chart(ctx,{type:'line',data:{labels:['00:00','04:00','08:00','12:00','16:00','20:00'],datasets:[{data:[35,60,45,95,75,90],borderColor:'#007aff',fill:true,backgroundColor:isDark?'rgba(0,122,255,0.08)':'rgba(0,122,255,0.05)',tension:0.45,borderWidth:3,pointRadius:0}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
 }
 
-if(localStorage.getItem('hms_v34_theme') === 'dark') document.body.classList.add('dark-mode');
+/* ══ INIT ══ */
+if (localStorage.getItem('hms_v34_theme')==='dark') document.body.classList.add('dark');
 </script>
 </body>
 </html>
