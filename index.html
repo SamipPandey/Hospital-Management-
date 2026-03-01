@@ -2,1257 +2,954 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS Enterprise v19.0 - Absolute Financial Integrity</title>
-    
-    <!-- 
-        ==================================================================================
-        EXTERNAL RESOURCES: CHART ENGINE & HIGH-FIDELITY TYPOGRAPHY
-        ==================================================================================
-    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HMS Enterprise | Synchronized Crystal v26.0</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* 
-           ==================================================================================
-           LIQUID GLASS DESIGN SYSTEM (Inspired by iOS 26 & VisionOS)
-           ==================================================================================
-        */
         :root {
-            /* Palette Architecture */
-            --primary: #0f172a;
-            --secondary: #1e293b;
-            --accent: #3b82f6;
-            --accent-hover: #2563eb;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #0ea5e9;
-            
-            /* Glassmorphism Coefficients */
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-thick: rgba(255, 255, 255, 0.07);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --glass-blur: blur(25px) saturate(200%);
-            
-            /* Typography & Layout */
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --text-v-dim: #64748b;
-            --sidebar-width: 300px;
-            
-            /* Motion Curves */
-            --trans-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            --trans-spring: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+            --font-mono: "JetBrains Mono", "SF Mono", monospace;
+            --bg-base: #f5f5f7;
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-thick: rgba(255, 255, 255, 0.75);
+            --glass-edge: rgba(255, 255, 255, 0.9);
+            --text-primary: #1d1d1f;
+            --text-secondary: #48484a;
+            --text-tertiary: #86868b;
+            --input-bg: rgba(255, 255, 255, 0.6);
+            --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+            --blob-color: #007aff;
+            --ios-blue: #007aff;
+            --ios-indigo: #5856d6;
+            --ios-green: #34c759;
+            --ios-red: #ff3b30;
+            --ios-orange: #ff9500;
+            --radius-xl: 32px;
+            --radius-lg: 20px;
+            --sidebar-width: 340px;
+            --trans-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --trans-liquid: all 0.7s cubic-bezier(0.7, 0, 0.3, 1);
         }
-
-        /* 
-           --- PRINT ARCHITECTURE --- 
-           Strips all UI elements for professional invoice output.
-        */
-        @media print {
-            body { background: white !important; color: black !important; overflow: visible !important; }
-            #sidebar, .btn-primary, .no-print, #toast-container, .sidebar-brand, .section-header, .search-container, #loginOverlay { display: none !important; }
-            #main { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible !important; }
-            .card, .glass-panel { border: none !important; backdrop-filter: none !important; box-shadow: none !important; background: transparent !important; color: black !important; padding: 0 !important; }
-            .content-sec { display: none !important; }
-            #receiptModal { display: flex !important; background: white !important; position: static !important; width: 100% !important; justify-content: flex-start !important; padding: 0 !important; }
-            .receipt-card { width: 100% !important; border: none !important; box-shadow: none !important; padding: 0 !important; color: black !important; font-family: 'Courier New', Courier, monospace; }
-            .no-print-btn { display: none !important; }
+        body.dark-mode {
+            --bg-base: #000000;
+            --glass-bg: rgba(28, 28, 30, 0.65);
+            --glass-thick: rgba(44, 44, 46, 0.85);
+            --glass-edge: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #ebebf5;
+            --text-tertiary: #8e8e93;
+            --input-bg: rgba(58, 58, 60, 0.6);
+            --card-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+            --blob-color: #0a84ff;
         }
-
-        /* 
-           --- BASE RESET & SMOOTHING --- 
-        */
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-font-smoothing: antialiased; }
         body {
-            font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at top right, #1e293b, #0f172a);
-            color: var(--text-main);
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            overflow: hidden;
+            font-family: var(--font-apple);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            height: 100vh; width: 100vw;
+            display: flex; overflow: hidden;
+            transition: background-color 0.8s var(--trans-smooth);
         }
-
-        /* 
-           --- NOTIFICATION ENGINE (Toasts) --- 
-        */
-        #toast-container {
-            position: fixed;
-            top: 40px;
-            right: 40px;
-            z-index: 100000;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        #bg-mesh {
+            position: fixed; inset: -50%; width: 200%; height: 200%; z-index: -1;
+            animation: meshFlow 35s linear infinite alternate;
+            background-image: 
+                radial-gradient(at 0% 0%, #e3f2fd 0, transparent 50%),
+                radial-gradient(at 50% 0%, #f3e5f5 0, transparent 50%),
+                radial-gradient(at 100% 0%, #e8f5e9 0, transparent 50%);
         }
-
-        .toast {
-            padding: 18px 28px;
-            border-radius: 20px;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            color: white;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            transform: translateX(150%);
-            animation: toastIn 0.8s var(--trans-spring) forwards;
+        body.dark-mode #bg-mesh {
+            background-image: 
+                radial-gradient(at 0% 0%, #1c1c1e 0, transparent 50%),
+                radial-gradient(at 50% 0%, #000000 0, transparent 50%),
+                radial-gradient(at 100% 0%, #1a1a1a 0, transparent 50%);
         }
-
-        @keyframes toastIn { to { transform: translateX(0); } }
-        .toast.success { border-left: 8px solid var(--success); }
-        .toast.danger { border-left: 8px solid var(--danger); }
-        .toast.info { border-left: 8px solid var(--accent); }
-
-        /* 
-           --- LOGIN ARCHITECTURE (Frosted Look) --- 
-        */
+        @keyframes meshFlow {
+            from { transform: scale(1) rotate(0deg); }
+            to { transform: scale(1.15) rotate(4deg); }
+        }
         #loginOverlay {
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=2000') center/cover;
-            z-index: 20000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            z-index: 100000; display: flex; align-items: center; justify-content: center;
+            transition: opacity 1s var(--trans-smooth);
         }
-
         #loginOverlay::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(10, 15, 30, 0.85);
-            backdrop-filter: blur(12px);
+            content: ""; position: absolute; inset: 0;
+            background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(40px) saturate(200%);
         }
-
-        .login-box {
-            position: relative;
-            background: var(--glass);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--glass-border);
-            padding: 60px;
-            border-radius: 32px;
-            width: 480px;
-            text-align: center;
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
-            z-index: 5;
+        body.dark-mode #loginOverlay::before { background: rgba(0, 0, 0, 0.75); }
+        .login-card {
+            position: relative; background: var(--glass-thick);
+            border: 1px solid var(--glass-edge);
+            padding: 60px; border-radius: 45px;
+            width: 90%; max-width: 440px; text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.15);
+            z-index: 10;
         }
-
-        .login-box h2 { font-size: 36px; margin-bottom: 8px; font-weight: 800; color: #fff; letter-spacing: -1.5px; }
-        .login-box p { color: var(--text-dim); margin-bottom: 40px; font-size: 15px; }
-
-        /* 
-           --- FORM INPUTS & INTERACTIVE ELEMENTS --- 
-        */
-        input, select, textarea {
-            width: 100%;
-            padding: 18px;
-            margin: 12px 0;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            color: white;
-            font-family: inherit;
-            font-size: 15px;
-            outline: none;
-            transition: var(--trans-smooth);
-        }
-
-        input:focus, select:focus, textarea:focus { 
-            border-color: var(--accent); 
-            background: rgba(0, 0, 0, 0.6); 
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); 
-        }
-
-        .btn-primary {
-            padding: 18px 28px;
-            border: none;
-            border-radius: 16px;
-            cursor: pointer;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), #1d4ed8);
-            color: white;
-            width: 100%;
-            font-size: 16px;
-            margin-top: 15px;
-            box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
-            transition: var(--trans-spring);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary:hover { 
-            transform: translateY(-5px) scale(1.02); 
-            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.6); 
-        }
-
-        .btn-primary:active { transform: scale(0.96); }
-
-        /* 
-           --- SIDEBAR ARCHITECTURE --- 
-        */
         #sidebar {
-            width: var(--sidebar-width);
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: var(--glass-blur);
-            border-right: 1px solid var(--glass-border);
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-            transition: var(--trans-smooth);
+            width: var(--sidebar-width); margin: 20px;
+            display: flex; flex-direction: column; z-index: 1000;
         }
-
-        .sidebar-brand {
-            padding: 50px 35px;
-            border-bottom: 1px solid var(--glass-border);
+        .sidebar-header {
+            padding: 40px 35px; border-bottom: 1px solid rgba(0,0,0,0.03);
+            display: flex; flex-direction: column; gap: 8px;
         }
-
+        .nav-list { flex: 1; padding: 20px; position: relative; overflow-y: auto; }
+        #nav-blob-container {
+            position: absolute; inset: 0; filter: url('#liquid-fusion');
+            pointer-events: none; z-index: 0;
+        }
+        .nav-blob {
+            position: absolute; left: 20px; width: calc(100% - 40px); height: 56px;
+            background: var(--blob-color); border-radius: 18px;
+            transition: var(--trans-liquid); 
+            box-shadow: 0 10px 25px rgba(0,122,255,0.3);
+            opacity: 0;
+        }
         .nav-item {
-            padding: 18px 30px;
-            cursor: pointer;
-            color: var(--text-dim);
-            display: flex;
-            align-items: center;
-            font-weight: 600;
-            gap: 15px;
-            font-size: 15px;
-            border-left: 4px solid transparent;
+            position: relative; z-index: 10; padding: 18px 25px;
+            border-radius: 20px; cursor: pointer; display: flex;
+            align-items: center; gap: 18px; font-size: 15px; font-weight: 600;
+            color: var(--text-secondary); transition: var(--trans-smooth);
+            margin-bottom: 10px;
+        }
+        .nav-item:hover { color: var(--text-primary); }
+        .nav-item.active { 
+            color: #ffffff !important; 
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px) saturate(210%);
+            -webkit-backdrop-filter: blur(40px) saturate(210%);
+            border: 1px solid var(--glass-edge);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--card-shadow);
+            position: relative; overflow: hidden;
             transition: var(--trans-smooth);
         }
-
-        .nav-item:hover { 
-            background: rgba(255, 255, 255, 0.04); 
-            color: #fff; 
-            padding-left: 40px;
+        .glass-panel::after {
+            content: ""; position: absolute; inset: 0;
+            background: radial-gradient(circle at var(--lx) var(--ly), rgba(255,255,255,0.15) 0%, transparent 45%);
+            pointer-events: none; z-index: 1;
         }
-
-        .active-nav { 
-            background: rgba(59, 130, 246, 0.1) !important; 
-            color: var(--accent) !important; 
-            border-left: 4px solid var(--accent) !important; 
-            font-weight: 800;
+        #viewport {
+            flex: 1; margin: 20px 20px 20px 0; padding: 45px;
+            display: flex; flex-direction: column; gap: 35px;
+            overflow-y: auto; position: relative;
         }
-
-        /* 
-           --- VIEWPORT & CONTENT SECTIONS --- 
-        */
-        #main { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 60px; 
-            background: transparent; 
-            scroll-behavior: smooth;
+        .section-node { animation: sectionIn 0.6s var(--trans-smooth) forwards; }
+        @keyframes sectionIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+        .data-card { padding: 35px; min-height: 190px; display: flex; flex-direction: column; justify-content: space-between; z-index: 5; }
+        .stat-label { font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--text-tertiary); letter-spacing: 2px; }
+        .stat-val { font-size: 46px; font-weight: 800; letter-spacing: -2.5px; }
+        input, select, textarea {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--glass-edge);
+            padding: 18px 24px; border-radius: 16px; color: var(--text-primary);
+            font-size: 15px; font-family: var(--font-apple); transition: var(--trans-smooth);
+            margin-bottom: 15px;
         }
-
-        .content-sec {
-            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        input:focus { border-color: var(--ios-blue); background: #ffffff; color: #000000; box-shadow: 0 0 0 5px rgba(0,122,255,0.15); }
+        body.dark-mode input:focus { background: #000000; color: #ffffff; }
+        .btn-ios {
+            padding: 18px 38px; border: none; border-radius: 18px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; display: inline-flex;
+            align-items: center; justify-content: center; gap: 12px; font-size: 15px;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card { 
-            background: var(--glass); 
-            border: 1px solid var(--glass-border); 
-            padding: 40px; 
-            border-radius: 28px; 
-            margin-bottom: 35px; 
-            backdrop-filter: blur(15px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        }
-
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 35px; }
-        .stat-val { font-size: 48px; font-weight: 800; margin: 15px 0; color: #fff; font-family: 'JetBrains Mono', monospace; letter-spacing: -2px; }
-
-        /* 
-           --- DATA TABLES --- 
-        */
-        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: 25px; }
-        th { text-align: left; color: var(--text-dim); padding: 15px 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
-        td { padding: 22px 20px; background: rgba(255, 255, 255, 0.03); font-weight: 500; }
+        .btn-ios:active { transform: scale(0.96); }
+        .btn-primary { background: var(--ios-blue); color: #fff; box-shadow: 0 10px 25px rgba(0,122,255,0.3); }
+        .btn-danger { background: var(--ios-red); color: #fff; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        th { text-align: left; padding: 0 20px; font-size: 10px; text-transform: uppercase; color: var(--text-tertiary); font-weight: 900; }
+        td { background: var(--glass-thick); padding: 22px 20px; font-weight: 600; border-top: 1px solid var(--glass-edge); }
         td:first-child { border-radius: 18px 0 0 18px; }
         td:last-child { border-radius: 0 18px 18px 0; }
-        tr:hover td { background: rgba(255, 255, 255, 0.06); }
-
-        /* 
-           --- UTILITY CLASSES --- 
-        */
-        .audit-log {
-            background: #020617;
-            color: #22c55e;
-            font-family: 'JetBrains Mono', monospace;
-            padding: 25px;
-            height: 250px;
-            overflow-y: auto;
-            border-radius: 20px;
-            font-size: 13px;
-            border: 1px solid var(--glass-border);
-            line-height: 1.6;
+        .audit-trail {
+            background: rgba(0,0,0,0.05); font-family: var(--font-mono);
+            padding: 25px; border-radius: 24px; height: 300px;
+            overflow-y: auto; font-size: 12px; line-height: 1.8;
+            color: var(--text-secondary); border: 1px solid var(--glass-edge);
         }
-
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px; padding: 10px;
+        }
+        .gallery-node {
+            border-radius: 30px; overflow: hidden; height: 220px;
+            border: 2px solid var(--glass-edge); background: var(--glass-bg); cursor: pointer;
+            transition: transform 0.8s var(--trans-smooth), border-color 0.4s;
+            position: relative;
+        }
+        .gallery-node img { width: 100%; height: 100%; object-fit: cover; transition: 1.2s var(--trans-smooth); }
+        .gallery-node:hover { transform: translateY(-15px) scale(1.04); border-color: var(--ios-blue); z-index: 50; }
+        .gallery-node:hover img { transform: scale(1.18); }
+        .presc-badge {
+            background: var(--ios-orange); color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 900;
+        }
+        #sectorChip {
+            display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px;
+            background: var(--ios-blue); color: #fff; border-radius: 40px;
+            font-size: 13px; font-weight: 800; margin-bottom: 20px;
+            opacity: 0; transform: translateY(10px); transition: 0.4s;
+        }
+        #sectorChip.active { opacity: 1; transform: translateY(0); }
+        #toasts {
+            position: fixed; top: 30px; right: 30px;
+            z-index: 2000000; display: flex; flex-direction: column; gap: 15px;
+        }
+        .toast-node {
+            background: var(--glass-thick); backdrop-filter: blur(25px);
+            padding: 20px 35px; border-radius: 20px; color: var(--text-primary);
+            font-size: 15px; font-weight: 700; border-left: 6px solid var(--ios-blue);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.1);
+            animation: toastIn 0.6s var(--trans-liquid) forwards;
+        }
+        @keyframes toastIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+        #modal-root {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(20px);
+            z-index: 500000; display: none; align-items: center; justify-content: center;
+        }
+        .invoice-card {
+            background: #ffffff; color: #000000; width: 560px; padding: 65px; border-radius: 48px;
+            box-shadow: 0 60px 130px rgba(0,0,0,0.2);
+        }
+        .theme-switch {
+            width: 64px; height: 34px; background: rgba(0, 0, 0, 0.1);
+            border-radius: 30px; position: relative; cursor: pointer;
+            transition: background 0.3s; border: 1px solid var(--glass-edge);
+        }
+        body.dark-mode .theme-switch { background: var(--ios-green); }
+        .theme-knob {
+            width: 28px; height: 28px; background: #ffffff; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: transform 0.3s;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+        body.dark-mode .theme-knob { transform: translateX(30px); }
         .hidden { display: none !important; }
-
-        .search-container input { 
-            padding: 25px 40px; 
-            font-size: 20px; 
-            height: 75px; 
-            border-radius: 24px; 
-            background: rgba(255, 255, 255, 0.05); 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-        }
-
-        /* 
-           --- GALLERY ARCHITECTURE --- 
-        */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .gallery-item { border-radius: 20px; overflow: hidden; border: 1px solid var(--glass-border); height: 220px; position: relative; transition: var(--trans-spring); }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--trans-smooth); opacity: 0.9; }
-        .gallery-item:hover img { transform: scale(1.15); opacity: 1; }
-        .gallery-label { position: absolute; bottom: 15px; left: 15px; background: rgba(0, 0, 0, 0.7); padding: 8px 15px; border-radius: 10px; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
-
-        /* 
-           --- RECEIPT MODAL --- 
-        */
-        #receiptModal {
-            position: fixed; inset: 0; z-index: 50000;
-            background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(25px);
-            display: none; align-items: center; justify-content: center;
-        }
-        .receipt-card {
-            background: white; color: black; width: 550px; padding: 60px; border-radius: 40px;
-            box-shadow: 0 50px 120px rgba(0,0,0,0.8);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* 
-           --- MOBILE RESPONSIVITY --- 
-        */
-        @media (max-width: 1024px) {
-            #sidebar { width: 85px; }
-            .nav-item span { display: none; }
-            .nav-item { justify-content: center; padding: 25px 0; }
-            .grid-3 { grid-template-columns: 1fr 1fr; }
-        }
-
+        .v-stack { display: flex; flex-direction: column; }
+        .h-stack { display: flex; align-items: center; }
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            #sidebar { width: 100%; height: auto; flex-direction: row; border-right: none; border-bottom: 1px solid var(--glass-border); overflow-x: auto; }
-            .sidebar-brand { display: none; }
-            .nav-item { margin: 0; border-left: none; border-bottom: 4px solid transparent; }
-            #main { padding: 30px; }
+            #sidebar {
+                width: 100%; margin: 0; height: 85px; flex-direction: row;
+                position: fixed; bottom: 0; left: 0; z-index: 2000;
+                border: none; border-top: 1px solid var(--glass-edge);
+                border-radius: 0; background: var(--glass-thick); padding: 0 15px;
+            }
+            .sidebar-header, .btn-danger, #nav-blob-container, #sys-role { display: none !important; }
+            .nav-list { display: flex; flex-direction: row; justify-content: space-around; width: 100%; padding: 0; align-items: center; }
+            .nav-item { flex-direction: column; margin: 0; padding: 8px; gap: 4px; font-size: 10px; text-align: center; }
+            .nav-item span { font-size: 8px; font-weight: 600; }
+            #viewport { margin: 0; padding: 25px 25px 110px 25px; }
             .grid-3 { grid-template-columns: 1fr; }
-            .login-box { width: 90%; padding: 40px 20px; }
         }
-
     </style>
 </head>
 <body>
 
-<!-- GLOBAL NOTIFICATION LAYER -->
-<div id="toast-container"></div>
+<svg style="visibility: hidden; position: absolute;" width="0" height="0">
+    <defs>
+        <filter id="liquid-fusion">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" result="liquid" />
+        </filter>
+    </defs>
+</svg>
 
-<!-- DIGITAL RECEIPT MODAL -->
-<div id="receiptModal">
-    <div class="receipt-card">
-        <h2 style="font-weight: 900; border-bottom: 3px solid #f1f5f9; padding-bottom: 20px; letter-spacing: -2px;">HMS ENTERPRISE INVOICE</h2>
-        <div id="receiptPayload" style="margin: 40px 0; line-height: 1.8; font-size: 15px; white-space: pre-wrap; color: #334155;"></div>
-        <div style="display: flex; gap: 15px;" class="no-print">
-            <button class="btn-primary" style="flex: 1; background: #0f172a;" onclick="window.print()">PRINT INVOICE</button>
-            <button class="btn-primary" style="flex: 1; background: var(--danger);" onclick="closeReceipt()">CLOSE</button>
+<div id="bg-mesh"></div>
+<div id="toasts"></div>
+
+<div id="modal-root">
+    <div class="invoice-card v-stack">
+        <h2 style="font-size: 34px; font-weight: 900; letter-spacing: -2px; border-bottom: 4px solid #f2f2f7; padding-bottom: 25px; margin: 0;">FISCAL RECEIPT</h2>
+        <div id="invoice-payload" style="padding: 45px 0; font-family: var(--font-mono); line-height: 2.3; font-size: 14px; color: #2c2c2e; white-space: pre-wrap;"></div>
+        <div class="h-stack" style="gap: 20px;">
+            <button class="btn-ios btn-primary" style="flex: 1;" onclick="window.print()">PRINT NODE</button>
+            <button class="btn-ios" style="flex: 1; background: #1c1c1e; color: #fff;" onclick="closeModal()">DISMISS</button>
         </div>
     </div>
 </div>
 
-<!-- AUTHENTICATION OVERLAY -->
 <div id="loginOverlay">
-    <div class="login-box">
-        <div style="font-size: 70px; margin-bottom: 25px; filter: drop-shadow(0 0 20px var(--accent));">🏥</div>
-        <h2>HMS Enterprise</h2>
-        <p>Terminal v19.0 | Credential Verification</p>
-        <input type="text" id="userIn" placeholder="Terminal Username">
-        <input type="password" id="passIn" placeholder="Secure Password">
-        <button class="btn-primary" onclick="handleLogin()">Establish Secure Link</button>
-        <p id="loginMsg" style="color:var(--danger); font-size: 13px; margin-top: 25px; font-weight: 800;"></p>
+    <div class="login-card v-stack">
+        <div style="font-size: 75px; margin-bottom: 25px;">🏥</div>
+        <h2 style="font-size: 32px; font-weight: 800;">HMS Enterprise</h2>
+        <p style="color: var(--text-tertiary); margin-bottom: 40px; font-weight: 800; letter-spacing: 2px;">SECURE ACCESS V26.0.3</p>
+        <input type="text" id="lU" placeholder="IDENTITY UID">
+        <input type="password" id="lP" placeholder="SECURITY KEY">
+        <button class="btn-ios btn-primary" style="width: 100%;" onclick="runAuth()">
+            INITIALIZE NEURAL LINK
+        </button>
+        <p id="auth-msg" style="color: var(--ios-red); margin-top: 25px; font-weight: 800; font-size: 13px;"></p>
     </div>
 </div>
 
-<!-- SIDEBAR NAVIGATION ENGINE -->
-<div id="sidebar" class="hidden">
-    <div class="sidebar-brand">
-        <h3 id="displayUser" style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -1px; color: #fff;">System User</h3>
-        <small id="displayRole" style="color: var(--accent); font-weight: 900; letter-spacing: 2px; font-size: 10px; text-transform: uppercase;">VERIFYING...</small>
-    </div>
-    
-    <div style="flex: 1; padding-top: 20px; overflow-y: auto;">
-        <div class="nav-item sec-admin role-admin role-doctor active-nav" id="nav-dash" onclick="nav('dashSec', this)">📊 <span>System Analytics</span></div>
-        <div class="nav-item sec-admin role-admin" id="nav-staff" onclick="nav('staffSec', this)">👨‍⚕️ <span>Human Resources</span></div>
-        <div class="nav-item sec-doc-admin role-admin role-doctor" id="nav-admit" onclick="nav('admitSec', this)">🛌 <span>Patient Intake</span></div>
-        <div class="nav-item sec-pharma-admin role-admin role-pharmacist" id="nav-pharma" onclick="nav('pharmaSec', this)">💊 <span>Drug Inventory</span></div>
-        <div class="nav-item sec-admin role-admin role-doctor" id="nav-lab" onclick="nav('labSec', this)">🔬 <span>Laboratory</span></div>
-        <div class="nav-item sec-admin role-admin" id="nav-finance" onclick="nav('financeSec', this)">💰 <span>Revenue & GST</span></div>
-        <div class="nav-item role-admin role-doctor role-pharmacist role-patient" id="nav-search" onclick="nav('patientPortalSec', this)">🔍 <span>My Medical Bill</span></div>
-        <div class="nav-item role-admin role-doctor role-patient" id="nav-features" onclick="nav('featureSec', this)">✨ <span>Hospital Features</span></div>
-        <div class="nav-item role-admin role-doctor role-patient" id="nav-gallery" onclick="nav('gallerySec', this)">🖼️ <span>Hospital Gallery</span></div>
-        <div class="nav-item role-admin role-doctor" id="nav-game" onclick="nav('gameSec', this)">🎮 <span>Staff Break Room</span></div>
-    </div>
-
-    <button class="btn-primary" style="margin: 30px; background: var(--danger); border-radius: 20px; width: calc(100% - 60px);" onclick="logout()">🚪 Exit Terminal</button>
-</div>
-
-<!-- MAIN VIEWPORT ENGINE -->
-<div id="main" class="hidden">
-    
-    <!-- DASHBOARD SECTION -->
-    <div id="dashSec" class="content-sec">
-        <div class="section-header">
-            <h2 style="font-size: 38px; margin-top: 0; font-weight: 800; letter-spacing: -2px;">System Analytics Matrix</h2>
-            <p style="color: var(--text-dim); margin-bottom: 40px;">Real-time Facility Telemetry & Resource Tracking</p>
+<nav id="sidebar" class="glass-panel hidden">
+    <div class="sidebar-header">
+        <h1 id="sys-user">USER_NULL</h1>
+        <p id="sys-role" style="font-size: 9px; letter-spacing: 4px; color: var(--ios-blue); font-weight: 900;">NODE_LINK_ACTIVE</p>
+        <div class="h-stack" style="margin-top: 25px; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.04); border-radius: 16px;">
+            <span style="font-size: 11px; font-weight: 900; color: var(--text-tertiary);">DARK MODE</span>
+            <div class="theme-switch" onclick="toggleTheme()">
+                <div class="theme-knob"></div>
+            </div>
         </div>
-        
+    </div>
+    <div class="nav-list">
+        <div id="nav-blob-container"><div id="blob" class="nav-blob"></div></div>
+        <div class="nav-item active ni-admin" id="ni-0" onclick="morphTo('dashSec', this)">📊 <span>Dashboard Matrix</span></div>
+        <div class="nav-item ni-admin" id="ni-1" onclick="morphTo('hrSec', this)">👨‍⚕️ <span>Human Resources</span></div>
+        <div class="nav-item ni-admin ni-doctor" id="ni-2" onclick="morphTo('admitSec', this)">🛌 <span>Clinical Intake</span></div>
+        <div class="nav-item ni-admin ni-pharm" id="ni-3" onclick="morphTo('pharmaSec', this)">💊 <span>Inventory</span></div>
+        <div class="nav-item ni-admin ni-doctor" id="ni-4" onclick="morphTo('labSec', this)">🔬 <span>Laboratory</span></div>
+        <div class="nav-item ni-admin" id="ni-5" onclick="morphTo('financeSec', this)">💰 <span>Revenue & GST</span></div>
+        <div class="nav-item ni-all" id="ni-6" onclick="morphTo('searchSec', this)">🔍 <span>My Medical Bill</span></div>
+        <div class="nav-item ni-all" id="ni-7" onclick="morphTo('featSec', this)">✨ <span>Specifications</span></div>
+        <div class="nav-item ni-all" id="ni-8" onclick="morphTo('galSec', this)">🖼️ <span>Facility Gallery</span></div>
+        <div class="nav-item ni-clinical" id="ni-9" onclick="morphTo('gameSec', this)">🎮 <span>Staff Break Room</span></div>
+    </div>
+    <div style="padding: 25px;">
+        <button class="btn-ios btn-danger" style="width: 100%; border-radius: 18px;" onclick="location.reload()">🚪 VOID SESSION</button>
+    </div>
+</nav>
+
+<main id="viewport" class="hidden">
+    
+    <section id="dashSec" class="section-node hidden">
+        <h2 style="font-size: 52px; font-weight: 900; letter-spacing: -3.5px; margin-bottom: 12px;">Admin Telemetry</h2>
+        <p style="color: var(--text-secondary); font-size: 20px; margin-bottom: 60px;">System Resource Flow Sync</p>
         <div class="grid-3">
-            <div class="card stat-card">
-                <small style="color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Global Admissions</small>
-                <div class="stat-val" id="stat-p">0</div>
-                <div style="color: var(--success); font-size: 13px; font-weight: 800;">↑ 8.4% Efficiency</div>
+            <div class="glass-panel data-card">
+                <span class="stat-label">Bio-Nodes Admitted</span>
+                <div class="stat-val" id="dash-p-count">0</div>
+                <span style="color: var(--ios-green); font-size: 12px; font-weight: 900;">↑ 18.4% FLUX GAIN</span>
             </div>
-            <div class="card stat-card">
-                <small style="color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Bed Occupancy</small>
-                <div class="stat-val" id="stat-b">50</div>
-                <div style="color: var(--warning); font-size: 13px; font-weight: 800;">Active Resource Tracking</div>
+            <div class="glass-panel data-card">
+                <span class="stat-label">Neural Integrity</span>
+                <div class="stat-val">99.9%</div>
+                <span style="color: var(--ios-blue); font-size: 12px; font-weight: 900;">SECURE_ALPHA_UPLINK</span>
             </div>
-            <div class="card stat-card">
-                <small style="color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Net Revenue Flow</small>
-                <div class="stat-val" id="stat-profit">Rs 0</div>
-                <div style="color: var(--accent); font-size: 13px; font-weight: 800;">Post-Tax Calculation</div>
+            <div class="glass-panel data-card">
+                <span class="stat-label">Liquid Yield</span>
+                <div class="stat-val" id="dash-rev">Rs 0</div>
+                <span style="color: var(--ios-orange); font-size: 12px; font-weight: 900;">NET_POST_TAX_REVENUE</span>
             </div>
         </div>
-
-        <div class="card">
-            <h3>Revenue Growth Trajectory</h3>
-            <canvas id="revenueChart" height="110" style="margin-top: 20px;"></canvas>
+        <div class="grid-3" style="grid-template-columns: 2fr 1fr; margin-top: 40px;">
+            <div class="glass-panel" style="padding: 45px;">
+                <h3 style="margin-bottom: 35px; letter-spacing: -1.5px;">Revenue Entropy Matrix</h3>
+                <canvas id="mainChart" height="135"></canvas>
+            </div>
+            <div class="glass-panel v-stack" style="padding: 45px;">
+                <h3 style="margin-bottom: 25px; letter-spacing: -1px;">Security Audit</h3>
+                <div id="auditContainer" class="audit-trail"></div>
+            </div>
         </div>
+    </section>
 
-        <div class="card">
-            <h3>Terminal Security Audit Log</h3>
-            <div id="auditContainer" class="audit-log" style="margin-top: 20px;"></div>
-        </div>
-    </div>
-
-    <!-- HR SECTION -->
-    <div id="staffSec" class="content-sec hidden">
-        <div class="card">
-            <h2>Add New Medical Professional</h2>
-            <div class="grid-3" style="margin-top: 30px;">
+    <section id="hrSec" class="section-node hidden">
+        <div class="glass-panel" style="padding: 55px;">
+            <h2 style="font-size: 42px; font-weight: 900; letter-spacing: -2px; margin-bottom: 45px;">Personnel Registry 👨‍⚕️</h2>
+            <div class="grid-3">
                 <input type="text" id="stName" placeholder="Full Professional Name">
-                <select id="stRole" onchange="toggleStaffFields()">
-                    <option value="Doctor">Senior Specialist</option>
-                    <option value="Senior Surgeon">Senior Surgeon</option>
-                    <option value="Nurse">Medical Nurse</option>
+                <select id="stRole">
+                    <option value="Specialist">Senior Specialist</option>
+                    <option value="Surgeon">Senior Surgeon</option>
+                    <option value="Lead Nurse">Lead Nurse</option>
                     <option value="Pharmacist">Lead Pharmacist</option>
-                    <option value="Security">Security Personnel</option>
                 </select>
-                <input type="number" id="stSalary" placeholder="Monthly Base Salary (Rs)">
-            </div>
-            <div id="doctorSpecificInputs" class="grid-3">
-                <input type="number" id="stConsultCharge" placeholder="Consultation Charge (Rs)">
-            </div>
-            <button class="btn-primary" style="width: auto; margin-top: 10px;" onclick="addStaff()">Commit Record</button>
-        </div>
-        <div class="card">
-            <h3>Human Resources Roster (Payroll Overview)</h3>
-            <div id="staffList"></div>
-        </div>
-    </div>
-
-    <!-- PATIENT BILLING PORTAL -->
-    <div id="patientPortalSec" class="content-sec hidden">
-        <div class="search-container">
-            <input type="text" id="patientSearchIn" placeholder="Enter Patient Name or ID to fetch billing status..." onkeyup="searchPatientBill()">
-        </div>
-        <div id="searchResultArea">
-            <div class="card" style="text-align: center; color: var(--text-dim); padding: 60px;">
-                <div style="font-size: 40px; margin-bottom: 20px;">🔍</div>
-                Initialize search to retrieve clinical records and ledger status.
-            </div>
-        </div>
-    </div>
-
-    <!-- LABORATORY MODULE -->
-    <div id="labSec" class="content-sec hidden">
-        <div class="card">
-            <h2>Diagnostic Laboratory Services</h2>
-            <div class="grid-3" style="margin-top: 30px;">
-                <select id="labPatientSelect"></select>
-                <select id="labTestType">
-                    <option value="1200">Full Blood Count (Rs 1,200)</option>
-                    <option value="2500">X-Ray Imaging (Rs 2,500)</option>
-                    <option value="9500">MRI Neuro Scan (Rs 9,500)</option>
-                    <option value="3000">ECG Synchronized Analysis (Rs 3,000)</option>
-                    <option value="15000">Full Body Bio-Scan (Rs 15,000)</option>
-                </select>
-                <button class="btn-primary" onclick="assignLabBill()">Execute Lab Charge</button>
-            </div>
-        </div>
-        <div class="card" id="labLog">
-            <h3>Laboratory Workflow Queue</h3>
-            <div id="labQueueList"></div>
-        </div>
-    </div>
-
-    <!-- FEATURES SECTION -->
-    <div id="featureSec" class="content-sec hidden">
-        <div class="card">
-            <h1 style="font-size: 40px; font-weight: 800; letter-spacing: -2px; margin-bottom: 40px;">System Specifications</h1>
-            <div class="grid-3">
-                <div class="card" style="background: rgba(59, 130, 246, 0.05); border-left: 6px solid var(--accent);">
-                    <h3>🧠 Neural Diagnostics</h3>
-                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Predictive AI tracking vitals for critical complication prevention.</p>
-                </div>
-                <div class="card" style="background: rgba(16, 185, 129, 0.05); border-left: 6px solid var(--success);">
-                    <h3>🦾 Robotic Surgery</h3>
-                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Sub-millimeter precision via DaVinci-grade autonomous units.</p>
-                </div>
-                <div class="card" style="background: rgba(245, 158, 11, 0.05); border-left: 6px solid var(--warning);">
-                    <h3>🧬 Genomic Mapping</h3>
-                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">DNA-mapped medicinal delivery tailored to patient biology.</p>
-                </div>
-                <div class="card" style="background: rgba(14, 165, 233, 0.05); border-left: 6px solid var(--info);">
-                    <h3>🚁 Drone Med-Evac</h3>
-                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Sub-orbital trauma retrieval within a 15-mile node radius.</p>
-                </div>
-                <div class="card" style="background: rgba(239, 68, 68, 0.05); border-left: 6px solid var(--danger);">
-                    <h3>🛡️ Quantum Privacy</h3>
-                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">4096-bit biometric encryption for all clinical data nodes.</p>
-                </div>
-                <div class="card" style="background: rgba(248, 250, 252, 0.03); border-left: 6px solid #fff;">
-                    <h3>🛌 Bio-Sync Beds</h3>
-                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">Smart frequency beds accelerating cell recovery by 40%.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- GALLERY SECTION -->
-    <div id="gallerySec" class="content-sec hidden">
-        <div class="card">
-            <h2>Hospital Gallery - Facility Visual Tour</h2>
-            <div class="gallery-grid" id="galleryMount" style="margin-top: 30px;">
-                <!-- AUTO GENERATED (20 PHOTOS) -->
-            </div>
-        </div>
-    </div>
-
-    <!-- INTAKE ENGINE -->
-    <div id="admitSec" class="content-sec hidden">
-        <div class="card">
-            <h2>Patient Intake Engine (Enhanced Logic)</h2>
-            <div class="grid-3" style="margin-top: 30px;">
-                <select id="pVisitType" onchange="toggleAdmitFields()">
-                    <option value="admit">Full In-Patient Admission</option>
-                    <option value="checkup">OPD Consultation</option>
-                    <option value="emergency">🚨 EMERGENCY TRAUMA UNIT</option>
-                </select>
-                <input type="text" id="pName" placeholder="Legal Full Name">
-                <input type="number" id="pAge" placeholder="Chronological Age">
+                <input type="text" id="stSpec" placeholder="Area of Expertise (e.g. Neurology)">
             </div>
             <div class="grid-3">
-                <select id="pGender">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Non-Binary">Non-Binary</option>
+                <input type="number" id="stSalary" placeholder="Monthly Base (Rs)">
+                <input type="number" id="stFee" placeholder="Consultation Fee (Rs)">
+                <select id="stShift">
+                    <option>Morning Rotation</option>
+                    <option>Night Rotation</option>
+                    <option>24/7 On-Call</option>
                 </select>
-                <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)" value="0">
-                <input type="text" id="pSymptoms" placeholder="Symptoms Analysis" onkeyup="analyzeSymptoms()">
             </div>
-            <div class="grid-3" id="admitOnlyFields">
+            <button class="btn-ios btn-primary" onclick="onboardStaff()">COMMIT RECORD TO CORE</button>
+        </div>
+        <div class="glass-panel" style="margin-top: 40px; padding: 45px;">
+            <h3 style="margin-bottom: 20px;">Active Professional Roster</h3>
+            <div id="staffListMount" style="overflow-x: auto;"></div>
+        </div>
+    </section>
+
+    <section id="admitSec" class="section-node hidden">
+        <div class="glass-panel" style="padding: 55px;">
+            <h2 style="font-size: 42px; font-weight: 900; letter-spacing: -2px; margin-bottom: 45px;">Bio-Intake Engine 🛌</h2>
+            <div id="sectorChip">✨ AI Recommendation: <span id="recText">Analyze Symptoms</span></div>
+            <div class="grid-3">
+                <input type="text" id="pName" placeholder="Legal Identity Name">
+                <input type="number" id="pAge" placeholder="Age">
+                <select id="pBlood">
+                    <option>Blood Group...</option>
+                    <option>A+</option><option>B+</option><option>O+</option><option>AB+</option>
+                    <option>A-</option><option>B-</option><option>O-</option><option>AB-</option>
+                </select>
+            </div>
+            <div class="grid-3">
+                <select id="pDocAssign"></select>
+                <input type="text" id="pEmerg" placeholder="Emergency Contact Node">
+                <select id="pType" onchange="updateIntakeFields()">
+                    <option value="in">In-Patient Admission</option>
+                    <option value="checkup">General Checkup (OPD)</option>
+                    <option value="emergency">🚨 Emergency Trauma</option>
+                </select>
+            </div>
+            <div class="grid-3">
                 <select id="pRoom">
-                    <option value="2500">General Ward (2,500/day)</option>
-                    <option value="8500">Private Glass Suite (8,500/day)</option>
-                    <option value="18000">Intensive Care Unit (18,000/day)</option>
-                    <option value="35000">Emergency Trauma Suite (35,000/day)</option>
+                    <option value="4000">General Ward Node (4k/d)</option>
+                    <option value="15000">Infinity Glass Suite (15k/d)</option>
+                    <option value="65000">Bio-Isolation Unit (65k/d)</option>
                 </select>
-                <select id="pDoctorAssign">
-                    <option value="Not Assigned">Select Attending Physician...</option>
-                </select>
+                <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)">
+                <input type="text" id="pDiagnosis" placeholder="Clinical Diagnosis Matrix">
             </div>
-            <div style="margin: 10px 0; font-size: 14px; color: var(--accent); font-weight: 800; display: flex; align-items: center; gap: 10px;" id="clinicSuggestion"></div>
-            <textarea id="pClinicalNotes" style="height: 150px;" placeholder="Comprehensive Clinical Notes, Vital Observations, and Medical History..."></textarea>
-            <button class="btn-primary" style="width: auto;" onclick="admitPatient()">Finalize Node Entry</button>
+            <textarea id="pSymptoms" style="height: 120px;" placeholder="SYMPTOMS MATRIX (AI will suggest sector based on input...)" onkeyup="analyzeSymptoms()"></textarea>
+            <button class="btn-ios btn-primary" onclick="admitPatient()">AUTHORIZE ADMISSION</button>
         </div>
-        <div class="card">
-            <h3>Active Clinical Status Matrix</h3>
-            <div id="activePatientsList"></div>
-        </div>
-    </div>
-
-    <!-- PHARMACY MODULE -->
-    <div id="pharmaSec" class="content-sec hidden">
-        <div class="card">
-            <h2>Pharma Logistics & Drug Repository</h2>
-            <div class="grid-3" style="margin-top: 30px;">
-                <input type="text" id="medName" placeholder="Medication UID">
-                <input type="number" id="medStock" placeholder="Available Units">
-                <input type="number" id="medPrice" placeholder="Unit Fiscal Value (Rs)">
-            </div>
-            <button class="btn-primary" style="background: var(--success); width: auto;" onclick="addInventory()">Commit to Inventory</button>
-        </div>
-
-        <div class="card">
-            <h2>Assign Medication Charge</h2>
-            <div id="pharmaPrescriptionView" style="margin-bottom: 20px; color: var(--warning); font-weight: 800; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; display: none; border-left: 5px solid var(--warning);"></div>
+        <div class="glass-panel ni-doctor" style="margin-top: 40px; padding: 50px;">
+            <h2 style="margin-bottom: 30px;">Digital Prescription Console 🩺</h2>
             <div class="grid-3">
-                <select id="pharmaPatientSelect" onchange="showPharmaPrescription()"></select>
-                <input type="text" id="pharmaMedTitle" placeholder="Medication Identifier">
-                <input type="number" id="pharmaMedCost" placeholder="Total Node Cost (Rs)">
+                <select id="prescPatSel"></select>
+                <input type="text" id="prescMedName" placeholder="Medicine Name (e.g. Paracetamol)">
+                <button class="btn-ios btn-primary" onclick="addPrescription()">PRESCRIBE COMPOUND</button>
             </div>
-            <button class="btn-primary" style="width: auto;" onclick="assignMedicineBill()">Execute Charge</button>
         </div>
+        <div class="glass-panel" style="margin-top: 40px; padding: 45px;">
+            <h3 style="margin-bottom: 20px;">Active Clinical Bio-Nodes</h3>
+            <div id="pListMount" style="overflow-x: auto;"></div>
+        </div>
+    </section>
 
-        <div class="card" id="inventoryList"></div>
-    </div>
+    <section id="pharmaSec" class="section-node hidden">
+        <div class="grid-3">
+            <div class="glass-panel v-stack" style="padding: 45px;">
+                <h3 style="margin-bottom: 20px;">Pending Dispensing 💊</h3>
+                <label class="stat-label">Target Bio-Node</label>
+                <select id="pharmaPSelect" onchange="showPrescribed()"></select>
+                <div id="prescView" style="margin-bottom: 20px; padding: 15px; background: rgba(255,149,0,0.1); border-radius: 12px; display: none;">
+                    <span class="stat-label">Doctor Prescribed:</span>
+                    <h3 id="prescVal" style="color: var(--ios-orange); margin-top: 5px;">None</h3>
+                </div>
+                <label class="stat-label">Dispense Price</label>
+                <input type="number" id="pharmaMedCost" placeholder="Final Compound Price (Rs)">
+                <button class="btn-ios btn-primary" style="width: 100%;" onclick="dispenseMed()">DISPENSE & BILL</button>
+            </div>
+            <div class="glass-panel" style="padding: 45px; grid-column: span 2;">
+                <h3 style="margin-bottom: 30px;">Pharmacy Ledger Sync</h3>
+                <div id="pharmaLogMount" class="audit-trail" style="height: 410px;"></div>
+            </div>
+        </div>
+    </section>
 
-    <!-- FINANCE MODULE -->
-    <div id="financeSec" class="content-sec hidden">
-        <div class="card">
-            <h1 style="font-size: 40px; font-weight: 800; letter-spacing: -2px; margin-bottom: 40px;">Global Fiscal Command</h1>
-            <div id="pnlData">
-                <div class="grid-3">
-                    <div class="card" style="background: rgba(255, 255, 255, 0.03); text-align: center;">
-                        <small style="text-transform: uppercase; letter-spacing: 2px;">Gross Collected Revenue</small>
-                        <h2 id="fin-total-rev" style="color: var(--success); font-size: 42px;">Rs 0</h2>
-                    </div>
-                    <div class="card" style="background: rgba(255, 255, 255, 0.03); text-align: center;">
-                        <small style="text-transform: uppercase; letter-spacing: 2px;">Professional Payouts</small>
-                        <h2 id="fin-total-comm" style="color: var(--warning); font-size: 42px;">Rs 0</h2>
-                    </div>
-                    <div class="card" style="background: rgba(255, 255, 255, 0.03); text-align: center;">
-                        <small style="text-transform: uppercase; letter-spacing: 2px;">Net Node Profit</small>
-                        <h2 id="fin-net-profit" style="color: var(--accent); font-size: 42px;">Rs 0</h2>
-                    </div>
+    <section id="labSec" class="section-node hidden">
+        <div class="grid-3">
+            <div class="glass-panel v-stack" style="padding: 45px;">
+                <h3 style="margin-bottom: 35px;">Diagnostic Scan 🔬</h3>
+                <label class="stat-label">Bio-Identifier</label>
+                <select id="labPSelect"></select>
+                <label class="stat-label">Process Suite</label>
+                <select id="labTestSelect">
+                    <option value="2800">Hematology Core (2.8k)</option>
+                    <option value="24000">Neural MRI Suite (24k)</option>
+                    <option value="85000">Full Genomic Sequencing (85k)</option>
+                </select>
+                <button class="btn-ios btn-primary" style="width: 100%;" onclick="issueLab()">EXECUTE SUITE</button>
+            </div>
+            <div class="glass-panel" style="padding: 45px; grid-column: span 2;">
+                <h3 style="margin-bottom: 30px;">Laboratory Workflow Queue</h3>
+                <div id="labLogMount" class="audit-trail" style="height: 380px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="financeSec" class="section-node hidden">
+        <div class="glass-panel v-stack h-stack" style="padding: 120px; text-align: center;">
+            <span class="stat-label">GLOBAL_NET_LIQUIDITY_LEDGER_MASTER</span>
+            <h1 id="fin-net" style="font-size: 140px; font-weight: 900; color: var(--ios-green); margin: 45px 0; letter-spacing: -10px;">Rs 0</h1>
+            <div class="grid-3" style="width: 100%;">
+                <div class="glass-panel" style="padding: 40px; background: rgba(52, 199, 89, 0.05);">
+                    <small class="stat-label">Gross Revenue</small>
+                    <h3 id="fin-gross" style="margin-top: 15px; font-size: 32px;">Rs 0</h3>
+                </div>
+                <div class="glass-panel" style="padding: 40px; background: rgba(255, 59, 48, 0.05);">
+                    <small class="stat-label">Payout Nodes</small>
+                    <h3 id="fin-pay" style="margin-top: 15px; font-size: 32px;">Rs 0</h3>
+                </div>
+                <div class="glass-panel" style="padding: 40px; background: rgba(0, 122, 255, 0.05);">
+                    <small class="stat-label">GST Liability (18%)</small>
+                    <h3 id="fin-tax" style="margin-top: 15px; font-size: 32px;">Rs 0</h3>
                 </div>
             </div>
-            <button class="btn-primary btn-danger" style="margin-top: 40px; border: none; background: var(--danger);" onclick="resetFinances()">CRITICAL: WIPE ALL FISCAL DATA</button>
+            <button class="btn-ios btn-danger" style="margin-top: 80px; padding: 30px 100px;" onclick="wipeFiscal()">WIPE GLOBAL FISCAL LEDGER</button>
         </div>
-    </div>
+    </section>
 
-    <!-- STAFF BREAK ROOM -->
-    <div id="gameSec" class="content-sec hidden">
-        <div class="card" style="text-align: center;">
-            <h1 style="font-size: 40px; font-weight: 800; letter-spacing: -2px; margin-bottom: 40px;">Staff Reflex Training</h1>
-            <canvas id="snakeGame" width="500" height="500" style="background:#000; border: 4px solid var(--accent); border-radius: 40px; margin: 0 auto; display: block;"></canvas>
-            <h2 style="color: var(--accent); margin-top: 30px; font-size: 32px;">SCORE: <span id="snakeScore">0</span></h2>
+    <section id="searchSec" class="section-node hidden">
+        <div class="glass-panel" style="padding: 60px; text-align: center;">
+            <input type="text" id="searchBar" style="font-size: 36px; text-align: center; border-radius: 25px; padding: 45px;" placeholder="SCAN IDENTITY NODE TO FETCH BILL..." onkeyup="runSearch()">
         </div>
-    </div>
+        <div id="searchMount" style="margin-top: 50px;"></div>
+    </section>
 
-</div>
+    <section id="featSec" class="section-node hidden">
+        <div class="glass-panel" style="padding: 60px;">
+            <h2 style="font-size: 44px; font-weight: 900; letter-spacing: -2px; margin-bottom: 50px;">System Specifications ✨</h2>
+            <p style="color: var(--text-secondary); font-size: 18px; line-height: 1.8;">HMS Enterprise v26.0 — Built on Liquid Glass Design System v34. Multi-role access control, real-time fiscal ledger, AI symptom analysis, and full clinical workflow integration.</p>
+        </div>
+    </section>
 
-<!-- 
-    ==================================================================================
-    CORE INTELLIGENCE ENGINE v19.0
-    ==================================================================================
--->
+    <section id="galSec" class="section-node hidden">
+        <div class="glass-panel" style="padding: 60px;">
+            <h2 style="font-size: 44px; font-weight: 900; letter-spacing: -2px; margin-bottom: 50px;">Facility Matrix 🖼️</h2>
+            <div class="gallery-grid" id="galleryMount"></div>
+        </div>
+    </section>
+
+    <section id="gameSec" class="section-node hidden">
+        <div class="glass-panel v-stack h-stack" style="padding: 100px;">
+            <h2 style="font-size: 38px; font-weight: 800; letter-spacing: -2px; margin-bottom: 40px;">Staff Reflex Trainer 🎮</h2>
+            <canvas id="snakeGame" width="500" height="500" style="background:var(--bg-base); border-radius:45px; border: 10px solid var(--ios-blue);"></canvas>
+            <h3 style="color: var(--ios-blue); margin-top: 45px; font-size: 44px; font-weight: 900; letter-spacing: -2px;">REFLEX: <span id="snakeScore">0</span></h3>
+        </div>
+    </section>
+
+</main>
+
 <script>
-/**
- * HMS GLOBAL DATABASE & CONFIG
- */
-const SYSTEM_AUTH_KEYS = [
-    { u: "admin", p: "admin123", role: "admin", name: "System Administrator" },
-    { u: "doc1", p: "123", role: "doctor", name: "Dr. Alexander" },
-    { u: "pharm1", p: "pharm123", role: "pharmacist", name: "Lead Pharmacist" },
-    { u: "user1", p: "0000", role: "patient", name: "Patient Portal" }
+const SYS_CREDENTIALS = [
+    { u: "admin", p: "admin", role: "admin", name: "Administrator" },
+    { u: "doc", p: "123", role: "doctor", name: "Dr. Samip" },
+    { u: "pharm", p: "123", role: "pharm", name: "Lead Pharmacist" },
+    { u: "user", p: "0", role: "user", name: "Guest Portal" }
 ];
 
-const GALLERY_SOURCE = [
-    "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d", "https://images.unsplash.com/photo-1516549655169-df83a0774514",
-    "https://images.unsplash.com/photo-1586773860418-d37222d8fce2", "https://images.unsplash.com/photo-1512678080530-7760d81faba6",
-    "https://images.unsplash.com/photo-1551076805-e1869033e561", "https://images.unsplash.com/photo-1579684385127-1ef15d508118",
-    "https://images.unsplash.com/photo-1581594632702-f235ae89b022", "https://images.unsplash.com/photo-1505751172107-57324a0834d8",
-    "https://images.unsplash.com/photo-1538108197017-c1c9868bb2e3", "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b",
-    "https://images.unsplash.com/photo-1527613426441-4da17471b66d", "https://images.unsplash.com/photo-1504813184591-01572f98c85f",
-    "https://images.unsplash.com/photo-1512102438733-bfa4ed29aef7", "https://images.unsplash.com/photo-1631217818202-90ef4a8a0593",
-    "https://images.unsplash.com/photo-1666214280557-f1b5022eb634", "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7",
-    "https://images.unsplash.com/photo-1513224502586-d1e602410265", "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb",
-    "https://images.unsplash.com/photo-1551601651-0a30d973273c", "https://images.unsplash.com/photo-1530497610245-94d3c16cda28"
+let CORE_STATE = {
+    ROSTER: JSON.parse(localStorage.getItem('hms_v34_roster')) || [],
+    PATIENTS: JSON.parse(localStorage.getItem('hms_v34_patients')) || [],
+    AUDIT: JSON.parse(localStorage.getItem('hms_v34_audit')) || [],
+    FISCAL: {
+        rev: parseFloat(localStorage.getItem('hms_v34_rev')) || 0,
+        pay: parseFloat(localStorage.getItem('hms_v34_pay')) || 0
+    },
+    USER: null
+};
+
+const IMAGES = [
+    { url: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d", l: "FACILITY_MAIN" },
+    { url: "https://images.unsplash.com/photo-1516549655169-df83a0774514", l: "CRYSTAL_WARD" },
+    { url: "https://images.unsplash.com/photo-1586773860418-d37222d8fce2", l: "NEURAL_LAB" },
+    { url: "https://images.unsplash.com/photo-1512678080530-7760d81faba6", l: "ATRIUM_NORTH" },
+    { url: "https://images.unsplash.com/photo-1551076805-e1869033e561", l: "ICU_SYNC" },
+    { url: "https://images.unsplash.com/photo-1579684385127-1ef15d508118", l: "PHARMA_CORE" },
+    { url: "https://images.unsplash.com/photo-1581594632702-f235ae89b022", l: "DNA_MATRIX" },
+    { url: "https://images.unsplash.com/photo-1505751172107-57324a0834d8", l: "SCALING_TECH" },
+    { url: "https://images.unsplash.com/photo-1538108197017-c1c9868bb2e3", l: "SURGERY_UNIT" },
+    { url: "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b", l: "RECOVERY_1" },
+    { url: "https://images.unsplash.com/photo-1527613426441-4da17471b66d", l: "AMBULANCE" },
+    { url: "https://images.unsplash.com/photo-1504813184591-01572f98c85f", l: "TECH_ROOM" }
 ];
 
-let currentUser = null;
+document.addEventListener('mousemove', e => {
+    const x = e.clientX; const y = e.clientY;
+    document.querySelectorAll('.glass-panel').forEach(p => {
+        const r = p.getBoundingClientRect();
+        p.style.setProperty('--lx', `${((x - r.left) / r.width) * 100}%`);
+        p.style.setProperty('--ly', `${((y - r.top) / r.height) * 100}%`);
+    });
+});
 
-/**
- * UTILITY: SYSTEM TOAST NOTIFICATIONS
- */
-function showToast(msg, type = 'success') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `<span>${type === 'success' ? '🛡️' : '⚠️'}</span> ${msg}`;
-    container.appendChild(toast);
-    setTimeout(() => { 
-        toast.style.opacity = '0'; 
-        toast.style.transform = 'translateX(100px)'; 
-        setTimeout(() => toast.remove(), 600); 
-    }, 3500);
-}
-
-/**
- * AUTHENTICATION MODULE (Enhanced RBAC)
- */
-function handleLogin() {
-    const u = document.getElementById('userIn').value;
-    const p = document.getElementById('passIn').value;
-    const found = SYSTEM_AUTH_KEYS.find(x => x.u === u && x.p === p);
-
-    if (found) {
-        currentUser = found;
-        document.getElementById('loginOverlay').classList.add('hidden');
+function runAuth() {
+    const uInput = document.getElementById('lU').value.trim().toLowerCase();
+    const pInput = document.getElementById('lP').value.trim();
+    const match = SYS_CREDENTIALS.find(x => x.u === uInput && x.p === pInput);
+    if (match) {
+        CORE_STATE.USER = match;
+        document.getElementById('loginOverlay').style.opacity = '0';
+        setTimeout(() => document.getElementById('loginOverlay').classList.add('hidden'), 800);
         document.getElementById('sidebar').classList.remove('hidden');
-        document.getElementById('main').classList.remove('hidden');
-        
-        document.getElementById('displayUser').innerText = found.name;
-        document.getElementById('displayRole').innerText = found.role.toUpperCase() + "_COMMAND";
-        
-        applyRBAC(found.role);
-        
-        // FIX: AUDIT LOGS FOR EVERY LOGIN
-        logAudit(`SEC_EVENT: Authentication successful for [${found.u}] | ROLE: ${found.role}`);
-        
-        showToast(`Uplink Synchronized. Welcome ${found.name}`, 'info');
-        initSystem();
+        document.getElementById('viewport').classList.remove('hidden');
+        document.getElementById('sys-user').innerText = match.name;
+        applyPermissions(match.role);
+        toast("Neural link established.", "success");
+        audit("SEC: Auth verification successful for Node ID " + match.u);
+        if (match.role === 'admin') morphTo('dashSec', document.getElementById('ni-0'));
+        else if (match.role === 'doctor') morphTo('admitSec', document.getElementById('ni-2'));
+        else if (match.role === 'pharm') morphTo('pharmaSec', document.getElementById('ni-3'));
+        else morphTo('searchSec', document.getElementById('ni-6'));
     } else {
-        document.getElementById('loginMsg').innerText = "FATAL: Biometric Mismatch Detected. Access Denied.";
+        document.getElementById('auth-msg').innerText = "FATAL: BIOMETRIC MISMATCH.";
     }
 }
 
-function applyRBAC(role) {
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.add('hidden'));
-    
+function applyPermissions(role) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.add('hidden'));
+    document.querySelectorAll('.ni-all').forEach(n => n.classList.remove('hidden'));
     if (role === 'admin') {
-        document.querySelectorAll('.role-admin, .role-doctor, .role-pharmacist, .role-patient').forEach(el => el.classList.remove('hidden'));
-        nav('dashSec', document.getElementById('nav-dash'));
-    } 
-    else if (role === 'doctor') {
-        document.querySelectorAll('.role-doctor, .role-patient').forEach(el => el.classList.remove('hidden'));
-        nav('admitSec', document.getElementById('nav-admit'));
-    } 
-    else if (role === 'pharmacist') {
-        document.querySelectorAll('.role-pharmacist, .role-patient').forEach(el => el.classList.remove('hidden'));
-        nav('pharmaSec', document.getElementById('nav-pharma'));
-    } 
-    else if (role === 'patient') {
-        document.querySelectorAll('.role-patient').forEach(el => el.classList.remove('hidden'));
-        nav('patientPortalSec', document.getElementById('nav-search'));
-    }
-}
-
-/**
- * SYSTEM INITIALIZATION
- */
-function initSystem() {
-    initChart();
-    renderGallery();
-    updateUI();
-    populateDoctorDropdown();
-    refreshPharmaPatientList();
-    refreshLabPatientList();
-}
-
-/**
- * REVENUE ENGINE: THE ABSOLUTE NON-NEGATIVE PROTECTION
- */
-function calculateLiveBill(p) {
-    let sub = 0;
-    const consult = Math.max(0, parseInt(p.consultFee) || 0);
-    const meds = Math.max(0, parseInt(p.meds) || 0);
-    const lab = Math.max(0, parseInt(p.labCharges) || 0);
-    const room = Math.max(0, parseInt(p.roomTypePrice) || 0);
-    const deposit = Math.max(0, parseInt(p.deposit) || 0);
-
-    if (p.visitType === 'checkup') {
-        sub = consult + meds + lab;
-    } else {
-        const admitTime = new Date(p.admitDate);
-        const currentTime = new Date();
-        const diffDays = Math.ceil((currentTime - admitTime) / (1000 * 60 * 60 * 24)) || 1;
-        sub = (diffDays * room) + meds + consult + lab;
-    }
-
-    const tax = sub * 0.18;
-    const gross = sub + tax;
-    
-    // ABSOLUTE FIX: Revenue cannot be negative. If credit > bill, balance is 0.
-    const due = Math.max(0, gross - deposit);
-    
-    return { sub, tax, gross, due, total: due };
-}
-
-/**
- * NAVIGATION MODULE
- */
-function nav(id, el) {
-    document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
-    if (el) el.classList.add('active-nav');
-    
-    if (id === 'gameSec') initSnake();
-    if (id === 'financeSec') updateFinanceDashboard();
-    if (id === 'billingSec') searchPatientBill();
-}
-
-/**
- * HR MODULE: PERSONNEL MANAGEMENT
- */
-function toggleStaffFields() {
-    const role = document.getElementById('stRole').value;
-    document.getElementById('doctorSpecificInputs').style.display = (role.includes('Doctor') || role.includes('Surgeon')) ? 'grid' : 'none';
-}
-
-function addStaff() {
-    const n = document.getElementById('stName').value;
-    const r = document.getElementById('stRole').value;
-    const s = document.getElementById('stSalary').value;
-    const f = document.getElementById('stConsultCharge').value || 0;
-    
-    if (!n || !s) return showToast("Data Integrity Error: Missing Fields", "danger");
-
-    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
-    staff.push({ 
-        id: Date.now(), 
-        name: n, 
-        role: r, 
-        salary: parseInt(s) || 0, 
-        consultFee: parseInt(f) || 0, 
-        totalCommission: 0 
-    });
-    localStorage.setItem('hms_staff_v19', JSON.stringify(staff));
-    
-    logAudit(`HR_EVENT: ${n} (${r}) registered. Basic: Rs ${s}`);
-    showToast(`${n} Synchronized to System`);
-    
-    // Auto-Reset
-    document.getElementById('stName').value = "";
-    document.getElementById('stSalary').value = "";
-    renderStaff();
-    populateDoctorDropdown();
-}
-
-function renderStaff() {
-    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
-    let html = `<table><tr><th>Professional Node</th><th>Designation</th><th>Earnings (Comm)</th><th>Action</th></tr>`;
-    staff.forEach(x => {
-        html += `<tr>
-            <td>${x.name}</td>
-            <td>${x.role}</td>
-            <td style="color:var(--success); font-weight:bold;">Rs ${(x.totalCommission || 0).toLocaleString()}</td>
-            <td>
-                <button onclick="removeStaff(${x.id})" style="background:var(--danger); padding:8px 15px; border:none; color:white; border-radius:10px; cursor:pointer;">TERMINATE</button>
-            </td>
-        </tr>`;
-    });
-    document.getElementById('staffList').innerHTML = html + "</table>";
-}
-
-function removeStaff(id) {
-    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
-    staff = staff.filter(x => x.id !== id);
-    localStorage.setItem('hms_staff_v19', JSON.stringify(staff));
-    renderStaff();
-    populateDoctorDropdown();
-}
-
-/**
- * CLINICAL INTAKE MODULE
- */
-function toggleAdmitFields() {
-    const type = document.getElementById('pVisitType').value;
-    const roomSelect = document.getElementById('pRoom');
-    if (type === 'checkup') {
-        roomSelect.disabled = true;
-        roomSelect.style.opacity = '0.3';
-    } else {
-        roomSelect.disabled = false;
-        roomSelect.style.opacity = '1';
-        if (type === 'emergency') roomSelect.value = "35000";
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('hidden'));
+    } else if (role === 'doctor') {
+        document.querySelectorAll('.ni-doctor, .ni-clinical').forEach(n => n.classList.remove('hidden'));
+    } else if (role === 'pharm') {
+        document.querySelectorAll('.ni-pharm, .ni-clinical').forEach(n => n.classList.remove('hidden'));
     }
 }
 
 function analyzeSymptoms() {
-    const sym = document.getElementById('pSymptoms').value.toLowerCase();
-    const hint = document.getElementById('clinicSuggestion');
-    
+    const s = document.getElementById('pSymptoms').value.toLowerCase();
+    const chip = document.getElementById('sectorChip');
+    const text = document.getElementById('recText');
     const rules = [
-        { key: ['chest', 'heart', 'breath'], msg: "🚨 Cardiology / Trauma Unit Suggested" },
-        { key: ['bone', 'fracture', 'joint'], msg: "🦴 Orthopedic Unit Suggested" },
-        { key: ['fever', 'cough', 'viral'], msg: "🌡️ General Medicine Node Suggested" },
-        { key: ['head', 'seizure', 'vision'], msg: "🧠 Neurology Assessment Required" }
+        { keys: ['chest', 'heart', 'breath'], sector: "Cardiology Unit" },
+        { keys: ['head', 'brain', 'seizure'], sector: "Neurology Matrix" },
+        { keys: ['bone', 'fracture', 'joint'], sector: "Orthopedic Suite" },
+        { keys: ['fever', 'cough', 'cold'], sector: "General Medicine" },
+        { keys: ['blood', 'accident', 'cut'], sector: "Trauma/Emergency" }
     ];
-
-    let found = rules.find(r => r.key.some(k => sym.includes(k)));
-    hint.innerText = found ? found.msg : "";
+    let suggestion = rules.find(r => r.keys.some(k => s.includes(k)));
+    if (s.length > 3 && suggestion) {
+        text.innerText = suggestion.sector;
+        chip.classList.add('active');
+    } else {
+        chip.classList.remove('active');
+    }
 }
 
-function populateDoctorDropdown() {
-    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
-    let docs = staff.filter(s => s.role.includes('Doctor') || s.role.includes('Surgeon'));
-    let select = document.getElementById('pDoctorAssign');
-    if(!select) return;
-    select.innerHTML = '<option value="Not Assigned">Assign Physician...</option>';
-    docs.forEach(d => {
-        let opt = document.createElement('option');
-        opt.value = d.name;
-        opt.innerHTML = `${d.name} (${d.role})`;
-        select.appendChild(opt);
+function updateIntakeFields() {
+    const type = document.getElementById('pType').value;
+    const room = document.getElementById('pRoom');
+    if (type === 'checkup') {
+        room.disabled = true; room.style.opacity = '0.3'; room.value = "0";
+    } else {
+        room.disabled = false; room.style.opacity = '1';
+    }
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('hms_v34_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    toast("Theme Engine Synchronized.");
+    if(CORE_STATE.USER && CORE_STATE.USER.role === 'admin') initDashboard(); 
+}
+
+// ============================================================
+// FIX: morphTo now uses offsetTop for accurate blob positioning
+// regardless of how many nav items are visible/hidden by role.
+// ============================================================
+function morphTo(id, navEl) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if(navEl) navEl.classList.add('active');
+    
+    const blob = document.getElementById('blob');
+    blob.style.opacity = "1";
+
+    // Use actual DOM offsetTop of the nav element so blob tracks
+    // correctly even when some items are hidden due to permissions
+    if(navEl) {
+        const navList = navEl.parentElement;
+        blob.style.top = (navEl.offsetTop) + "px";
+    }
+
+    document.querySelectorAll('.section-node').forEach(s => s.classList.add('hidden'));
+    const target = document.getElementById(id);
+    if(target) target.classList.remove('hidden');
+    
+    if (id === 'dashSec') updateDashboard();
+    if (id === 'hrSec') renderRoster();
+    if (id === 'admitSec') renderPatients();
+    if (id === 'financeSec') updateFinance();
+    if (id === 'galSec') renderGallery();
+    if (id === 'gameSec') initSnake();
+    refreshSelects();
+}
+
+function toast(msg, type = 'success') {
+    const stack = document.getElementById('toasts');
+    const node = document.createElement('div');
+    node.className = 'toast-node';
+    node.innerText = "⚡ " + msg;
+    stack.appendChild(node);
+    setTimeout(() => { node.style.opacity = '0'; setTimeout(() => node.remove(), 600); }, 4000);
+}
+
+function addPrescription() {
+    const pid = document.getElementById('prescPatSel').value;
+    const med = document.getElementById('prescMedName').value.trim();
+    if(!pid || !med) return toast("Error: Target Identity Undefined.", "danger");
+    const idx = CORE_STATE.PATIENTS.findIndex(p => p.id == pid);
+    CORE_STATE.PATIENTS[idx].prescription = med;
+    save();
+    toast("Digital Prescription committed.");
+    audit("CLINIC: Dr prescribed [" + med + "] for patient " + CORE_STATE.PATIENTS[idx].name);
+    document.getElementById('prescMedName').value = "";
+    renderPatients();
+}
+
+function showPrescribed() {
+    const pid = document.getElementById('pharmaPSelect').value;
+    const view = document.getElementById('prescView');
+    const text = document.getElementById('prescVal');
+    if(!pid) return view.style.display = 'none';
+    const p = CORE_STATE.PATIENTS.find(x => x.id == pid);
+    if(p && p.prescription) {
+        text.innerText = p.prescription;
+        view.style.display = 'block';
+    } else {
+        text.innerText = "No Pending Prescriptions";
+        view.style.display = 'block';
+    }
+}
+
+function dispenseMed() {
+    const pid = document.getElementById('pharmaPSelect').value;
+    const cost = parseInt(document.getElementById('pharmaMedCost').value);
+    if(!pid || isNaN(cost)) return toast("Error: Price Null or Identity Null.", "danger");
+    const idx = CORE_STATE.PATIENTS.findIndex(p => p.id == pid);
+    CORE_STATE.PATIENTS[idx].phaCost += cost;
+    const medName = CORE_STATE.PATIENTS[idx].prescription || "Compound Class-X";
+    CORE_STATE.PATIENTS[idx].prescription = "";
+    save();
+    document.getElementById('pharmaLogMount').innerHTML += `> [${new Date().toLocaleTimeString()}] DISPENSED [${medName}] TO NODE [${CORE_STATE.PATIENTS[idx].name}] (Rs ${cost})<br>`;
+    toast("Dispensed & Billed.");
+    showPrescribed();
+    document.getElementById('pharmaMedCost').value = "";
+}
+
+function onboardStaff() {
+    const n = document.getElementById('stName').value;
+    const r = document.getElementById('stRole').value;
+    const s = document.getElementById('stSalary').value;
+    const f = document.getElementById('stFee').value || 0;
+    const sp = document.getElementById('stSpec').value || "General";
+    if(!n || !s) return toast("Registry nodes incomplete.", "danger");
+    CORE_STATE.ROSTER.push({ id: Date.now(), n, r, s: parseFloat(s), f: parseFloat(f), sp, sh: document.getElementById('stShift').value, earnings: 0 });
+    save(); renderRoster();
+    toast("Professional node synchronized.");
+    audit("HR: Synchronized node " + n);
+    ['stName', 'stSalary', 'stFee', 'stSpec'].forEach(i => document.getElementById(i).value = "");
+}
+
+function renderRoster() {
+    const mount = document.getElementById('staffListMount');
+    let h = `<table><tr><th>Professional Identity</th><th>Role / Specialty</th><th>Earnings</th><th>Action</th></tr>`;
+    CORE_STATE.ROSTER.forEach(r => {
+        h += `<tr><td>${r.n}<br><small>Shift: ${r.sh}</small></td><td>${r.r}<br><small>${r.sp}</small></td>
+        <td style="color:var(--ios-green)">Rs ${r.earnings.toLocaleString()}</td>
+        <td><button onclick="voidStaff(${r.id})" class="btn-ios btn-danger" style="padding:10px 18px; font-size:11px;">VOID</button></td></tr>`;
+    });
+    mount.innerHTML = h + "</table>";
+    refreshDocSelect();
+}
+
+function voidStaff(id) {
+    CORE_STATE.ROSTER = CORE_STATE.ROSTER.filter(x => x.id !== id);
+    save(); renderRoster();
+}
+
+function refreshDocSelect() {
+    const sel = document.getElementById('pDocAssign');
+    if(!sel) return;
+    sel.innerHTML = '<option value="">Target Physician...</option>';
+    CORE_STATE.ROSTER.filter(r => r.r.includes('Specialist') || r.r.includes('Surgeon')).forEach(d => {
+        sel.innerHTML += `<option value="${d.n}">${d.n} (${d.sp})</option>`;
     });
 }
 
 function admitPatient() {
-    const name = document.getElementById('pName').value;
-    const docName = document.getElementById('pDoctorAssign').value;
-    if (!name || docName === "Not Assigned") return showToast("Clinical Profile Incomplete", "danger");
-
-    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
-    let doctor = staff.find(s => s.name === docName);
-    let fee = doctor ? (parseInt(doctor.consultFee) || 0) : 0;
-
-    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
-    const entry = {
-        id: Date.now(),
-        name: name,
-        age: document.getElementById('pAge').value,
-        gender: document.getElementById('pGender').value,
-        visitType: document.getElementById('pVisitType').value,
-        symptoms: document.getElementById('pSymptoms').value,
-        roomTypePrice: document.getElementById('pVisitType').value === 'checkup' ? 0 : (parseInt(document.getElementById('pRoom').value) || 0),
-        consultFee: fee,
-        deposit: parseInt(document.getElementById('pDeposit').value) || 0,
-        labCharges: 0,
-        admitDate: new Date().toISOString(),
-        notes: document.getElementById('pClinicalNotes').value,
-        assignedDoctor: docName,
-        meds: 0,
-        status: 'active'
-    };
-    p.push(entry);
-    localStorage.setItem('hms_patients_v19', JSON.stringify(p));
-    
-    logAudit(`CLINIC: Node admitted [${name}]. Assigned to Dr. ${docName}`);
-    showToast(`Intake Complete: Node Synchronized`);
-    
-    // Reset Form
-    ['pName', 'pAge', 'pDeposit', 'pSymptoms', 'pClinicalNotes'].forEach(id => document.getElementById(id).value = "");
-    updateUI();
+    const n = document.getElementById('pName').value;
+    const doc = document.getElementById('pDocAssign').value;
+    if(!n || !doc) return toast("Bio-profile failure.", "danger");
+    const docObj = CORE_STATE.ROSTER.find(x => x.n === doc);
+    CORE_STATE.PATIENTS.push({
+        id: Date.now(), name: n, age: document.getElementById('pAge').value, doc: doc,
+        roomPrice: parseInt(document.getElementById('pRoom').value), diagnosis: document.getElementById('pDiagnosis').value,
+        blood: document.getElementById('pBlood').value, type: document.getElementById('pType').value,
+        deposit: parseFloat(document.getElementById('pDeposit').value) || 0, intakeDate: new Date(), status: 'active',
+        labCost: 0, phaCost: 0, f: docObj ? docObj.f : 0, prescription: ""
+    });
+    save(); renderPatients();
+    toast("Bio-node intake successful.");
+    audit("CLINIC: Ward Sync for " + n);
+    ['pName', 'pAge', 'pDiagnosis', 'pDeposit', 'pSymptoms'].forEach(i => document.getElementById(i).value = "");
+    document.getElementById('sectorChip').classList.remove('active');
+    refreshSelects();
 }
 
-/**
- * FISCAL SETTLEMENT MODULE
- */
-function searchPatientBill() {
-    const query = document.getElementById('patientSearchIn').value.toLowerCase();
-    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
-    let results = p.filter(x => (x.name.toLowerCase().includes(query) || x.id.toString().includes(query)) && x.status === 'active');
-
-    let html = "";
-    if (results.length > 0 && query !== "") {
-        results.forEach(x => {
-            let bill = calculateLiveBill(x);
-            
-            let settlementBtn = currentUser.role === 'admin' ? 
-                `<button class="btn-primary" style="margin-top:20px; background:var(--success);" onclick="dischargePatient(${x.id})">EXECUTE SETTLEMENT & DISCHARGE</button>` : 
-                `<div style="margin-top:20px; padding:15px; background:rgba(245, 158, 11, 0.1); color:var(--warning); border-radius:12px; font-weight:800;">PENDING_ADMIN_FINALIZATION</div>`;
-
-            html += `
-            <div class="card">
-                <div class="grid-3">
-                    <div><small>Identity Node</small><h3>${x.name}</h3></div>
-                    <div><small>Intake Mode</small><h3 style="color:var(--warning)">${x.visitType.toUpperCase()}</h3></div>
-                    <div><small>Settlement Outstanding</small><h2 style="color:var(--accent); font-family:'JetBrains Mono'">Rs ${bill.total.toLocaleString()}</h2></div>
-                </div>
-                <hr style="border:0; border-top:1px solid var(--glass-border); margin:25px 0;">
-                <p><strong>Clinical Note:</strong> ${x.notes || "None recorded"}</p>
-                <div class="grid-3" style="margin-top:20px;">
-                    <span>Bio-Tax (18%): Rs ${bill.tax.toFixed(2)}</span>
-                    <span>Service Flux: Rs ${bill.sub.toFixed(2)}</span>
-                    <span>Advance Node: Rs ${x.deposit.toLocaleString()}</span>
-                </div>
-                ${settlementBtn}
-            </div>`;
-        });
-    } else if (query !== "") {
-        html = `<div class="card" style="text-align:center; padding:60px;">IDENTITY NOT FOUND IN ACTIVE WARD.</div>`;
-    }
-    document.getElementById('searchResultArea').innerHTML = html;
+function renderPatients() {
+    const mount = document.getElementById('pListMount');
+    let active = CORE_STATE.PATIENTS.filter(p => p.status === 'active');
+    let h = `<table><tr><th>Bio-Node Identity</th><th>Type / Blood</th><th>Pending Doc Sync</th><th>Flux Outstanding</th></tr>`;
+    active.forEach(p => {
+        let b = calculateBill(p);
+        h += `<tr><td>${p.name}<br><small>Lead: ${p.doc}</small></td><td>${p.type.toUpperCase()}<br><small>Group: ${p.blood}</small></td>
+        <td>${p.prescription ? '<span class="presc-badge">PRESCRIPTION_PENDING</span>' : '<small>Cleared</small>'}</td>
+        <td style="color:var(--ios-blue)">Rs ${b.total.toLocaleString()}</td></tr>`;
+    });
+    mount.innerHTML = h + "</table>";
 }
 
-function dischargePatient(id) {
-    if (currentUser.role !== 'admin') return;
-
-    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
-    let idx = p.findIndex(x => x.id == id);
-    if (idx === -1) return;
-
-    let bill = calculateLiveBill(p[idx]);
-    
-    // Node Payout Calculation (15% Facility Fee)
-    let facilityFee = bill.sub * 0.15;
-    let commission = (p[idx].consultFee * 0.85) + (bill.sub * 0.1); 
-
-    let staff = JSON.parse(localStorage.getItem('hms_staff_v19')) || [];
-    let docIdx = staff.findIndex(s => s.name === p[idx].assignedDoctor);
-    if (docIdx !== -1) {
-        staff[docIdx].totalCommission = (staff[docIdx].totalCommission || 0) + commission;
-        localStorage.setItem('hms_staff_v19', JSON.stringify(staff));
-    }
-
-    let totalRev = parseFloat(localStorage.getItem('hms_fiscal_rev')) || 0;
-    let totalComm = parseFloat(localStorage.getItem('hms_fiscal_payout')) || 0;
-    
-    localStorage.setItem('hms_fiscal_rev', totalRev + bill.total);
-    localStorage.setItem('hms_fiscal_payout', totalComm + commission);
-
-    p[idx].status = 'discharged';
-    localStorage.setItem('hms_patients_v19', JSON.stringify(p));
-    
-    logAudit(`FINANCE: Settlement complete [${p[idx].name}]. Collected: Rs ${bill.total}`);
-    
-    triggerDigitalInvoice(p[idx], bill);
-    updateUI();
-    searchPatientBill();
-}
-
-function triggerDigitalInvoice(p, b) {
-    const text = `
-    INVOICE_UID: ${p.id.toString().slice(-10)}
-    NODE_NAME:   ${p.name.toUpperCase()}
-    PHYSICIAN:   DR. ${p.assignedDoctor.toUpperCase()}
-    --------------------------------------------
-    CONSULTATION:     Rs ${p.consultFee.toLocaleString()}
-    LAB_DIAGNOSTICS:  Rs ${p.labCharges.toLocaleString()}
-    PHARMA_LEDGER:    Rs ${p.meds.toLocaleString()}
-    CLINICAL_STAY:    Rs ${(b.sub - p.consultFee - p.meds - p.labCharges).toFixed(2)}
-    --------------------------------------------
-    BIO_TAX (18%):    Rs ${b.tax.toFixed(2)}
-    ADVANCE_CREDIT: - Rs ${p.deposit.toLocaleString()}
-    --------------------------------------------
-    FINAL_SETTLED:    Rs ${b.due.toLocaleString()}
-    
-    STATUS: [FULLY_DISCHARGED]
-    `;
-    document.getElementById('receiptPayload').innerText = text;
-    document.getElementById('receiptModal').style.display = 'flex';
-}
-
-function closeReceipt() { document.getElementById('receiptModal').style.display = 'none'; }
-
-/**
- * PHARMACY MODULE
- */
-function refreshPharmaPatientList() {
-    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
-    let sel = document.getElementById('pharmaPatientSelect');
-    if (!sel) return;
-    sel.innerHTML = '<option value="">Target Patient Node...</option>';
-    p.filter(x => x.status === 'active').forEach(x => {
-        sel.innerHTML += `<option value="${x.id}">${x.name}</option>`;
+function refreshSelects() {
+    const active = CORE_STATE.PATIENTS.filter(x => x.status === 'active');
+    const s1 = document.getElementById('pharmaPSelect'); 
+    const s2 = document.getElementById('labPSelect');
+    const s3 = document.getElementById('prescPatSel');
+    [s1, s2, s3].forEach(s => {
+        if(!s) return;
+        s.innerHTML = '<option value="">Select identity...</option>';
+        active.forEach(p => s.innerHTML += `<option value="${p.id}">${p.name}</option>`);
     });
 }
 
-function addInventory() {
-    const n = document.getElementById('medName').value;
-    const s = document.getElementById('medStock').value;
-    const p = document.getElementById('medPrice').value;
-    if (!n || !s) return;
-
-    let inv = JSON.parse(localStorage.getItem('hms_inv_v19')) || [];
-    inv.push({ name: n, stock: parseInt(s), price: parseInt(p), date: new Date().toLocaleDateString() });
-    localStorage.setItem('hms_inv_v19', JSON.stringify(inv));
-    renderInventory();
-    showToast("Inventory Matrix Updated", "success");
+function issueLab() {
+    const pid = document.getElementById('labPSelect').value; const cost = parseInt(document.getElementById('labTestSelect').value);
+    if(!pid) return; const idx = CORE_STATE.PATIENTS.findIndex(p => p.id == pid);
+    CORE_STATE.PATIENTS[idx].labCost += cost; save();
+    document.getElementById('labLogMount').innerHTML += `> [${new Date().toLocaleTimeString()}] PROCESS_DONE ON NODE [${CORE_STATE.PATIENTS[idx].name}] (Rs ${cost})<br>`;
+    toast("Lab suite executed.");
 }
 
-function renderInventory() {
-    let inv = JSON.parse(localStorage.getItem('hms_inv_v19')) || [];
-    let html = `<table><tr><th>Drug Identifier</th><th>Stock</th><th>Unit Price</th></tr>`;
-    inv.forEach(x => html += `<tr><td>${x.name}</td><td>${x.stock} Units</td><td>Rs ${x.price}</td></tr>`);
-    document.getElementById('inventoryList').innerHTML = html + "</table>";
+function calculateBill(p) {
+    const diff = Math.ceil((new Date() - new Date(p.intakeDate)) / 86400000) || 1;
+    const sub = (p.type === 'checkup' ? 0 : (diff * p.roomPrice)) + p.labCost + p.phaCost + p.f;
+    const tax = sub * 0.18;
+    return { s: sub, x: tax, total: Math.max(0, sub + tax - p.deposit) };
 }
 
-function assignMedicineBill() {
-    const pid = document.getElementById('pharmaPatientSelect').value;
-    const cost = parseInt(document.getElementById('pharmaMedCost').value) || 0;
-    if (!pid || cost === 0) return showToast("Vector Error: Missing Data", "danger");
-
-    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
-    let idx = p.findIndex(x => x.id == pid);
-    if (idx !== -1) {
-        p[idx].meds = (parseInt(p[idx].meds) || 0) + cost;
-        localStorage.setItem('hms_patients_v19', JSON.stringify(p));
-        logAudit(`PHARMA: Medication charged to ${p[idx].name}`);
-        showToast("Ledger Updated", "success");
-        updateUI();
-    }
+function updateFinance() {
+    if(CORE_STATE.USER.role !== 'admin') return;
+    document.getElementById('fin-net').innerText = "Rs " + (CORE_STATE.FISCAL.rev - CORE_STATE.FISCAL.pay).toLocaleString();
+    document.getElementById('fin-gross').innerText = "Rs " + CORE_STATE.FISCAL.rev.toLocaleString();
+    document.getElementById('fin-pay').innerText = "Rs " + CORE_STATE.FISCAL.pay.toLocaleString();
+    document.getElementById('fin-tax').innerText = "Rs " + (CORE_STATE.FISCAL.rev * 0.18).toLocaleString();
 }
 
-/**
- * LAB MODULE
- */
-function refreshLabPatientList() {
-    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
-    let sel = document.getElementById('labPatientSelect');
-    if (!sel) return;
-    sel.innerHTML = '<option value="">Diagnostic Target Node...</option>';
-    p.filter(x => x.status === 'active').forEach(x => {
-        sel.innerHTML += `<option value="${x.id}">${x.name}</option>`;
+function wipeFiscal() { if(confirm("VOID FISCAL MATRIX?")) { CORE_STATE.FISCAL = { rev: 0, pay: 0 }; save(); updateFinance(); } }
+
+function runSearch() {
+    const q = document.getElementById('searchBar').value.toLowerCase(); const mount = document.getElementById('searchMount');
+    if(!q) { mount.innerHTML = ""; return; }
+    const matches = CORE_STATE.PATIENTS.filter(p => p.name.toLowerCase().includes(q) && p.status === 'active');
+    let h = "";
+    matches.forEach(p => {
+        let b = calculateBill(p);
+        let settleBtn = CORE_STATE.USER.role === 'admin' ? 
+            `<button class="btn-ios btn-primary" onclick="settle(${p.id})">FINAL SETTLEMENT</button>` :
+            `<div style="font-size:10px; color:var(--ios-red); font-weight:800;">ADMIN_AUTHORIZATION_REQUIRED</div>`;
+        h += `<div class="glass-panel section-node" style="padding:40px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+            <div><span class="stat-label">Identity Node</span><h3>${p.name}</h3></div>
+            <div><span class="stat-label">Active Flux Due</span><h3 style="color:var(--ios-blue)">Rs ${b.total.toLocaleString()}</h3></div>
+            ${settleBtn}
+        </div>`;
     });
+    mount.innerHTML = h || "<p style='text-align:center; opacity:0.3; font-weight:800;'>NODE_NOT_RESOLVED.</p>";
 }
 
-function assignLabBill() {
-    const pid = document.getElementById('labPatientSelect').value;
-    const cost = parseInt(document.getElementById('labTestType').value) || 0;
-    if (!pid) return showToast("Select a patient.", "danger");
-
-    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
-    let idx = p.findIndex(x => x.id == pid);
-    if (idx !== -1) {
-        p[idx].labCharges = (parseInt(p[idx].labCharges) || 0) + cost;
-        localStorage.setItem('hms_patients_v19', JSON.stringify(p));
-        logAudit(`LAB: Bio-Diagnostic test assigned to ${p[idx].name}`);
-        showToast("Lab Fee Executed", "success");
-        updateUI();
-    }
+function settle(id) {
+    if(CORE_STATE.USER.role !== 'admin') return;
+    const idx = CORE_STATE.PATIENTS.findIndex(p => p.id == id); const bill = calculateBill(CORE_STATE.PATIENTS[idx]);
+    const comm = bill.s * 0.15; const docIdx = CORE_STATE.ROSTER.findIndex(d => d.n === CORE_STATE.PATIENTS[idx].doc);
+    if(docIdx !== -1) CORE_STATE.ROSTER[docIdx].earnings += comm;
+    CORE_STATE.FISCAL.rev += bill.total; CORE_STATE.FISCAL.pay += comm; CORE_STATE.PATIENTS[idx].status = 'discharged';
+    save(); renderInvoice(CORE_STATE.PATIENTS[idx], bill); runSearch(); audit("FIN: Discharge for " + CORE_STATE.PATIENTS[idx].name);
 }
 
-/**
- * FISCAL COMMAND & DASHBOARD
- */
-function initChart() {
-    const canvas = document.getElementById('revenueChart');
-    if (!canvas) return;
-    new Chart(canvas.getContext('2d'), {
-        type: 'line',
-        data: {
-            labels: ['Node_A', 'Node_B', 'Node_C', 'Node_D', 'Node_E'],
-            datasets: [{
-                label: 'System Flux',
-                data: [45, 82, 61, 115, 98],
-                borderColor: '#3b82f6',
-                tension: 0.5,
-                fill: true,
-                backgroundColor: 'rgba(59, 130, 246, 0.08)'
-            }]
-        },
-        options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
-    });
+function renderInvoice(p, b) {
+    const payload = `NODE: ${p.id}\nIDENTITY: ${p.name.toUpperCase()}\nPHYSICIAN: ${p.doc.toUpperCase()}\n--------------------\nWARD: Rs ${(b.s-p.labCost-p.phaCost-p.f).toLocaleString()}\nDIAG: Rs ${p.labCost.toLocaleString()}\nMEDS: Rs ${p.phaCost.toLocaleString()}\nTAX: Rs ${b.x.toLocaleString()}\n--------------------\nSETTLED: Rs ${b.total.toLocaleString()}`;
+    document.getElementById('invoice-payload').innerText = payload;
+    document.getElementById('modal-root').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('modal-root').style.display = 'none'; }
+
+function updateDashboard() {
+    if(CORE_STATE.USER.role !== 'admin') return;
+    const active = CORE_STATE.PATIENTS.filter(p => p.status === 'active');
+    document.getElementById('dash-p-count').innerText = active.length;
+    const flux = active.reduce((acc, curr) => acc + calculateBill(curr).total, 0);
+    document.getElementById('dash-rev').innerText = "Rs " + flux.toLocaleString();
+    document.getElementById('auditContainer').innerHTML = CORE_STATE.AUDIT.slice().reverse().join('<br>');
+    initChart();
+}
+
+function audit(msg) {
+    CORE_STATE.AUDIT.push("> [" + new Date().toLocaleTimeString() + "] " + msg);
+    if(CORE_STATE.AUDIT.length > 80) CORE_STATE.AUDIT.shift();
+    save();
 }
 
 function renderGallery() {
-    const mount = document.getElementById('galleryMount');
-    mount.innerHTML = GALLERY_SOURCE.map((url, i) => `
-        <div class="gallery-item">
-            <img src="${url}?auto=format&fit=crop&q=80&w=600" alt="Facility_Node_${i}">
-            <div class="gallery-label">NODE_00${i+1}</div>
-        </div>
-    `).join('');
+    document.getElementById('galleryMount').innerHTML = IMAGES.map(item => `
+        <div class="gallery-node"><img src="${item.url}?auto=format&fit=crop&q=80&w=600">
+        <div class="gallery-label">${item.l}</div></div>`).join('');
 }
 
-function logAudit(msg) {
-    let logs = JSON.parse(localStorage.getItem('hms_audit_v19')) || [];
-    logs.push(`> [${new Date().toLocaleTimeString()}] ${msg}`);
-    localStorage.setItem('hms_audit_v19', JSON.stringify(logs.slice(-50)));
-    const container = document.getElementById('auditContainer');
-    if (container) container.innerHTML = logs.reverse().join('<br>');
+function save() {
+    localStorage.setItem('hms_v34_roster', JSON.stringify(CORE_STATE.ROSTER));
+    localStorage.setItem('hms_v34_patients', JSON.stringify(CORE_STATE.PATIENTS));
+    localStorage.setItem('hms_v34_audit', JSON.stringify(CORE_STATE.AUDIT));
+    localStorage.setItem('hms_v34_rev', CORE_STATE.FISCAL.rev);
+    localStorage.setItem('hms_v34_pay', CORE_STATE.FISCAL.pay);
 }
 
-function updateFinanceDashboard() {
-    let rev = parseFloat(localStorage.getItem('hms_fiscal_rev')) || 0;
-    let payout = parseFloat(localStorage.getItem('hms_fiscal_payout')) || 0;
-    document.getElementById('fin-total-rev').innerText = "Rs " + rev.toLocaleString();
-    document.getElementById('fin-total-comm').innerText = "Rs " + payout.toLocaleString();
-    document.getElementById('fin-net-profit').innerText = "Rs " + Math.max(0, (rev - payout)).toLocaleString();
-}
-
-function resetFinances() {
-    if (confirm("CRITICAL: Wipe all fiscal telemetry data?")) {
-        localStorage.setItem('hms_fiscal_rev', '0');
-        localStorage.setItem('hms_fiscal_payout', '0');
-        updateUI();
-        logAudit("ADMIN: Global financial reset executed.");
-    }
-}
-
-function updateUI() {
-    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
-    let active = p.filter(x => x.status === 'active');
-    document.getElementById('stat-p').innerText = active.length;
-    
-    let currentLiveTotal = active.reduce((a, b) => a + calculateLiveBill(b).total, 0);
-    document.getElementById('stat-profit').innerText = "Rs " + currentLiveTotal.toLocaleString();
-    
-    renderPatientTable();
-    renderInventory();
-    renderStaff();
-    updateFinanceDashboard();
-    refreshPharmaPatientList();
-    refreshLabPatientList();
-}
-
-function renderPatientTable() {
-    let p = JSON.parse(localStorage.getItem('hms_patients_v19')) || [];
-    let active = p.filter(x => x.status === 'active');
-    let html = `<table><tr><th>Identity Node</th><th>Physician</th><th>Due (Rs)</th></tr>`;
-    active.forEach(x => {
-        let b = calculateLiveBill(x);
-        html += `<tr><td>${x.name}</td><td>${x.assignedDoctor}</td><td style="color:var(--accent); font-weight:800;">Rs ${b.due.toLocaleString()}</td></tr>`;
-    });
-    document.getElementById('activePatientsList').innerHTML = html + "</table>";
-}
-
-function logout() { location.reload(); }
-
-/**
- * STAFF LOUNGE: SNAKE REFLEX SIMULATION
- */
 function initSnake() {
-    const canvas = document.getElementById("snakeGame");
-    const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById("snakeGame"); const x = canvas.getContext("2d");
     let box = 25, score = 0, dir, game;
-    let snake = [{x: 10 * box, y: 10 * box}];
-    let food = { x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box };
-
+    let snake = [{x: 9 * box, y: 10 * box}];
+    let food = { x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box };
+    const blue = getComputedStyle(document.documentElement).getPropertyValue('--ios-blue').trim();
+    const dark = document.body.classList.contains('dark-mode');
     document.onkeydown = e => {
         if(e.keyCode == 37 && dir != "RIGHT") dir = "LEFT";
         else if(e.keyCode == 38 && dir != "DOWN") dir = "UP";
         else if(e.keyCode == 39 && dir != "LEFT") dir = "RIGHT";
         else if(e.keyCode == 40 && dir != "UP") dir = "DOWN";
     };
-
     function draw() {
-        ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 500, 500);
-        for(let i = 0; i < snake.length; i++) {
-            ctx.fillStyle = (i == 0) ? "#3b82f6" : "#1e293b";
-            ctx.fillRect(snake[i].x, snake[i].y, box, box);
+        x.fillStyle = dark ? "#1c1c1e" : "#f5f5f7"; x.fillRect(0,0,500,500);
+        for(let i=0; i<snake.length; i++) {
+            x.fillStyle = (i==0) ? blue : (dark ? "#48484a" : "#e5e5ea");
+            x.fillRect(snake[i].x, snake[i].y, box, box);
         }
-        ctx.fillStyle = "#ef4444"; ctx.fillRect(food.x, food.y, box, box);
-        let headX = snake[0].x, headY = snake[0].y;
-        if(dir == "LEFT") headX -= box; if(dir == "UP") headY -= box;
-        if(dir == "RIGHT") headX += box; if(dir == "DOWN") headY += box;
-        if(headX == food.x && headY == food.y) {
+        x.fillStyle = "#ff3b30"; x.fillRect(food.x, food.y, box, box);
+        let sX = snake[0].x, sY = snake[0].y;
+        if(dir == "LEFT") sX -= box; if(dir == "UP") sY -= box;
+        if(dir == "RIGHT") sX += box; if(dir == "DOWN") sY += box;
+        if(sX == food.x && sY == food.y) {
             score++; document.getElementById('snakeScore').innerText = score;
-            food = { x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box };
+            food = { x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box };
         } else snake.pop();
-        let nH = {x: headX, y: headY};
-        if(headX < 0 || headX >= 500 || headY < 0 || headY >= 500) { clearInterval(game); showToast("Simulation Failed. Final Reflex: " + score, "danger"); }
-        snake.unshift(nH);
+        if(sX < 0 || sX >= 500 || sY < 0 || sY >= 500) { clearInterval(window.snakeTimer); toast("Reflex Failure."); }
+        snake.unshift({x:sX, y:sY});
     }
-    game = setInterval(draw, 100);
+    clearInterval(window.snakeTimer);
+    window.snakeTimer = setInterval(draw, 115);
 }
+
+function initChart() {
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    if (window.myChart) window.myChart.destroy();
+    window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['00:00','04:00','08:00','12:00','16:00','20:00'],
+            datasets: [{
+                data:[35, 60, 45, 95, 75, 90], borderColor:'#007aff', fill:true, 
+                backgroundColor: 'rgba(0, 122, 255, 0.05)', tension:0.4, borderWidth: 4, pointRadius: 0
+            }]
+        },
+        options: { plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
+    });
+}
+
+if(localStorage.getItem('hms_v34_theme') === 'dark') document.body.classList.add('dark-mode');
 </script>
 </body>
 </html>
