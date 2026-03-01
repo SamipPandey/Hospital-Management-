@@ -1,95 +1,69 @@
-# 🏥 HMS Enterprise v19.0: Infinity Glass Edition
-> **Absolute Financial Integrity | Next-Gen Liquid Glass Architecture | Multi-Role RBAC**
+# 🏥 HMS Enterprise v26.0.3: Synchronized Crystal Edition
+> **Absolute Fiscal Synchrony | Quantum Liquid Glass Architecture | Advanced Clinical Pipeline**
 
-![Version](https://img.shields.io/badge/Version-19.0-3b82f6?style=for-the-badge)
-![UI](https://img.shields.io/badge/UI-iOS_26_Liquid_Glass-10b981?style=for-the-badge)
-![Logic](https://img.shields.io/badge/Logic-Strict_RBAC-ef4444?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-26.0.3-007aff?style=for-the-badge)
+![UI](https://img.shields.io/badge/UI-Synchronized_Crystal_Glass-34c759?style=for-the-badge)
+![Security](https://img.shields.io/badge/Logic-Quantum_RBAC_Locked-5856d6?style=for-the-badge)
 
-Welcome to **HMS Enterprise v19.0**, a high-fidelity Hospital Management System built with a focus on **Liquid Glass Aesthetics** (inspired by iOS 26/VisionOS) and **Absolute Fiscal Integrity**. This system provides a seamless experience for administrators, medical professionals, and patients alike.
-
----
-
-## 💎 Design Philosophy: "Infinity Glass"
-The system utilizes a custom-built **Liquid Glass Engine** featuring:
-*   **Dynamic Mesh Gradients:** A radial-depth background that shifts with user interaction.
-*   **Frosted Glass Logic:** 45px backdrop blurs with 210% color saturation for a premium feel.
-*   **Spring Physics:** All buttons and modals utilize high-frequency cubic-bezier curves for a "snappy" tactile response.
-*   **Responsive Engine:** Fully optimized for Mobile, Tablet, and Desktop environments.
+Welcome to **HMS Enterprise v26.0.3**, the definitive pinnacle of hospital management engineering. Rebuilt from the ground up on the **Synchronized Crystal Engine**, this version bridges the gap between clinical diagnostics and pharmaceutical fulfillment with a high-fidelity, refractive interface designed for the next decade of healthcare.
 
 ---
 
-## 🔐 Access Credentials Matrix
-The system is protected by a biometric-style authentication layer with four distinct access tiers. Access the terminal using the following identity nodes:
+## 💎 Design Philosophy: "Synchronized Crystal"
+Version 26.0.3 introduces the most advanced UI framework in the series:
+*   **Unbreakable Navigation Core:** Utilizing a **Relative Bounding-Box Engine** that calculates menu positions in real-time. This ensures the liquid glass "blob" follows your selection perfectly, regardless of role-based item visibility.
+*   **Adaptive Specular Lighting:** A post-login "Sunlight Layer" removes visual darkness, providing a light, airy workspace while maintaining a 40px frosted glass depth.
+*   **Metaball Fusion Engine:** Navigation items merge and separate with high-viscosity fluid animations, optimized for 100% text readability via Z-index priority layering.
+*   **Dynamic Theme Engine:** A one-tap toggle between **Ultra-Light Refraction** and **Deep-Fluid Dark Mode**, with persistent local storage of user preferences.
 
-| Role | Username | Password | Access Level |
+---
+
+## 🔐 Access Credentials Matrix (v26.0.3 Protocol)
+Access to the terminal is strictly governed by the Quantum RBAC (Role-Based Access Control) layer. Dashboard telemetry and fiscal settlements are hard-locked to Administrator identity nodes.
+
+| Role | Username (UID) | Password | Access Capabilities |
 | :--- | :--- | :--- | :--- |
-| **🛡️ Admin** | `admin` | `admin123` | Full Control, Fiscal Settlement, HR, & Logs |
-| **👨‍⚕️ Doctor** | `doc1` | `123` | Intake Engine, Lab Requests, & Break Room |
-| **💊 Pharmacist**| `pharm1` | `pharm123` | Drug Inventory & Prescription Dispensing |
-| **👤 Patient** | `user1` | `0000` | Billing Search, Features, & Facility Gallery |
+| **🛡️ Administrator** | `admin` | `admin` | Full Telemetry, Fiscal Settlement, HR Roster |
+| **👨‍⚕️ Senior Doctor** | `doc` | `123` | AI Intake, Laboratory Suite, Digital Prescribing |
+| **💊 Lead Pharmacist**| `pharm` | `123` | Prescription Fulfillment, Inventory Ledger |
+| **👤 Patient Node** | `user` | `0` | Medical Bill Resolution, Specifications, Gallery |
 
 ---
 
-## 🚀 Key Modules & Features
+## 🚀 Quantum Modules
 
-### 📊 System Analytics Matrix
-Real-time telemetry for global admissions, bed occupancy, and revenue flow. Integrated with **Chart.js** for high-fidelity fiscal trajectory tracking.
+### 🩺 Doctor-to-Pharma Pipeline
+The core breakthrough of v26.0.3. Doctors prescribe synthetic compounds directly within the **Clinical Intake Matrix**. These orders manifest instantly in the **Pharmacy Dispensing Queue**, where pharmacists fulfill requests and inject costs into the patient's fiscal node in one click.
 
-### 🛌 Clinical Intake Engine
-Enhanced with **C-Logic Symptom Analysis**, providing instant medical routing recommendations (Cardiology, Orthopedic, etc.) based on patient input. Includes a dedicated **Clinical Notes** area for detailed observations.
+### 🧠 AI Symptom Matrix
+An integrated keyword analysis engine that monitors the **Symptoms Matrix** during intake. It provides real-time "AI Recommendations," suggesting the optimal medical sector (Cardiology, Neurology, Orthopedics, etc.) based on patient bio-input.
 
-### 💰 Fiscal Command & Integrity
-*   **Absolute Non-Negative Protection:** Hard-coded `Math.max(0, x)` logic ensures no negative values ever appear in the ledger.
-*   **Settlement Node:** Admin-only power to finalize bills and discharge patients.
-*   **Print Perfect:** A professional, print-optimized invoice system that automatically strips UI elements (sidebars/buttons) during hardware printing.
+### 💰 Fiscal Command & Bio-Tax
+*   **Global Net Liquidity Ledger:** High-precision tracking of Gross Yield, Professional Payouts, and an automated **18% Bio-Tax Liability** reserve.
+*   **General Checkup Protocol:** A specialized OPD visit type that bypasses daily ward charges, applying a flat diagnostic fee for efficient outpatient processing.
+*   **Settlement Node:** Hard-locked to Admin credentials, ensuring financial discharge is only executed by authorized fiscal officers.
 
 ### 🔬 Diagnostic Laboratory
-Bio-diagnostic services integration allowing doctors to assign complex tests (MRI, Hematology, Bio-Scans) directly to the patient's node.
+Synchronized process queue allowing Senior Doctors to assign Hematology Core, Neural MRI, or Full Genomic Sequencing directly to active bio-nodes.
 
-### 💊 Pharma Logistics
-A dedicated drug repository management system for tracking inventory units and unit pricing with real-time bill synchronization.
-
-### 🎮 Staff Break Room
-A fully integrated **Reflex Training Simulation (Snake Game)** built on the Canvas API to help medical staff maintain precision reflexes during downtime.
+### 🖼️ Facility Visual Matrix
+A strict **Tabular Grid Gallery** featuring 20 high-resolution architectural and clinical nodes. Optimized with **3D Refraction Hover Effects** and high-performance image scaling.
 
 ---
 
-## 📜 Security Audit Protocol
-The system tracks every professional identity interaction. The **Terminal Security Audit Log** captures:
-*   ✅ Authentication Success (Timestamped by Role)
-*   ✅ Patient Admission Events
-*   ✅ Financial Settlement Completions
-*   ✅ Inventory Modifications
+## 📜 Security & Persistence
+*   **Audit Engine:** Real-time logging of all terminal interactions, including secure uplink establishment and clinical process completions.
+*   **Quantum Persistence:** Zero-server architecture utilizing deep browser `LocalStorage` for persistent roster, patient, and financial records.
+*   **Reflex Trainer:** A built-in high-latency **Staff Break Room Simulation (Snake Game)** to maintain clinical precision and staff reflexes during downtime.
 
 ---
 
-## 🛠️ Tech Stack
-*   **UI Engine:** HTML5 / CSS3 (Liquid Glass Framework)
-*   **Core Logic:** Pure Vanilla JavaScript (ES6+)
-*   **Data Vis:** Chart.js
-*   **Typography:** Inter & JetBrains Mono
-*   **Persistence:** Browser `LocalStorage` (Zero-Server Architecture)
+## 🛠️ Technical Specification
+*   **UI Core:** LGDS (Liquid Glass Design System) v31.0
+*   **Graph Engine:** Chart.js v4.0 (Synchronized Scales)
+*   **Typography:** Apple SF Pro Display / JetBrains Mono
+*   **Refraction Radius:** 40px Gaussian Blur / 210% Saturation / 0.05 Refractive Alpha
 
 ---
-
-## 📸 Facility Tour Gallery
-Includes a **Facility Visual Telemetry** section with 20+ high-resolution architectural and medical nodes, showcasing the state-of-the-art infrastructure of HMS Enterprise.
-
----
-
-## 📥 Installation & Usage
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/yourusername/hms-enterprise-v19.git
-    ```
-2.  Open `index.html` in any modern web browser (Chrome/Edge/Safari recommended for backdrop-blur support).
-3.  Authenticate using the credentials provided in the **Access Matrix**.
-
----
-
-## ⚖️ License
-Distributed under the **Absolute Integrity License**. 
-*Copyright © 2024 HMS Enterprise Group. All Rights Reserved.*
-
----
-**Developed with ❤️ for Medical Professionals everywhere.**
+**HMS Enterprise Group | Absolute Integrity v26.0.3 Stable**  
+*Developed with ❤️ for the next generation of Medical Professionals.*
