@@ -1,1235 +1,1337 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HMS Enterprise | Synchronized Crystal v26.0</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HMS Enterprise | Crystal v26.3</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <style>
-        /* ══════════════════════════════════════════════
-           iOS 26 LIQUID GLASS DESIGN SYSTEM
-           Three-layer glass: effect → tint → shine → content
-           SVG feDisplacementMap + feSpecularLighting refraction
-        ══════════════════════════════════════════════ */
-        :root {
-            --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
-            --font-mono: "JetBrains Mono", "SF Mono", monospace;
+<style>
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro Rounded", system-ui, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+  --ios-blue:   #007aff; --ios-green: #34c759; --ios-red: #ff3b30;
+  --ios-orange: #ff9500; --ios-indigo: #5856d6; --ios-teal: #5ac8fa;
+  --bg: #f2f2f7; --text-1: #1c1c1e; --text-2: #3a3a3c; --text-3: #8e8e93;
+  --lg-blur: saturate(180%) blur(28px);
+  --lg-tint: rgba(255,255,255,0.22);
+  --lg-border: rgba(255,255,255,0.58);
+  --lg-shadow: 0 8px 32px rgba(0,0,0,0.09), 0 1px 0 rgba(255,255,255,0.92) inset;
+  --lg-shadow-lg: 0 20px 60px rgba(0,0,0,0.13), 0 1px 0 rgba(255,255,255,0.92) inset;
+  --r-pill: 9999px; --r-xl: 26px; --r-lg: 20px; --r-md: 14px;
+  --sidebar: 300px;
+  --ease: cubic-bezier(0.25,0.46,0.45,0.94);
+  --spring: cubic-bezier(0.34,1.56,0.64,1);
+  --liquid: cubic-bezier(0.7,0,0.3,1);
+}
+body.dark {
+  --bg: #000; --text-1: #fff; --text-2: rgba(235,235,245,0.8); --text-3: #8e8e93;
+  --lg-tint: rgba(28,28,30,0.58); --lg-border: rgba(255,255,255,0.13);
+  --lg-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.13) inset;
+  --lg-shadow-lg: 0 24px 80px rgba(0,0,0,0.75), 0 1px 0 rgba(255,255,255,0.1) inset;
+}
 
-            /* iOS 26 semantic palette */
-            --ios-blue:    #007aff;
-            --ios-green:   #34c759;
-            --ios-red:     #ff3b30;
-            --ios-orange:  #ff9500;
-            --ios-indigo:  #5856d6;
-            --ios-teal:    #5ac8fa;
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;outline:none;}
 
-            /* Light mode surfaces */
-            --bg: #f2f2f7;
-            --text-1: #1c1c1e;
-            --text-2: #3a3a3c;
-            --text-3: #8e8e93;
+/* ── CURSOR (desktop only) ── */
+@media(pointer:fine){html,body,*{cursor:none!important;}}
+#cur-o,#cur-i,#cur-t{position:fixed;top:0;left:0;pointer-events:none;border-radius:50%;z-index:9999999;}
+#cur-o{width:38px;height:38px;border:1.5px solid rgba(0,122,255,0.6);transition:width .3s var(--spring),height .3s var(--spring),background .3s;backdrop-filter:blur(2px);}
+#cur-i{width:7px;height:7px;background:var(--ios-blue);transition:transform .05s;}
+#cur-t{width:18px;height:18px;background:radial-gradient(circle,rgba(0,122,255,0.28) 0%,transparent 70%);}
+.cur-big #cur-o{width:56px;height:56px;background:rgba(0,122,255,0.09);border-color:rgba(0,122,255,0.9);}
 
-            /* Liquid Glass layers */
-            --lg-blur:      saturate(180%) blur(28px);
-            --lg-tint:      rgba(255,255,255,0.18);
-            --lg-shine-top: rgba(255,255,255,0.82);
-            --lg-shine-bot: rgba(255,255,255,0.08);
-            --lg-border:    rgba(255,255,255,0.55);
-            --lg-shadow:    0 8px 32px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.9) inset, 0 -1px 0 rgba(0,0,0,0.04) inset;
-            --lg-shadow-lg: 0 20px 60px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.9) inset;
+/* ── WALLPAPER ── */
+#wallpaper{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(0,122,255,0.18) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 80% at 90% 10%,rgba(88,86,214,0.14) 0%,transparent 55%),
+             radial-gradient(ellipse 70% 50% at 50% 90%,rgba(52,199,89,0.10) 0%,transparent 60%),
+             radial-gradient(ellipse 50% 70% at 80% 70%,rgba(255,149,0,0.10) 0%,transparent 55%),
+             var(--bg);
+  animation:wallShift 20s ease-in-out infinite alternate;}
+body.dark #wallpaper{
+  background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(10,132,255,0.24) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 80% at 90% 10%,rgba(94,92,230,0.18) 0%,transparent 55%),
+             radial-gradient(ellipse 70% 50% at 50% 90%,rgba(48,209,88,0.12) 0%,transparent 60%),
+             #000;}
+@keyframes wallShift{0%{filter:hue-rotate(0deg) brightness(1);}50%{filter:hue-rotate(14deg) brightness(1.04);}100%{filter:hue-rotate(-8deg) brightness(0.97);}}
 
-            --r-pill:  9999px;
-            --r-xl:    28px;
-            --r-lg:    22px;
-            --r-md:    16px;
-            --sidebar: 320px;
-            --ease:    cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
-            --liquid:  cubic-bezier(0.7, 0, 0.3, 1);
-        }
+/* ── ORBS ── */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.3;pointer-events:none;z-index:1;animation:orbF 14s ease-in-out infinite;}
+.orb-1{width:360px;height:360px;background:radial-gradient(circle,rgba(0,122,255,.8),transparent);top:-80px;left:-80px;}
+.orb-2{width:300px;height:300px;background:radial-gradient(circle,rgba(88,86,214,.8),transparent);top:50%;right:-60px;animation-delay:-5s;}
+.orb-3{width:280px;height:280px;background:radial-gradient(circle,rgba(52,199,89,.6),transparent);bottom:-60px;left:25%;animation-delay:-9s;}
+body.dark .orb{opacity:.5;}
+@keyframes orbF{0%,100%{transform:translate(0,0);}50%{transform:translate(20px,-15px);}}
 
-        body.dark {
-            --bg: #000000;
-            --text-1: #ffffff;
-            --text-2: #ebebf5cc;
-            --text-3: #8e8e93;
-            --lg-tint:      rgba(28,28,30,0.55);
-            --lg-shine-top: rgba(255,255,255,0.18);
-            --lg-shine-bot: rgba(255,255,255,0.02);
-            --lg-border:    rgba(255,255,255,0.12);
-            --lg-shadow:    0 8px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.12) inset;
-            --lg-shadow-lg: 0 24px 80px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.1) inset;
-        }
+/* ── CANVAS LAYERS ── */
+#crystalCanvas,#particleCanvas{position:fixed;inset:0;z-index:2;pointer-events:none;}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; outline: none; }
+/* ── GLASS MIXIN ── */
+.glass{position:relative;border-radius:var(--r-xl);overflow:hidden;isolation:isolate;box-shadow:var(--lg-shadow);transition:box-shadow .4s,transform .5s var(--spring);}
+.glass::before{content:'';position:absolute;inset:0;z-index:0;backdrop-filter:var(--lg-blur);-webkit-backdrop-filter:var(--lg-blur);border-radius:inherit;}
+.glass::after{content:'';position:absolute;inset:0;z-index:1;background:var(--lg-tint);border-radius:inherit;}
+.glass>*{position:relative;z-index:3;}
+.glass:hover{box-shadow:var(--lg-shadow-lg);transform:translateY(-2px);}
+.glass-shine{position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;
+  box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,0.85),inset -1px -1px 0 rgba(255,255,255,0.1);
+  border:1px solid var(--lg-border);}
+.glass-spec{position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(ellipse 50% 35% at var(--mx,30%) var(--my,20%),rgba(255,255,255,.22) 0%,transparent 75%);}
 
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text-1);
-            height: 100vh; width: 100vw;
-            display: flex; overflow: hidden;
-            transition: background 0.6s var(--ease), color 0.6s;
-        }
+/* ── BODY ── */
+body{font-family:var(--font);background:var(--bg);color:var(--text-1);height:100dvh;width:100vw;display:flex;overflow:hidden;transition:background .6s,color .6s;}
 
-        /* ── ANIMATED MESH WALLPAPER ── */
-        #wallpaper {
-            position: fixed; inset: 0; z-index: 0;
-            background:
-                radial-gradient(ellipse 80% 60% at 10% 20%, rgba(0,122,255,0.18) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 80% at 90% 10%, rgba(88,86,214,0.14) 0%, transparent 55%),
-                radial-gradient(ellipse 70% 50% at 50% 90%, rgba(52,199,89,0.10) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 70% at 80% 70%, rgba(255,149,0,0.10) 0%, transparent 55%),
-                var(--bg);
-            animation: wallShift 18s ease-in-out infinite alternate;
-        }
-        body.dark #wallpaper {
-            background:
-                radial-gradient(ellipse 80% 60% at 10% 20%, rgba(10,132,255,0.22) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 80% at 90% 10%, rgba(94,92,230,0.18) 0%, transparent 55%),
-                radial-gradient(ellipse 70% 50% at 50% 90%, rgba(48,209,88,0.12) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 70% at 80% 70%, rgba(255,159,10,0.12) 0%, transparent 55%),
-                #000;
-        }
-        @keyframes wallShift {
-            0%   { filter: hue-rotate(0deg) brightness(1); }
-            50%  { filter: hue-rotate(15deg) brightness(1.03); }
-            100% { filter: hue-rotate(-10deg) brightness(0.97); }
-        }
+/* ── LOGIN ── */
+#loginOverlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+  background:url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=2000') center/cover;
+  transition:opacity .9s var(--ease);}
+#loginOverlay::before{content:'';position:absolute;inset:0;backdrop-filter:blur(60px) saturate(200%) brightness(.86);background:rgba(255,255,255,.18);}
+body.dark #loginOverlay::before{background:rgba(0,0,0,.5);}
+#loginOverlay.out{opacity:0;pointer-events:none;}
+.login-card{position:relative;z-index:2;width:min(88vw,380px);padding:clamp(32px,6vw,52px) clamp(24px,6vw,44px);border-radius:38px;text-align:center;
+  box-shadow:0 40px 100px rgba(0,0,0,.22),0 2px 0 rgba(255,255,255,.92) inset;
+  animation:cardIn .9s var(--spring) forwards;}
+@keyframes cardIn{from{opacity:0;transform:translateY(50px) scale(.92);}to{opacity:1;transform:none;}}
+.login-card::after{content:'';position:absolute;inset:0;border-radius:inherit;
+  background:conic-gradient(from 0deg at 30% 20%,transparent 0deg,rgba(255,255,255,.35) 60deg,transparent 120deg,rgba(255,255,255,.18) 200deg,transparent 360deg);
+  animation:crystalSpin 9s linear infinite;pointer-events:none;z-index:0;opacity:.55;}
+@keyframes crystalSpin{to{transform:rotate(360deg);}}
+.logo-cube-wrap{width:70px;height:70px;perspective:300px;margin:0 auto 18px;position:relative;z-index:1;}
+.logo-cube{width:50px;height:50px;position:absolute;top:10px;left:10px;transform-style:preserve-3d;animation:cubeR 12s linear infinite;}
+@keyframes cubeR{to{transform:rotateX(20deg) rotateY(360deg);}}
+.cf{position:absolute;width:50px;height:50px;background:rgba(0,122,255,.14);border:1px solid rgba(0,122,255,.35);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.cf-front{transform:translateZ(25px)}.cf-back{transform:rotateY(180deg) translateZ(25px)}
+.cf-right{transform:rotateY(90deg) translateZ(25px)}.cf-left{transform:rotateY(-90deg) translateZ(25px)}
+.cf-top{transform:rotateX(90deg) translateZ(25px)}.cf-bot{transform:rotateX(-90deg) translateZ(25px)}
 
-        /* ══════════════════════════════════════════════
-           LIQUID GLASS COMPONENT — 4 Layered Divs
-        ══════════════════════════════════════════════ */
 
-        /* The wrapper: just sets position + shape */
-        .lg {
-            position: relative;
-            border-radius: var(--r-xl);
-            overflow: hidden;
-            isolation: isolate;
-            transition: transform 0.5s var(--spring), box-shadow 0.4s var(--ease);
-        }
-        .lg:hover { transform: translateY(-2px); }
 
-        /* Layer 0: distortion filter (SVG feDisplacementMap) */
-        .lg-distort {
-            position: absolute; inset: 0; z-index: 0;
-            backdrop-filter: var(--lg-blur);
-            -webkit-backdrop-filter: var(--lg-blur);
-            filter: url(#lg-refract);
-        }
-        /* Layer 1: tinted translucent fill */
-        .lg-tint {
-            position: absolute; inset: 0; z-index: 1;
-            background: var(--lg-tint);
-            border-radius: inherit;
-        }
-        /* Layer 2: specular shine — bright top-left rim */
-        .lg-shine {
-            position: absolute; inset: 0; z-index: 2;
-            border-radius: inherit;
-            box-shadow:
-                inset 1.5px 1.5px 0 rgba(255,255,255,0.85),
-                inset -1px -1px 0 rgba(255,255,255,0.1),
-                inset 0 0 12px rgba(255,255,255,0.12);
-            border: 1px solid var(--lg-border);
-        }
-        /* Layer 3: actual content */
-        .lg-content {
-            position: relative; z-index: 3;
-            height: 100%;
-        }
+/* ── SIDEBAR ── */
+#sidebar{position:relative;z-index:100;width:var(--sidebar);margin:14px;display:flex;flex-direction:column;
+  border-radius:var(--r-xl);overflow:hidden;isolation:isolate;box-shadow:var(--lg-shadow-lg);flex-shrink:0;
+  animation:sbIn .8s var(--spring) both;}
+@keyframes sbIn{from{opacity:0;transform:translateX(-40px);}to{opacity:1;transform:none;}}
+#sidebar::before{content:'';position:absolute;inset:0;z-index:0;backdrop-filter:var(--lg-blur);-webkit-backdrop-filter:var(--lg-blur);}
+#sidebar::after{content:'';position:absolute;inset:0;z-index:1;background:var(--lg-tint);}
+.sb-shine{position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;
+  box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,.8),inset -1px -1px 0 rgba(255,255,255,.06);
+  border:1px solid var(--lg-border);}
+.sb-inner{position:relative;z-index:3;display:flex;flex-direction:column;height:100%;overflow:hidden;}
+.sb-head{padding:28px 22px 20px;border-bottom:1px solid rgba(255,255,255,.25);}
+body.dark .sb-head{border-bottom-color:rgba(255,255,255,.07);}
+.sb-avatar{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--ios-blue),var(--ios-indigo));
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 4px 14px rgba(0,122,255,.4);flex-shrink:0;animation:avFloat 4s ease-in-out infinite;}
+@keyframes avFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+.pulse-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ios-green);animation:pDot 2s ease-in-out infinite;}
+@keyframes pDot{0%,100%{box-shadow:0 0 0 0 rgba(52,199,89,.6);}50%{box-shadow:0 0 0 5px rgba(52,199,89,0);}}
 
-        /* Shorthand: the whole glass panel */
-        .glass {
-            position: relative;
-            border-radius: var(--r-xl);
-            overflow: hidden;
-            isolation: isolate;
-            box-shadow: var(--lg-shadow);
-            transition: box-shadow 0.4s, transform 0.5s var(--spring);
-        }
-        .glass::before {
-            content: '';
-            position: absolute; inset: 0; z-index: 0;
-            backdrop-filter: var(--lg-blur);
-            -webkit-backdrop-filter: var(--lg-blur);
-            border-radius: inherit;
-        }
-        .glass::after {
-            content: '';
-            position: absolute; inset: 0; z-index: 1;
-            background: var(--lg-tint);
-            border-radius: inherit;
-        }
-        /* Shine ring sits above ::after but below content */
-        .glass > * { position: relative; z-index: 3; }
-        .glass-shine {
-            position: absolute; inset: 0; z-index: 2; pointer-events: none;
-            border-radius: inherit;
-            box-shadow:
-                inset 1.5px 1.5px 0 rgba(255,255,255,0.8),
-                inset -1px -1px 0 rgba(255,255,255,0.08),
-                inset 0 0 14px rgba(255,255,255,0.08);
-            border: 1px solid var(--lg-border);
-        }
-        .glass:hover { box-shadow: var(--lg-shadow-lg); }
+/* Globe container */
+#globe-wrap{display:flex;justify-content:center;align-items:center;padding:10px 0 4px;}
 
-        /* Pill variant */
-        .glass-pill { border-radius: var(--r-pill); }
+/* Clock / Date */
+#live-clock{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text-3);letter-spacing:.5px;margin-top:10px;}
+#live-date{font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:1px;margin-top:3px;text-transform:uppercase;}
+.sep{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45) 40%,rgba(0,122,255,.2) 50%,rgba(255,255,255,.45) 60%,transparent);margin:4px 0;animation:sepShim 3s ease-in-out infinite;}
+@keyframes sepShim{0%,100%{opacity:.4;}50%{opacity:1;}}
 
-        /* ══ LOGIN ══ */
-        #loginOverlay {
-            position: fixed; inset: 0; z-index: 99999;
-            display: flex; align-items: center; justify-content: center;
-            background: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=2000') center/cover;
-            transition: opacity 0.9s var(--ease);
-        }
-        #loginOverlay::before {
-            content: ''; position: absolute; inset: 0;
-            backdrop-filter: blur(60px) saturate(200%) brightness(0.85);
-            -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(0.85);
-            background: rgba(255,255,255,0.2);
-        }
-        body.dark #loginOverlay::before { background: rgba(0,0,0,0.5); }
+/* Toggle */
+.toggle-wrap{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:14px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.05);margin-top:16px;}
+body.dark .toggle-wrap{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08);}
+.toggle-track{width:50px;height:28px;border-radius:var(--r-pill);background:rgba(120,120,128,.2);position:relative;cursor:pointer;transition:background .3s var(--spring);}
+body.dark .toggle-track{background:var(--ios-green);}
+.toggle-knob{width:24px;height:24px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .3s var(--spring);box-shadow:0 2px 6px rgba(0,0,0,.22);}
+body.dark .toggle-knob{transform:translateX(22px);}
 
-        .login-card {
-            position: relative; z-index: 2;
-            width: 90%; max-width: 400px;
-            padding: 52px 44px;
-            border-radius: 38px;
-            text-align: center;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.2), 0 2px 0 rgba(255,255,255,0.9) inset;
-        }
+/* Nav */
+.nav-list{flex:1;padding:12px;overflow-y:auto;position:relative;}
+.nav-list::-webkit-scrollbar{width:0;}
+#nav-blob{position:absolute;left:10px;width:calc(100% - 20px);height:48px;border-radius:16px;
+  background:linear-gradient(135deg,var(--ios-blue),var(--ios-indigo));
+  transition:top .55s var(--liquid),opacity .3s;opacity:0;z-index:0;
+  box-shadow:0 5px 18px rgba(0,122,255,.4);overflow:hidden;}
+#nav-blob::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.35) 0%,transparent 55%);animation:blobShim 3s ease-in-out infinite;}
+@keyframes blobShim{0%,100%{opacity:.5;transform:translateX(-30%);}50%{opacity:1;transform:translateX(30%);}}
+.nav-item{position:relative;z-index:2;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;font-size:13.5px;font-weight:600;color:var(--text-2);cursor:pointer;margin-bottom:3px;transition:color .25s,transform .2s var(--spring);}
+.nav-item:hover{color:var(--text-1);transform:translateX(3px);}
+.nav-item.active{color:#fff!important;font-weight:700;}
+.nav-icon{transition:transform .3s var(--spring);}
+.nav-item:hover .nav-icon{transform:scale(1.2) rotate(-5deg);}
+.nav-item.active .nav-icon{animation:iconB .6s var(--spring);}
+@keyframes iconB{0%{transform:scale(1);}40%{transform:scale(1.4) rotate(10deg);}100%{transform:scale(1);}}
+.sb-logout{padding:16px;}
 
-        /* ══ SIDEBAR ══ */
-        #sidebar {
-            position: relative; z-index: 100;
-            width: var(--sidebar);
-            margin: 16px;
-            display: flex; flex-direction: column;
-            border-radius: var(--r-xl);
-            overflow: hidden;
-            isolation: isolate;
-            box-shadow: var(--lg-shadow-lg);
-            flex-shrink: 0;
-        }
-        #sidebar::before {
-            content: ''; position: absolute; inset: 0; z-index: 0;
-            backdrop-filter: var(--lg-blur);
-            -webkit-backdrop-filter: var(--lg-blur);
-        }
-        #sidebar::after {
-            content: ''; position: absolute; inset: 0; z-index: 1;
-            background: var(--lg-tint);
-        }
-        .sidebar-shine {
-            position: absolute; inset: 0; z-index: 2; pointer-events: none;
-            border-radius: inherit;
-            box-shadow:
-                inset 1.5px 1.5px 0 rgba(255,255,255,0.75),
-                inset -1px -1px 0 rgba(255,255,255,0.06);
-            border: 1px solid var(--lg-border);
-        }
-        .sidebar-inner { position: relative; z-index: 3; display: flex; flex-direction: column; height: 100%; }
+/* ── VIEWPORT ── */
+#viewport{flex:1;margin:14px 14px 14px 0;padding:clamp(20px,3vw,40px);overflow-y:auto;position:relative;z-index:10;display:flex;flex-direction:column;gap:24px;}
+#viewport::-webkit-scrollbar{width:4px;}
+#viewport::-webkit-scrollbar-thumb{background:rgba(0,122,255,.28);border-radius:99px;}
 
-        .sidebar-header {
-            padding: 36px 28px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.25);
-        }
-        body.dark .sidebar-header { border-bottom-color: rgba(255,255,255,0.07); }
+/* ── PAGE TITLES ── */
+.page-title{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-2px;line-height:1;
+  background:linear-gradient(135deg,var(--text-1) 0%,var(--ios-blue) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.page-subtitle{color:var(--text-3);font-size:15px;font-weight:500;margin-top:5px;}
 
-        /* ══ NAV ITEMS ══ */
-        .nav-list { flex: 1; padding: 16px; overflow-y: auto; position: relative; }
+/* Section anim */
+.section-in{animation:secIn .55s var(--spring) forwards;}
+@keyframes secIn{from{opacity:0;transform:translateY(24px) scale(.97);}to{opacity:1;transform:none;}}
+.section-in>*{animation:childIn .5s var(--spring) both;}
+.section-in>*:nth-child(1){animation-delay:.04s}.section-in>*:nth-child(2){animation-delay:.09s}
+.section-in>*:nth-child(3){animation-delay:.14s}.section-in>*:nth-child(4){animation-delay:.19s}
+.section-in>*:nth-child(5){animation-delay:.24s}
+@keyframes childIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
 
-        /* Liquid blob — the morphing highlight */
-        #nav-blob {
-            position: absolute; left: 12px;
-            width: calc(100% - 24px); height: 52px;
-            border-radius: 18px;
-            background: var(--ios-blue);
-            transition: top 0.55s var(--liquid), opacity 0.3s;
-            opacity: 0; z-index: 0;
-            box-shadow: 0 4px 16px rgba(0,122,255,0.35);
-            /* specular on blob */
-            overflow: hidden;
-        }
-        #nav-blob::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.35) 0%, transparent 50%);
-            border-radius: inherit;
-        }
+/* ── GRIDS ── */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:18px;}
 
-        .nav-item {
-            position: relative; z-index: 2;
-            display: flex; align-items: center; gap: 14px;
-            padding: 15px 18px;
-            border-radius: 18px;
-            font-size: 14.5px; font-weight: 600;
-            color: var(--text-2);
-            cursor: pointer;
-            margin-bottom: 4px;
-            transition: color 0.3s;
-            user-select: none;
-        }
-        .nav-item:hover { color: var(--text-1); }
-        .nav-item.active { color: #fff !important; font-weight: 700; }
+/* ── STAT CARDS ── */
+.stat-card{padding:28px;display:flex;flex-direction:column;justify-content:space-between;min-height:150px;position:relative;overflow:hidden;}
+.stat-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--text-3);}
+.stat-val{font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-2px;line-height:1;margin:10px 0 6px;}
+.stat-note{font-size:11px;font-weight:700;}
+.stat-card::before{content:'';position:absolute;inset:0;z-index:0;
+  background:linear-gradient(125deg,transparent 40%,rgba(255,255,255,.1) 50%,transparent 60%);
+  transform:translateX(-100%);animation:statSwp 5s ease-in-out infinite;}
+@keyframes statSwp{0%{transform:translateX(-100%) skewX(-10deg);}60%,100%{transform:translateX(200%) skewX(-10deg);}}
 
-        /* ══ VIEWPORT ══ */
-        #viewport {
-            flex: 1; margin: 16px 16px 16px 0;
-            padding: 40px;
-            overflow-y: auto;
-            position: relative; z-index: 10;
-            display: flex; flex-direction: column; gap: 28px;
-        }
+/* ── INPUTS ── */
+input,select,textarea{width:100%;background:rgba(255,255,255,.38);border:1.5px solid rgba(255,255,255,.55);padding:14px 18px;border-radius:var(--r-md);color:var(--text-1);font-size:14px;font-family:var(--font);margin-bottom:12px;transition:all .3s var(--spring);backdrop-filter:blur(10px);}
+body.dark input,body.dark select,body.dark textarea{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.13);color:#fff;}
+body.dark select option{background:#1c1c1e;color:#fff;}
+input:focus,select:focus,textarea:focus{border-color:var(--ios-blue);background:rgba(255,255,255,.75);box-shadow:0 0 0 4px rgba(0,122,255,.16);transform:scale(1.01);color:#000;}
+body.dark input:focus,body.dark select:focus,body.dark textarea:focus{background:rgba(0,122,255,.14);color:#fff;}
+input:disabled,select:disabled{opacity:.4;}
+input::placeholder{color:var(--text-3);}
 
-        /* ══ PAGE TITLE ══ */
-        .page-title { font-size: 48px; font-weight: 900; letter-spacing: -3px; line-height: 1; }
-        .page-subtitle { color: var(--text-3); font-size: 17px; font-weight: 500; margin-top: 6px; }
+/* ── BUTTONS ── */
+.btn{padding:14px 30px;border:none;border-radius:var(--r-pill);font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all .3s var(--spring);position:relative;overflow:hidden;isolation:isolate;letter-spacing:.2px;white-space:nowrap;}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.38) 50%,transparent 60%);transform:translateX(-100%);transition:transform .5s;border-radius:inherit;}
+.btn:hover::before{transform:translateX(100%);}
+.btn::after{content:'';position:absolute;inset:0;box-shadow:inset 1px 1px 0 rgba(255,255,255,.5),inset -1px -1px 0 rgba(0,0,0,.08);border-radius:inherit;}
+.btn:active{transform:scale(.94)!important;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.18);}
+.btn-primary{background:linear-gradient(135deg,#007aff,#0055cc);color:#fff!important;box-shadow:0 6px 20px rgba(0,122,255,.42);}
+.btn-danger{background:linear-gradient(135deg,#ff3b30,#cc2a22);color:#fff!important;box-shadow:0 6px 20px rgba(255,59,48,.35);}
+.btn-glass{background:rgba(255,255,255,.28);border:1.5px solid rgba(255,255,255,.55);color:var(--text-1)!important;backdrop-filter:blur(14px);}
+body.dark .btn-glass{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18);color:#fff!important;}
+.btn-green{background:linear-gradient(135deg,#34c759,#25a244);color:#fff!important;box-shadow:0 6px 20px rgba(52,199,89,.38);}
+.btn-ripple{position:absolute;border-radius:50%;transform:scale(0);opacity:.35;background:rgba(255,255,255,.55);animation:ripA .6s ease-out forwards;pointer-events:none;}
+@keyframes ripA{to{transform:scale(4);opacity:0;}}
 
-        /* ══ CARDS ══ */
-        .section-in { animation: secIn 0.5s var(--spring) forwards; }
-        @keyframes secIn {
-            from { opacity: 0; transform: translateY(22px) scale(0.98); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
+/* ── TABLES ── */
+table{width:100%;border-collapse:separate;border-spacing:0 7px;}
+th{text-align:left;padding:0 16px;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--text-3);font-weight:900;}
+td{background:rgba(255,255,255,.32);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.42);padding:16px;font-weight:600;font-size:13px;transition:background .2s;}
+tr:hover td{background:rgba(255,255,255,.55);}
+body.dark td{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08);}
+body.dark tr:hover td{background:rgba(255,255,255,.1);}
+td:first-child{border-radius:14px 0 0 14px;border-right:none;}
+td:last-child{border-radius:0 14px 14px 0;border-left:none;}
+td:not(:first-child):not(:last-child){border-left:none;border-right:none;}
 
-        .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-        .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+/* ── AUDIT ── */
+.audit{background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);font-family:var(--font-mono);padding:20px;border-radius:18px;height:260px;overflow-y:auto;font-size:11px;line-height:1.9;color:var(--text-2);}
+body.dark .audit{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06);color:var(--text-2);}
+.audit::-webkit-scrollbar{width:3px;}
+.audit::-webkit-scrollbar-thumb{background:rgba(0,122,255,.35);border-radius:99px;}
 
-        .stat-card { padding: 32px; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; }
-        .stat-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--text-3); }
-        .stat-val { font-size: 44px; font-weight: 800; letter-spacing: -2.5px; line-height: 1; margin: 12px 0 8px; }
-        .stat-note { font-size: 11px; font-weight: 700; }
+/* ── GALLERY ── */
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
+.gallery-node{border-radius:22px;overflow:hidden;height:190px;border:1.5px solid rgba(255,255,255,.5);cursor:pointer;position:relative;transition:transform .7s var(--spring),box-shadow .4s;}
+.gallery-node::before{content:attr(data-label);position:absolute;bottom:0;left:0;right:0;padding:16px;z-index:10;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transform:translateY(100%);transition:transform .4s var(--spring);}
+.gallery-node::after{content:'';position:absolute;inset:0;box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,.65);border-radius:inherit;}
+.gallery-node img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease);}
+.gallery-node:hover{transform:translateY(-10px) scale(1.03);box-shadow:0 26px 60px rgba(0,0,0,.18);}
+.gallery-node:hover::before{transform:translateY(0);}
+.gallery-node:hover img{transform:scale(1.12);}
 
-        /* ══ INPUTS ══ */
-        input, select, textarea {
-            width: 100%;
-            background: rgba(255,255,255,0.35);
-            border: 1px solid rgba(255,255,255,0.5);
-            padding: 16px 20px;
-            border-radius: var(--r-md);
-            color: var(--text-1);
-            font-size: 14px; font-family: var(--font);
-            margin-bottom: 14px;
-            transition: all 0.3s;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-        body.dark input, body.dark select, body.dark textarea {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(255,255,255,0.12);
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--ios-blue);
-            background: rgba(255,255,255,0.7);
-            box-shadow: 0 0 0 4px rgba(0,122,255,0.15);
-            color: #000;
-        }
-        body.dark input:focus { background: rgba(0,122,255,0.12); color: #fff; }
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--r-pill);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
+.badge-orange{background:rgba(255,149,0,.14);color:var(--ios-orange);border:1px solid rgba(255,149,0,.22);}
+.badge-blue{background:rgba(0,122,255,.1);color:var(--ios-blue);border:1px solid rgba(0,122,255,.18);}
+.badge-green{background:rgba(52,199,89,.1);color:var(--ios-green);border:1px solid rgba(52,199,89,.18);}
+.rx-badge{background:rgba(255,149,0,.12);color:var(--ios-orange);border:1px solid rgba(255,149,0,.2);padding:3px 9px;border-radius:7px;font-size:10px;font-weight:800;animation:rxPulse 2s ease-in-out infinite;}
+@keyframes rxPulse{0%,100%{opacity:1;}50%{opacity:.6;}}
 
-        /* ══ BUTTONS ══ */
-        .btn {
-            padding: 16px 34px;
-            border: none; border-radius: var(--r-pill);
-            font-size: 14px; font-weight: 700;
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            transition: all 0.2s var(--ease);
-            position: relative; overflow: hidden;
-            isolation: isolate;
-        }
-        .btn::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 55%);
-            border-radius: inherit;
-        }
-        .btn::after {
-            content: '';
-            position: absolute; inset: 0;
-            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.5), inset -1px -1px 0 rgba(0,0,0,0.08);
-            border-radius: inherit;
-        }
-        .btn:active { transform: scale(0.95); }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+/* ── SECTOR CHIP ── */
+#sectorChip{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:var(--r-pill);font-size:12px;font-weight:700;background:linear-gradient(135deg,var(--ios-blue),var(--ios-indigo));color:#fff;box-shadow:0 5px 18px rgba(0,122,255,.38);margin-bottom:16px;opacity:0;transform:translateY(8px) scale(.93);transition:opacity .4s,transform .5s var(--spring);}
+#sectorChip.active{opacity:1;transform:none;}
 
-        .btn-primary { background: var(--ios-blue); color: #fff; box-shadow: 0 6px 20px rgba(0,122,255,0.4); }
-        .btn-danger  { background: var(--ios-red);  color: #fff; box-shadow: 0 6px 20px rgba(255,59,48,0.3); }
-        .btn-glass {
-            background: rgba(255,255,255,0.25);
-            border: 1px solid rgba(255,255,255,0.5);
-            color: var(--text-1);
-            backdrop-filter: blur(12px);
-        }
+/* ── TOASTS ── */
+#toasts{position:fixed;top:20px;right:20px;z-index:999999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+.toast{padding:14px 26px;border-radius:var(--r-pill);font-size:13px;font-weight:700;backdrop-filter:blur(36px) saturate(200%);background:rgba(255,255,255,.72);border:1.5px solid rgba(255,255,255,.88);box-shadow:0 12px 40px rgba(0,0,0,.1),inset 1px 1px 0 rgba(255,255,255,.95);color:var(--text-1);animation:toastIn .6s var(--spring) forwards;display:flex;align-items:center;gap:9px;}
+body.dark .toast{background:rgba(44,44,46,.92);border-color:rgba(255,255,255,.12);color:#fff;}
+@keyframes toastIn{from{transform:translateX(120%) scale(.8);opacity:0;}to{transform:none;opacity:1;}}
 
-        /* ══ TABLES ══ */
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        th { text-align: left; padding: 0 18px; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-3); font-weight: 900; }
-        td {
-            background: rgba(255,255,255,0.3);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.4);
-            padding: 18px; font-weight: 600; font-size: 13.5px;
-        }
-        body.dark td { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.07); }
-        td:first-child { border-radius: 16px 0 0 16px; border-right: none; }
-        td:last-child  { border-radius: 0 16px 16px 0; border-left: none; }
-        td:not(:first-child):not(:last-child) { border-left: none; border-right: none; }
+/* ── MODAL ROOT ── */
+#modal-root{position:fixed;inset:0;z-index:500000;backdrop-filter:blur(28px) brightness(.9) saturate(180%);background:rgba(0,0,0,.28);display:none;align-items:center;justify-content:center;padding:20px;}
 
-        /* ══ AUDIT LOG ══ */
-        .audit {
-            background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06);
-            font-family: var(--font-mono); padding: 22px; border-radius: 20px;
-            height: 280px; overflow-y: auto; font-size: 11px; line-height: 1.9;
-            color: var(--text-2);
-        }
-        body.dark .audit { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
+/* ── PAYMENT MODAL ── */
+.pay-card{background:rgba(255,255,255,.94);backdrop-filter:blur(50px);color:#000;width:min(520px,94vw);border-radius:40px;box-shadow:0 60px 120px rgba(0,0,0,.25),inset 2px 2px 0 rgba(255,255,255,.98);border:1.5px solid rgba(255,255,255,.72);animation:cardMIn .5s var(--spring) forwards;overflow:hidden;max-height:90dvh;display:flex;flex-direction:column;}
+body.dark .pay-card{background:rgba(28,28,30,.96);color:#fff;}
+@keyframes cardMIn{from{opacity:0;transform:scale(.85) translateY(40px);}to{opacity:1;transform:none;}}
+.pay-header{padding:36px 40px 24px;border-bottom:1px solid rgba(0,0,0,.07);}
+body.dark .pay-header{border-bottom-color:rgba(255,255,255,.08);}
+.pay-body{padding:28px 40px;overflow-y:auto;flex:1;}
+.pay-footer{padding:20px 40px 32px;display:flex;gap:12px;flex-wrap:wrap;}
+/* Payment method tabs */
+.pay-methods{display:flex;gap:10px;margin-bottom:22px;}
+.pay-tab{flex:1;padding:14px 10px;border-radius:16px;border:2px solid rgba(0,0,0,.08);background:rgba(0,0,0,.03);cursor:pointer;text-align:center;font-size:13px;font-weight:700;transition:all .25s var(--spring);display:flex;flex-direction:column;align-items:center;gap:6px;}
+body.dark .pay-tab{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.05);}
+.pay-tab.selected{border-color:var(--ios-blue);background:rgba(0,122,255,.1);color:var(--ios-blue);}
+.pay-tab:hover{transform:translateY(-2px);}
+.pay-tab-icon{font-size:24px;}
+/* QR area */
+.qr-area{display:none;flex-direction:column;align-items:center;gap:16px;padding:20px;background:rgba(0,0,0,.03);border-radius:20px;border:1px solid rgba(0,0,0,.07);}
+body.dark .qr-area{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);}
+.qr-area.show{display:flex;}
+#qrCanvas{border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.1);}
+.qr-upi{font-family:var(--font-mono);font-size:11px;color:var(--text-3);text-align:center;word-break:break-all;}
+/* Cash area */
+.cash-area{display:none;flex-direction:column;gap:14px;}
+.cash-area.show{display:flex;}
+.change-row{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:rgba(0,0,0,.03);border-radius:14px;border:1px solid rgba(0,0,0,.06);}
+body.dark .change-row{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08);}
+/* Invoice area */
+.invoice-area{display:none;}
+.invoice-area.show{display:block;}
+#inv-payload{font-family:var(--font-mono);font-size:12px;line-height:2.1;white-space:pre-wrap;padding:20px;background:rgba(0,0,0,.03);border-radius:16px;border:1px solid rgba(0,0,0,.07);}
+body.dark #inv-payload{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);color:#fff;}
 
-        /* ══ GALLERY ══ */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
-        .gallery-node {
-            border-radius: 26px; overflow: hidden; height: 210px;
-            border: 1.5px solid rgba(255,255,255,0.5);
-            cursor: pointer; position: relative;
-            transition: transform 0.7s var(--spring), box-shadow 0.4s;
-        }
-        .gallery-node::after {
-            content: ''; position: absolute; inset: 0;
-            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.6);
-            border-radius: inherit;
-        }
-        .gallery-node img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
-        .gallery-node:hover { transform: translateY(-12px) scale(1.03); box-shadow: 0 24px 60px rgba(0,0,0,0.15); }
-        .gallery-node:hover img { transform: scale(1.12); }
+/* ── FINANCE ── */
+.fin-hero{text-align:center;padding:clamp(40px,6vw,80px) clamp(24px,4vw,60px);}
+.fin-num{font-size:clamp(48px,8vw,86px);font-weight:900;letter-spacing:-4px;line-height:1;margin:20px 0 40px;background:linear-gradient(135deg,var(--ios-green),rgba(52,199,89,.7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 
-        /* ══ PILLS / BADGES ══ */
-        .badge {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 4px 10px; border-radius: var(--r-pill);
-            font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .badge-orange { background: rgba(255,149,0,0.15); color: var(--ios-orange); border: 1px solid rgba(255,149,0,0.25); }
+/* ── PROGRESS BARS ── */
+.prog-wrap{background:rgba(0,0,0,.06);border-radius:var(--r-pill);height:7px;overflow:hidden;margin:8px 0;}
+body.dark .prog-wrap{background:rgba(255,255,255,.08);}
+.prog-fill{height:100%;border-radius:var(--r-pill);transition:width 1.5s var(--ease);position:relative;overflow:hidden;}
+.prog-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);animation:progShim 2s ease-in-out infinite;}
+@keyframes progShim{from{transform:translateX(-100%);}to{transform:translateX(100%);}}
 
-        /* ══ SECTOR CHIP ══ */
-        #sectorChip {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 10px 18px; border-radius: var(--r-pill);
-            font-size: 12px; font-weight: 700;
-            background: var(--ios-blue); color: #fff;
-            box-shadow: 0 4px 14px rgba(0,122,255,0.35);
-            margin-bottom: 18px;
-            opacity: 0; transform: translateY(8px) scale(0.95);
-            transition: opacity 0.4s, transform 0.5s var(--spring);
-        }
-        #sectorChip.active { opacity: 1; transform: translateY(0) scale(1); }
+/* ── METRIC PILLS ── */
+.metric-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:var(--r-pill);font-size:11px;font-weight:700;background:rgba(255,255,255,.32);border:1px solid rgba(255,255,255,.55);backdrop-filter:blur(10px);}
+body.dark .metric-pill{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);}
+.sys-dot-g{width:6px;height:6px;border-radius:50%;background:var(--ios-green);animation:pDot 1.5s ease-in-out infinite;}
+.sys-dot-b{width:6px;height:6px;border-radius:50%;background:var(--ios-blue);animation:pDot 1.5s .5s ease-in-out infinite;}
+.sys-dot-o{width:6px;height:6px;border-radius:50%;background:var(--ios-orange);animation:pDot 1.5s 1s ease-in-out infinite;}
 
-        /* ══ TOASTS ══ */
-        #toasts { position: fixed; top: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 12px; }
-        .toast {
-            padding: 16px 28px; border-radius: var(--r-pill);
-            font-size: 13.5px; font-weight: 700;
-            backdrop-filter: blur(30px) saturate(200%);
-            -webkit-backdrop-filter: blur(30px) saturate(200%);
-            background: rgba(255,255,255,0.7);
-            border: 1px solid rgba(255,255,255,0.8);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.1), inset 1px 1px 0 rgba(255,255,255,0.9);
-            color: var(--text-1);
-            animation: toastIn 0.5s var(--spring) forwards;
-        }
-        body.dark .toast { background: rgba(44,44,46,0.9); border-color: rgba(255,255,255,0.1); }
-        @keyframes toastIn { from { transform: translateX(110%) scale(0.9); opacity:0; } to { transform: translateX(0) scale(1); opacity:1; } }
+/* ── WAVE BARS ── */
+.wave{display:flex;align-items:center;gap:3px;height:18px;}
+.wb{width:3px;border-radius:2px;background:var(--ios-blue);animation:waveA .8s ease-in-out infinite alternate;}
+.wb:nth-child(1){height:7px;animation-delay:0s}.wb:nth-child(2){height:14px;animation-delay:.1s}
+.wb:nth-child(3){height:10px;animation-delay:.2s}.wb:nth-child(4){height:18px;animation-delay:.3s}
+.wb:nth-child(5){height:9px;animation-delay:.4s}.wb:nth-child(6){height:12px;animation-delay:.1s}
+@keyframes waveA{from{transform:scaleY(.3);opacity:.5;}to{transform:scaleY(1);opacity:1;}}
 
-        /* ══ MODAL ══ */
-        #modal-root {
-            position: fixed; inset: 0; z-index: 500000;
-            backdrop-filter: blur(24px) brightness(0.9);
-            -webkit-backdrop-filter: blur(24px) brightness(0.9);
-            background: rgba(0,0,0,0.25);
-            display: none; align-items: center; justify-content: center;
-        }
-        .invoice-card {
-            background: rgba(255,255,255,0.88);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
-            color: #000; width: 520px; padding: 56px;
-            border-radius: 40px;
-            box-shadow: 0 60px 120px rgba(0,0,0,0.25), inset 1.5px 1.5px 0 rgba(255,255,255,0.95);
-            border: 1px solid rgba(255,255,255,0.7);
-        }
+/* ── DROP RIPPLE ── */
+.drop-rip{position:fixed;border-radius:50%;pointer-events:none;z-index:9998;border:2px solid rgba(0,122,255,.55);transform:translate(-50%,-50%) scale(0);animation:dropRip 1.2s var(--ease) forwards;}
+@keyframes dropRip{0%{width:16px;height:16px;opacity:.8;transform:translate(-50%,-50%) scale(0);}100%{width:180px;height:180px;opacity:0;transform:translate(-50%,-50%) scale(1);}}
 
-        /* ══ DARK TOGGLE ══ */
-        .toggle-wrap {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 16px;
-            border-radius: 16px;
-            background: rgba(0,0,0,0.04);
-            border: 1px solid rgba(0,0,0,0.06);
-            margin-top: 20px;
-        }
-        body.dark .toggle-wrap { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); }
-        .toggle-track {
-            width: 52px; height: 30px;
-            border-radius: var(--r-pill);
-            background: rgba(120,120,128,0.2);
-            position: relative; cursor: pointer;
-            transition: background 0.3s;
-            border: 1px solid rgba(0,0,0,0.08);
-        }
-        body.dark .toggle-track { background: var(--ios-green); }
-        .toggle-knob {
-            width: 26px; height: 26px;
-            background: #fff; border-radius: 50%;
-            position: absolute; top: 1px; left: 1px;
-            transition: transform 0.3s var(--spring);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        body.dark .toggle-knob { transform: translateX(22px); }
+/* ── FEATURE CARDS ── */
+.feature-card{padding:24px;border-radius:22px;background:rgba(255,255,255,.28);border:1px solid rgba(255,255,255,.45);backdrop-filter:blur(12px);transition:all .4s var(--spring);position:relative;overflow:hidden;}
+.feature-card::before{content:attr(data-a);position:absolute;top:-10px;right:-8px;font-size:70px;opacity:.05;pointer-events:none;transform:rotate(-15deg);}
+.feature-card:hover{transform:translateY(-7px) scale(1.02);box-shadow:0 18px 48px rgba(0,0,0,.11);background:rgba(255,255,255,.5);}
+body.dark .feature-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);}
+body.dark .feature-card:hover{background:rgba(255,255,255,.1);}
 
-        /* ══ FINANCE ══ */
-        .fin-hero { text-align: center; padding: 80px 60px; }
-        .fin-num { font-size: 100px; font-weight: 900; color: var(--ios-green); letter-spacing: -6px; line-height: 1; margin: 30px 0 50px; }
+/* ── HEARTBEAT BAR ── */
+#hb-bar{position:fixed;bottom:18px;right:18px;z-index:9000;display:flex;align-items:center;gap:10px;padding:10px 18px;border-radius:var(--r-pill);font-size:11px;font-weight:800;backdrop-filter:blur(28px) saturate(200%);background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.78);box-shadow:0 6px 28px rgba(0,0,0,.09);color:var(--text-2);letter-spacing:.4px;}
+body.dark #hb-bar{background:rgba(28,28,30,.88);border-color:rgba(255,255,255,.1);color:var(--text-2);}
+#hb-canvas{width:72px;height:22px;}
 
-        /* ══ PRESCRIPTION BADGE ══ */
-        .rx-badge { background: rgba(255,149,0,0.12); color: var(--ios-orange); border: 1px solid rgba(255,149,0,0.2); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; }
+/* ── SEARCH ── */
+#searchBar{font-size:clamp(16px,3vw,22px);text-align:center;border-radius:20px;padding:clamp(20px,3vw,32px);}
 
-        /* ══ UTILS ══ */
-        .hidden { display: none !important; }
-        .v-stack { display: flex; flex-direction: column; }
-        .h-stack { display: flex; align-items: center; }
-        .gap-12 { gap: 12px; }
-        .p-40 { padding: 40px; }
-        .p-48 { padding: 48px; }
-        .mb-24 { margin-bottom: 24px; }
-        .mb-32 { margin-bottom: 32px; }
-        .mt-24 { margin-top: 24px; }
+/* ── SNAKE ── */
+#snakeGame{background:rgba(0,0,0,.04);border-radius:30px;border:2px solid rgba(255,255,255,.4);box-shadow:inset 2px 2px 0 rgba(255,255,255,.6),0 16px 50px rgba(0,0,0,.08);max-width:100%;}
 
-        /* ══ SCROLLBAR ══ */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 99px; }
-        body.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+/* ── UTILS ── */
+.hidden{display:none!important;}.v-stack{display:flex;flex-direction:column;}.h-stack{display:flex;align-items:center;}
+.gap-12{gap:12px;}.p-40{padding:clamp(24px,3.5vw,40px);}.p-48{padding:clamp(24px,4vw,48px);}
+.mb-24{margin-bottom:24px;}.mb-32{margin-bottom:32px;}.mt-24{margin-top:24px;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(0,122,255,.22);border-radius:99px;}
 
-        /* ══ MOBILE ══ */
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            #sidebar {
-                width: 100%; margin: 0; height: 80px;
-                border-radius: 0; flex-direction: row;
-                position: fixed; bottom: 0; left: 0; z-index: 2000;
-            }
-            .sidebar-header, #nav-blob, .sidebar-logout, #sys-role { display: none !important; }
-            .nav-list { display: flex; flex-direction: row; justify-content: space-around; align-items: center; padding: 0; }
-            .nav-item { flex-direction: column; margin: 0; padding: 8px; gap: 3px; font-size: 9px; }
-            #viewport { margin: 0; padding: 20px 20px 100px; }
-            .grid-3, .grid-2-1 { grid-template-columns: 1fr; }
-        }
-    </style>
+/* ── TILT CARDS ── */
+.tilt-card{transform-style:preserve-3d;will-change:transform;transition:transform .3s var(--ease);}
+
+/* ── H-SCROLL GALLERY ── */
+.h-scroll{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory;}
+.h-scroll::-webkit-scrollbar{height:3px;}
+.h-scroll::-webkit-scrollbar-thumb{background:rgba(0,122,255,.28);border-radius:99px;}
+.hs-card{min-width:180px;height:110px;border-radius:18px;overflow:hidden;flex-shrink:0;scroll-snap-align:start;}
+.hs-card img{width:100%;height:100%;object-fit:cover;}
+
+/* ── PRINT STYLES ── */
+@media print{
+  body{background:#fff!important;color:#000!important;}
+  #sidebar,#wallpaper,#crystalCanvas,#particleCanvas,.orb,#cur-o,#cur-i,#cur-t,#hb-bar,#toasts,#modal-root{display:none!important;}
+  #viewport{margin:0!important;padding:20px!important;overflow:visible!important;}
+  .glass::before,.glass::after{display:none!important;}
+  .glass{box-shadow:none!important;border:1px solid #ddd!important;}
+  .btn:not(.print-btn){display:none!important;}
+}
+
+/* ═══════════ MOBILE / TABLET RESPONSIVE ═══════════ */
+@media(max-width:900px){
+  :root{--sidebar:260px;}
+  .grid-3{grid-template-columns:1fr 1fr;gap:12px;}
+  .grid-2-1{grid-template-columns:1fr;gap:12px;}
+}
+@media(max-width:680px){
+  body{flex-direction:column;}
+  #sidebar{width:100%!important;margin:0!important;height:64px!important;border-radius:0!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;top:auto!important;z-index:2000;}
+  .sb-head,#nav-blob,.sb-logout,.sb-head *,#globe-wrap,#live-clock,#live-date,.sep,.toggle-wrap{display:none!important;}
+  .nav-list{display:flex!important;flex-direction:row!important;justify-content:space-around!important;align-items:center!important;padding:0 8px!important;overflow-x:auto!important;}
+  .nav-item{flex-direction:column!important;margin:0!important;padding:6px 8px!important;gap:2px!important;font-size:8px!important;letter-spacing:0!important;min-width:44px;text-align:center;}
+  .nav-icon{font-size:18px;}
+  #viewport{margin:0!important;padding:14px 14px 80px!important;}
+  .grid-3,.grid-2-1{grid-template-columns:1fr!important;gap:12px!important;}
+  .page-title{font-size:26px!important;letter-spacing:-1px!important;}
+  .stat-val{font-size:32px!important;}
+  .fin-num{font-size:44px!important;letter-spacing:-2px!important;}
+  #hb-bar{display:none!important;}
+  #cur-o,#cur-i,#cur-t{display:none!important;}
+  .tilt-card{transform:none!important;}
+  .login-card{padding:32px 24px!important;border-radius:28px!important;}
+  .logo-cube-wrap{display:none!important;}
+  .pay-card{border-radius:28px!important;}
+  .pay-header{padding:24px 24px 18px!important;}
+  .pay-body{padding:18px 24px!important;}
+  .pay-footer{padding:14px 24px 24px!important;}
+  table{font-size:12px!important;}
+  td{padding:10px 8px!important;}
+}
+@media(max-width:400px){
+  .grid-3{grid-template-columns:1fr!important;}
+  .nav-item span:not(.nav-icon){display:none!important;}
+  .nav-item{min-width:36px;}
+}
+</style>
 </head>
 <body>
 
-<!-- ══════════════════════════════
-     iOS 26 LIQUID GLASS SVG FILTERS
-     feDisplacementMap = edge refraction
-     feSpecularLighting = specular rim
-══════════════════════════════ -->
 <svg width="0" height="0" style="position:absolute;overflow:hidden;">
-  <defs>
-
-    <!-- Primary glass refraction filter -->
-    <filter id="lg-refract" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="3" result="turb"/>
-      <feComponentTransfer in="turb" result="mapped">
-        <feFuncR type="gamma" amplitude="1" exponent="8" offset="0.5"/>
-        <feFuncG type="gamma" amplitude="0" exponent="1" offset="0"/>
-        <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5"/>
-      </feComponentTransfer>
-      <feGaussianBlur in="mapped" stdDeviation="2.5" result="softMap"/>
-      <!-- Edge displacement — refracts background at borders -->
-      <feDisplacementMap in="SourceGraphic" in2="softMap" scale="22" xChannelSelector="R" yChannelSelector="B" result="displaced"/>
-      <!-- Specular lighting layer -->
-      <feSpecularLighting in="softMap" surfaceScale="4" specularConstant="0.8" specularExponent="80" lighting-color="white" result="spec">
-        <fePointLight x="-100" y="-150" z="250"/>
-      </feSpecularLighting>
-      <feComposite in="spec" in2="SourceAlpha" operator="in" result="specMasked"/>
-      <feBlend in="displaced" in2="specMasked" mode="screen"/>
-    </filter>
-
-    <!-- Nav blob metaball morphing -->
-    <filter id="metaball">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
-      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10"/>
-    </filter>
-
-    <!-- Stronger refraction for sidebar/header elements -->
-    <filter id="lg-strong" x="-5%" y="-5%" width="110%" height="110%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.006" numOctaves="2" seed="7" result="t"/>
-      <feGaussianBlur in="t" stdDeviation="3" result="sm"/>
-      <feDisplacementMap in="SourceGraphic" in2="sm" scale="35" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-
-  </defs>
+<defs>
+  <filter id="lg-refract" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.007" numOctaves="3" seed="5" result="t"/>
+    <feGaussianBlur in="t" stdDeviation="2.5" result="sm"/>
+    <feDisplacementMap in="SourceGraphic" in2="sm" scale="24" xChannelSelector="R" yChannelSelector="B" result="d"/>
+    <feSpecularLighting in="sm" surfaceScale="4" specularConstant=".9" specularExponent="85" lighting-color="white" result="spec">
+      <fePointLight x="-80" y="-120" z="220"/>
+    </feSpecularLighting>
+    <feComposite in="spec" in2="SourceAlpha" operator="in" result="sm2"/>
+    <feBlend in="d" in2="sm2" mode="screen"/>
+  </filter>
+  <filter id="metaball">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
+    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -11"/>
+  </filter>
+</defs>
 </svg>
 
+<!-- CURSOR -->
+<div id="cur-o"></div><div id="cur-i"></div><div id="cur-t"></div>
+<!-- BACKGROUND -->
 <div id="wallpaper"></div>
+<div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+<canvas id="crystalCanvas"></canvas>
+<canvas id="particleCanvas"></canvas>
+<!-- TOASTS -->
 <div id="toasts"></div>
+<!-- HB BAR -->
+<div id="hb-bar">
+  <div class="wave"><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div></div>
+  <span>SYSTEM ONLINE</span>
+  <canvas id="hb-canvas"></canvas>
+</div>
 
-<!-- ══ MODAL ══ -->
+<!-- PAYMENT MODAL -->
 <div id="modal-root">
-    <div class="invoice-card v-stack">
-        <div class="glass-shine" style="position:absolute;inset:0;pointer-events:none;border-radius:40px;z-index:10;"></div>
-        <h2 style="font-size:30px;font-weight:900;letter-spacing:-1.5px;border-bottom:1px solid rgba(0,0,0,0.08);padding-bottom:22px;margin:0;">FISCAL RECEIPT</h2>
-        <div id="invoice-payload" style="padding:36px 0;font-family:var(--font-mono);line-height:2.2;font-size:13px;white-space:pre-wrap;flex:1;"></div>
-        <div class="h-stack gap-12">
-            <button class="btn btn-primary" style="flex:1;" onclick="window.print()">PRINT NODE</button>
-            <button class="btn btn-glass" style="flex:1;" onclick="closeModal()">DISMISS</button>
-        </div>
+  <div class="pay-card">
+    <div class="pay-header">
+      <h2 id="modal-title" style="font-size:24px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;">Payment Terminal</h2>
+      <p id="modal-sub" style="font-size:13px;color:var(--text-3);font-weight:500;"></p>
     </div>
+    <div class="pay-body" id="modal-body">
+      <!-- Phase 1: choose payment method -->
+      <div id="phase-pay">
+        <div class="pay-methods">
+          <div class="pay-tab" id="tab-cash" onclick="selectPay('cash')">
+            <div class="pay-tab-icon">💵</div>
+            <div>Cash</div>
+          </div>
+          <div class="pay-tab" id="tab-qr" onclick="selectPay('qr')">
+            <div class="pay-tab-icon">📱</div>
+            <div>UPI / QR</div>
+          </div>
+        </div>
+        <!-- QR section -->
+        <div class="qr-area" id="qr-area">
+          <canvas id="qrCanvas" width="200" height="200"></canvas>
+          <div class="qr-upi" id="qr-upi-str"></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--ios-green);">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--ios-green);animation:pDot 2s ease-in-out infinite;display:inline-block;"></span>
+            Waiting for payment…
+          </div>
+          <button class="btn btn-green" style="width:100%" onclick="confirmPay()">✓ Mark as Paid</button>
+        </div>
+        <!-- Cash section -->
+        <div class="cash-area" id="cash-area">
+          <div class="change-row">
+            <span style="font-weight:700;font-size:13px;">Amount Due</span>
+            <span id="cash-due" style="font-size:20px;font-weight:800;color:var(--ios-blue);">Rs 0</span>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-3);display:block;margin-bottom:6px;">Cash Tendered (Rs)</label>
+            <input type="number" id="cash-tendered" placeholder="Enter amount received" oninput="calcChange()" style="margin-bottom:6px;">
+          </div>
+          <div class="change-row" id="change-row" style="display:none;">
+            <span style="font-weight:700;font-size:13px;">Change to Return</span>
+            <span id="cash-change" style="font-size:20px;font-weight:800;color:var(--ios-green);">Rs 0</span>
+          </div>
+          <button class="btn btn-green" style="width:100%" onclick="confirmPay()">✓ Confirm Cash Payment</button>
+        </div>
+      </div>
+      <!-- Phase 2: invoice -->
+      <div class="invoice-area" id="phase-invoice">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:16px;background:rgba(52,199,89,.08);border-radius:16px;border:1px solid rgba(52,199,89,.2);">
+          <span style="font-size:28px;">✅</span>
+          <div>
+            <div style="font-weight:800;font-size:15px;color:var(--ios-green);">Payment Confirmed</div>
+            <div id="pay-method-label" style="font-size:12px;color:var(--text-3);margin-top:2px;"></div>
+          </div>
+        </div>
+        <pre id="inv-payload"></pre>
+        <!-- HMS watermark on invoice -->
+        <div style="text-align:center;margin-top:16px;padding-top:14px;border-top:1px dashed rgba(0,0,0,.1);">
+          <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--text-3);">HMS ENTERPRISE v26.3 · LIQUID CRYSTAL</div>
+          <div style="font-size:10px;color:var(--text-3);margin-top:3px;" id="inv-timestamp"></div>
+        </div>
+      </div>
+    </div>
+    <div class="pay-footer">
+      <button class="btn btn-primary print-btn" id="btn-print" onclick="window.print()" style="display:none;flex:1;">🖨 Print Receipt</button>
+      <button class="btn btn-glass" style="flex:1;" onclick="closeModal()">✕ Dismiss</button>
+    </div>
+  </div>
 </div>
 
-<!-- ══ LOGIN ══ -->
+<!-- LOGIN -->
 <div id="loginOverlay">
-    <div class="glass login-card v-stack">
-        <div class="glass-shine"></div>
-        <div style="font-size:64px;margin-bottom:20px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15));">🏥</div>
-        <h2 style="font-size:30px;font-weight:800;letter-spacing:-1px;">HMS Enterprise</h2>
-        <p style="color:rgba(60,60,67,0.6);margin-bottom:36px;font-size:11px;font-weight:800;letter-spacing:3px;margin-top:4px;">SECURE ACCESS V26.0.3</p>
-        <input type="text" id="lU" placeholder="IDENTITY UID">
-        <input type="password" id="lP" placeholder="SECURITY KEY">
-        <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="runAuth()">INITIALIZE NEURAL LINK</button>
-        <p id="auth-msg" style="color:var(--ios-red);margin-top:18px;font-weight:800;font-size:12px;"></p>
+  <div class="glass login-card v-stack">
+    <div class="glass-shine"></div>
+    <div class="logo-cube-wrap">
+      <div class="logo-cube">
+        <div class="cf cf-front">🏥</div><div class="cf cf-back">⚕️</div>
+        <div class="cf cf-right">💊</div><div class="cf cf-left">🔬</div>
+        <div class="cf cf-top">❤️</div><div class="cf cf-bot">🧬</div>
+      </div>
     </div>
+    <h2 style="font-size:28px;font-weight:800;letter-spacing:-.5px;position:relative;z-index:1;">HMS Enterprise</h2>
+    <p style="color:rgba(60,60,67,.62);margin-bottom:28px;font-size:10px;font-weight:800;letter-spacing:3px;margin-top:4px;position:relative;z-index:1;">LIQUID CRYSTAL v26.3</p>
+    <div style="position:relative;z-index:1;width:100%;">
+      <input type="text" id="lU" placeholder="Username" autocomplete="off">
+      <input type="password" id="lP" placeholder="Password">
+    </div>
+    <button class="btn btn-primary" style="width:100%;position:relative;z-index:1;padding:18px;" id="loginBtn" onclick="runAuth()">⚡ Sign In</button>
+    <p id="auth-msg" style="color:var(--ios-red);margin-top:14px;font-weight:700;font-size:12px;position:relative;z-index:1;min-height:18px;"></p>
+  </div>
 </div>
 
-<!-- ══ SIDEBAR ══ -->
+<!-- SIDEBAR -->
 <nav id="sidebar" class="hidden">
-    <div class="sidebar-shine"></div>
-    <div class="sidebar-inner">
-
-        <div class="sidebar-header">
-            <h1 id="sys-user" style="font-size:20px;font-weight:800;letter-spacing:-0.5px;">USER_NULL</h1>
-            <p id="sys-role" style="font-size:9px;letter-spacing:3px;color:var(--ios-blue);font-weight:900;margin-top:3px;">NODE_LINK_ACTIVE</p>
-            <div class="toggle-wrap">
-                <span style="font-size:11px;font-weight:800;color:var(--text-3);">DARK MODE</span>
-                <div class="toggle-track" onclick="toggleTheme()"><div class="toggle-knob"></div></div>
-            </div>
+  <div class="sb-shine"></div>
+  <div class="sb-inner">
+    <div class="sb-head">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <div class="sb-avatar">🏥</div>
+        <div>
+          <div id="sys-user" style="font-size:16px;font-weight:800;line-height:1.2;">USER</div>
+          <div id="sys-role" style="font-size:9px;letter-spacing:2px;color:var(--ios-blue);font-weight:800;margin-top:2px;"><span class="pulse-dot" style="margin-right:4px;"></span>ONLINE</div>
         </div>
-
-        <div class="nav-list">
-            <div id="nav-blob"></div>
-            <div class="nav-item active ni-admin"   id="ni-0" onclick="morphTo('dashSec',   this)">📊 <span>Dashboard Matrix</span></div>
-            <div class="nav-item ni-admin"           id="ni-1" onclick="morphTo('hrSec',     this)">👨‍⚕️ <span>Human Resources</span></div>
-            <div class="nav-item ni-admin ni-doctor" id="ni-2" onclick="morphTo('admitSec',  this)">🛌 <span>Clinical Intake</span></div>
-            <div class="nav-item ni-admin ni-pharm"  id="ni-3" onclick="morphTo('pharmaSec', this)">💊 <span>Inventory</span></div>
-            <div class="nav-item ni-admin ni-doctor" id="ni-4" onclick="morphTo('labSec',    this)">🔬 <span>Laboratory</span></div>
-            <div class="nav-item ni-admin"           id="ni-5" onclick="morphTo('financeSec',this)">💰 <span>Revenue & GST</span></div>
-            <div class="nav-item ni-all"             id="ni-6" onclick="morphTo('searchSec', this)">🔍 <span>My Medical Bill</span></div>
-            <div class="nav-item ni-all"             id="ni-7" onclick="morphTo('featSec',   this)">✨ <span>Specifications</span></div>
-            <div class="nav-item ni-all"             id="ni-8" onclick="morphTo('galSec',    this)">🖼️ <span>Facility Gallery</span></div>
-            <div class="nav-item ni-clinical"        id="ni-9" onclick="morphTo('gameSec',   this)">🎮 <span>Staff Break Room</span></div>
-        </div>
-
-        <div class="sidebar-logout" style="padding:20px;">
-            <button class="btn btn-danger" style="width:100%;" onclick="location.reload()">🚪 VOID SESSION</button>
-        </div>
-
+      </div>
+      <div id="globe-wrap"><canvas id="globeCanvas" width="100" height="100"></canvas></div>
+      <div id="live-clock">--:--:--</div>
+      <div id="live-date">--</div>
+      <div class="toggle-wrap">
+        <span style="font-size:10px;font-weight:800;color:var(--text-3);">DARK MODE</span>
+        <div class="toggle-track" onclick="toggleTheme()"><div class="toggle-knob"></div></div>
+      </div>
     </div>
+    <div class="sep"></div>
+    <div class="nav-list">
+      <div id="nav-blob"></div>
+      <div class="nav-item active ni-admin"   id="ni-0" onclick="morphTo('dashSec',   this)"><span class="nav-icon">📊</span><span>Dashboard</span></div>
+      <div class="nav-item ni-admin"           id="ni-1" onclick="morphTo('hrSec',     this)"><span class="nav-icon">👨‍⚕️</span><span>HR</span></div>
+      <div class="nav-item ni-admin ni-doctor" id="ni-2" onclick="morphTo('admitSec',  this)"><span class="nav-icon">🛌</span><span>Clinical Intake</span></div>
+      <div class="nav-item ni-admin ni-pharm"  id="ni-3" onclick="morphTo('pharmaSec', this)"><span class="nav-icon">💊</span><span>Pharmacy</span></div>
+      <div class="nav-item ni-admin ni-doctor" id="ni-4" onclick="morphTo('labSec',    this)"><span class="nav-icon">🔬</span><span>Laboratory</span></div>
+      <div class="nav-item ni-admin"           id="ni-5" onclick="morphTo('financeSec',this)"><span class="nav-icon">💰</span><span>Finance</span></div>
+      <div class="nav-item ni-all"             id="ni-6" onclick="morphTo('searchSec', this)"><span class="nav-icon">🔍</span><span>My Bill</span></div>
+      <div class="nav-item ni-all"             id="ni-7" onclick="morphTo('featSec',   this)"><span class="nav-icon">✨</span><span>Specs</span></div>
+      <div class="nav-item ni-all"             id="ni-8" onclick="morphTo('galSec',    this)"><span class="nav-icon">🖼️</span><span>Gallery</span></div>
+      <div class="nav-item ni-clinical"        id="ni-9" onclick="morphTo('gameSec',   this)"><span class="nav-icon">🎮</span><span>Break Room</span></div>
+    </div>
+    <div class="sb-logout">
+      <button class="btn btn-danger" style="width:100%;padding:12px;" onclick="location.reload()">🚪 Sign Out</button>
+    </div>
+  </div>
 </nav>
 
-<!-- ══ VIEWPORT ══ -->
+<!-- VIEWPORT -->
 <main id="viewport" class="hidden">
 
-    <!-- DASHBOARD -->
-    <section id="dashSec" class="hidden section-in">
-        <div class="mb-32">
-            <div class="page-title">Admin Telemetry</div>
-            <div class="page-subtitle">System Resource Flow Sync</div>
-        </div>
-        <div class="grid-3">
-            <div class="glass stat-card">
-                <div class="glass-shine"></div>
-                <span class="stat-label">Bio-Nodes Admitted</span>
-                <div class="stat-val" id="dash-p-count">0</div>
-                <span class="stat-note" style="color:var(--ios-green);">↑ 18.4% FLUX GAIN</span>
-            </div>
-            <div class="glass stat-card">
-                <div class="glass-shine"></div>
-                <span class="stat-label">Neural Integrity</span>
-                <div class="stat-val">99.9%</div>
-                <span class="stat-note" style="color:var(--ios-blue);">SECURE_ALPHA_UPLINK</span>
-            </div>
-            <div class="glass stat-card">
-                <div class="glass-shine"></div>
-                <span class="stat-label">Liquid Yield</span>
-                <div class="stat-val" id="dash-rev">Rs 0</div>
-                <span class="stat-note" style="color:var(--ios-orange);">NET_POST_TAX_REVENUE</span>
-            </div>
-        </div>
-        <div class="grid-2-1 mt-24">
-            <div class="glass p-40">
-                <div class="glass-shine"></div>
-                <h3 style="margin-bottom:28px;font-size:18px;font-weight:800;letter-spacing:-0.5px;">Revenue Entropy Matrix</h3>
-                <canvas id="mainChart" height="130"></canvas>
-            </div>
-            <div class="glass p-40 v-stack">
-                <div class="glass-shine"></div>
-                <h3 style="margin-bottom:18px;font-size:18px;font-weight:800;">Security Audit</h3>
-                <div id="auditContainer" class="audit" style="flex:1;"></div>
-            </div>
-        </div>
-    </section>
+<!-- DASHBOARD -->
+<section id="dashSec" class="hidden section-in">
+  <div class="mb-32"><div class="page-title">Admin Telemetry</div><div class="page-subtitle">Real-Time System Flow</div></div>
+  <div class="grid-3">
+    <div class="glass stat-card tilt-card">
+      <div class="glass-shine"></div><div class="glass-spec"></div>
+      <span class="stat-label">Admitted Patients</span>
+      <div class="stat-val" id="dash-p-count">0</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span class="stat-note" style="color:var(--ios-green);">↑ Active Nodes</span>
+        <div class="wave" style="gap:2px;"><div class="wb" style="background:var(--ios-green);width:2px;"></div><div class="wb" style="background:var(--ios-green);width:2px;"></div><div class="wb" style="background:var(--ios-green);width:2px;"></div><div class="wb" style="background:var(--ios-green);width:2px;"></div></div>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:68%;background:linear-gradient(90deg,var(--ios-green),rgba(52,199,89,.5));"></div></div>
+    </div>
+    <div class="glass stat-card tilt-card">
+      <div class="glass-shine"></div><div class="glass-spec"></div>
+      <span class="stat-label">Neural Integrity</span>
+      <div class="stat-val" style="color:var(--ios-blue);">99.9%</div>
+      <span class="stat-note" style="color:var(--ios-blue);">SECURE UPLINK</span>
+      <div class="prog-wrap"><div class="prog-fill" style="width:99.9%;background:linear-gradient(90deg,var(--ios-blue),var(--ios-teal));"></div></div>
+    </div>
+    <div class="glass stat-card tilt-card">
+      <div class="glass-shine"></div><div class="glass-spec"></div>
+      <span class="stat-label">Revenue</span>
+      <div class="stat-val" id="dash-rev" style="color:var(--ios-green);">Rs 0</div>
+      <span class="stat-note" style="color:var(--ios-orange);">NET POST-TAX</span>
+      <div class="prog-wrap"><div class="prog-fill" style="width:55%;background:linear-gradient(90deg,var(--ios-orange),rgba(255,149,0,.5));"></div></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+    <div class="metric-pill"><div class="sys-dot-g"></div>UPTIME 99.97%</div>
+    <div class="metric-pill"><div class="sys-dot-b"></div>LATENCY 0.4ms</div>
+    <div class="metric-pill"><div class="sys-dot-o"></div>NODES: 12</div>
+  </div>
+  <div class="grid-2-1 mt-24">
+    <div class="glass p-40 tilt-card">
+      <div class="glass-shine"></div><div class="glass-spec"></div>
+      <h3 style="margin-bottom:22px;font-size:17px;font-weight:700;">Revenue Matrix</h3>
+      <canvas id="mainChart" height="130"></canvas>
+    </div>
+    <div class="glass p-40 v-stack tilt-card">
+      <div class="glass-shine"></div><div class="glass-spec"></div>
+      <h3 style="margin-bottom:14px;font-size:17px;font-weight:700;">Security Audit</h3>
+      <div id="auditContainer" class="audit" style="flex:1;"></div>
+    </div>
+  </div>
+  <div class="grid-3">
+    <div class="glass p-40 tilt-card"><div class="glass-shine"></div><div class="glass-spec"></div>
+      <span class="stat-label">Staff On Duty</span>
+      <div id="dash-staff" style="font-size:32px;font-weight:800;letter-spacing:-1.5px;margin:10px 0 4px;color:var(--ios-indigo);">0</div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:50%;background:linear-gradient(90deg,var(--ios-indigo),rgba(88,86,214,.5));"></div></div>
+    </div>
+    <div class="glass p-40 tilt-card"><div class="glass-shine"></div><div class="glass-spec"></div>
+      <span class="stat-label">Pending Rx</span>
+      <div id="dash-rx" style="font-size:32px;font-weight:800;letter-spacing:-1.5px;margin:10px 0 4px;color:var(--ios-orange);">0</div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:35%;background:linear-gradient(90deg,var(--ios-orange),rgba(255,149,0,.5));"></div></div>
+    </div>
+    <div class="glass p-40 tilt-card"><div class="glass-shine"></div><div class="glass-spec"></div>
+      <span class="stat-label">Lab Queue</span>
+      <div id="dash-lab" style="font-size:32px;font-weight:800;letter-spacing:-1.5px;margin:10px 0 4px;color:var(--ios-teal);">0</div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:25%;background:linear-gradient(90deg,var(--ios-teal),rgba(90,200,250,.5));"></div></div>
+    </div>
+  </div>
+</section>
 
-    <!-- HR -->
-    <section id="hrSec" class="hidden section-in">
-        <div class="glass p-48">
-            <div class="glass-shine"></div>
-            <div class="page-title mb-32">Personnel Registry 👨‍⚕️</div>
-            <div class="grid-3">
-                <input type="text" id="stName" placeholder="Full Professional Name">
-                <select id="stRole">
-                    <option value="Specialist">Senior Specialist</option>
-                    <option value="Surgeon">Senior Surgeon</option>
-                    <option value="Lead Nurse">Lead Nurse</option>
-                    <option value="Pharmacist">Lead Pharmacist</option>
-                </select>
-                <input type="text" id="stSpec" placeholder="Area of Expertise (e.g. Neurology)">
-            </div>
-            <div class="grid-3">
-                <input type="number" id="stSalary" placeholder="Monthly Base (Rs)">
-                <input type="number" id="stFee" placeholder="Consultation Fee (Rs)">
-                <select id="stShift">
-                    <option>Morning Rotation</option>
-                    <option>Night Rotation</option>
-                    <option>24/7 On-Call</option>
-                </select>
-            </div>
-            <button class="btn btn-primary" onclick="onboardStaff()">COMMIT RECORD TO CORE</button>
-        </div>
-        <div class="glass mt-24 p-40">
-            <div class="glass-shine"></div>
-            <h3 style="margin-bottom:18px;font-size:18px;font-weight:800;">Active Professional Roster</h3>
-            <div id="staffListMount" style="overflow-x:auto;"></div>
-        </div>
-    </section>
+<!-- HR -->
+<section id="hrSec" class="hidden section-in">
+  <div class="glass p-48 tilt-card">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <div class="page-title mb-32">Personnel Registry 👨‍⚕️</div>
+    <div class="grid-3">
+      <input type="text" id="stName" placeholder="Full Name">
+      <select id="stRole"><option value="Specialist">Senior Specialist</option><option value="Surgeon">Senior Surgeon</option><option value="Lead Nurse">Lead Nurse</option><option value="Pharmacist">Lead Pharmacist</option></select>
+      <input type="text" id="stSpec" placeholder="Specialty (e.g. Neurology)">
+    </div>
+    <div class="grid-3">
+      <input type="number" id="stSalary" placeholder="Monthly Salary (Rs)">
+      <input type="number" id="stFee" placeholder="Consultation Fee (Rs)">
+      <select id="stShift"><option>Morning</option><option>Night</option><option>24/7 On-Call</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="onboardStaff()">⚡ Add Staff</button>
+  </div>
+  <div class="glass mt-24 p-40 tilt-card">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <h3 style="margin-bottom:16px;font-size:17px;font-weight:700;">Active Roster</h3>
+    <div id="staffListMount" style="overflow-x:auto;"></div>
+  </div>
+</section>
 
-    <!-- ADMISSIONS -->
-    <section id="admitSec" class="hidden section-in">
-        <div class="glass p-48">
-            <div class="glass-shine"></div>
-            <div class="page-title mb-32">Bio-Intake Engine 🛌</div>
-            <div id="sectorChip">✨ AI Recommendation: <span id="recText">Analyze Symptoms</span></div>
-            <div class="grid-3">
-                <input type="text" id="pName" placeholder="Legal Identity Name">
-                <input type="number" id="pAge" placeholder="Age">
-                <select id="pBlood">
-                    <option>Blood Group...</option>
-                    <option>A+</option><option>B+</option><option>O+</option><option>AB+</option>
-                    <option>A-</option><option>B-</option><option>O-</option><option>AB-</option>
-                </select>
-            </div>
-            <div class="grid-3">
-                <select id="pDocAssign"></select>
-                <input type="text" id="pEmerg" placeholder="Emergency Contact Node">
-                <select id="pType" onchange="updateIntakeFields()">
-                    <option value="in">In-Patient Admission</option>
-                    <option value="checkup">General Checkup (OPD)</option>
-                    <option value="emergency">🚨 Emergency Trauma</option>
-                </select>
-            </div>
-            <div class="grid-3">
-                <select id="pRoom">
-                    <option value="4000">General Ward Node (4k/d)</option>
-                    <option value="15000">Infinity Glass Suite (15k/d)</option>
-                    <option value="65000">Bio-Isolation Unit (65k/d)</option>
-                </select>
-                <input type="number" id="pDeposit" placeholder="Initial Advance (Rs)">
-                <input type="text" id="pDiagnosis" placeholder="Clinical Diagnosis Matrix">
-            </div>
-            <textarea id="pSymptoms" style="height:110px;" placeholder="SYMPTOMS MATRIX (AI will suggest sector based on input...)" onkeyup="analyzeSymptoms()"></textarea>
-            <button class="btn btn-primary" onclick="admitPatient()">AUTHORIZE ADMISSION</button>
-        </div>
+<!-- ADMISSIONS -->
+<section id="admitSec" class="hidden section-in">
+  <div class="glass p-48 tilt-card">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <div class="page-title mb-32">Clinical Intake 🛌</div>
+    <div id="sectorChip">✨ AI: <span id="recText">Analyzing...</span></div>
+    <div class="grid-3">
+      <input type="text" id="pName" placeholder="Patient Name">
+      <input type="number" id="pAge" placeholder="Age">
+      <select id="pBlood"><option>Blood Group</option><option>A+</option><option>B+</option><option>O+</option><option>AB+</option><option>A-</option><option>B-</option><option>O-</option><option>AB-</option></select>
+    </div>
+    <div class="grid-3">
+      <select id="pDocAssign"></select>
+      <input type="text" id="pEmerg" placeholder="Emergency Contact">
+      <select id="pType" onchange="updateIntakeFields()"><option value="in">In-Patient</option><option value="checkup">OPD Checkup</option><option value="emergency">🚨 Emergency</option></select>
+    </div>
+    <div class="grid-3">
+      <select id="pRoom"><option value="4000">General Ward (4k/d)</option><option value="15000">Glass Suite (15k/d)</option><option value="65000">Isolation Unit (65k/d)</option></select>
+      <input type="number" id="pDeposit" placeholder="Advance (Rs)">
+      <input type="text" id="pDiagnosis" placeholder="Diagnosis">
+    </div>
+    <textarea id="pSymptoms" style="height:90px;" placeholder="Symptoms (AI will suggest ward)…" onkeyup="analyzeSymptoms()"></textarea>
+    <button class="btn btn-primary" onclick="admitPatient()">🏥 Authorize Admission</button>
+  </div>
+  <div class="glass ni-doctor mt-24 p-48 tilt-card">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Prescription Console 🩺</h2>
+    <div class="grid-3">
+      <select id="prescPatSel"></select>
+      <input type="text" id="prescMedName" placeholder="Medicine Name">
+      <button class="btn btn-primary" onclick="addPrescription()">💊 Prescribe</button>
+    </div>
+  </div>
+  <div class="glass mt-24 p-40 tilt-card">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <h3 style="margin-bottom:16px;font-size:17px;font-weight:700;">Active Patients</h3>
+    <div id="pListMount" style="overflow-x:auto;"></div>
+  </div>
+</section>
 
-        <div class="glass ni-doctor mt-24 p-48">
-            <div class="glass-shine"></div>
-            <h2 style="font-size:22px;font-weight:800;margin-bottom:24px;">Digital Prescription Console 🩺</h2>
-            <div class="grid-3">
-                <select id="prescPatSel"></select>
-                <input type="text" id="prescMedName" placeholder="Medicine Name (e.g. Paracetamol)">
-                <button class="btn btn-primary" onclick="addPrescription()">PRESCRIBE COMPOUND</button>
-            </div>
-        </div>
+<!-- PHARMACY -->
+<section id="pharmaSec" class="hidden section-in">
+  <div class="grid-3">
+    <div class="glass p-40 v-stack tilt-card">
+      <div class="glass-shine"></div><div class="glass-spec"></div>
+      <h3 style="margin-bottom:16px;font-size:17px;font-weight:700;">Dispense 💊</h3>
+      <span class="stat-label" style="margin-bottom:8px;">Patient</span>
+      <select id="pharmaPSelect" onchange="showPrescribed()"></select>
+      <div id="prescView" style="margin-bottom:14px;padding:14px;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.16);border-radius:16px;display:none;">
+        <span class="stat-label">Prescribed:</span>
+        <h3 id="prescVal" style="color:var(--ios-orange);margin-top:5px;font-size:16px;font-weight:700;">—</h3>
+      </div>
+      <span class="stat-label" style="margin-bottom:8px;">Price</span>
+      <input type="number" id="pharmaMedCost" placeholder="Cost (Rs)">
+      <button class="btn btn-primary" style="width:100%;margin-top:auto;" onclick="dispenseMed()">⚡ Dispense & Bill</button>
+    </div>
+    <div class="glass p-40 tilt-card" style="grid-column:span 2;">
+      <div class="glass-shine"></div><div class="glass-spec"></div>
+      <h3 style="margin-bottom:20px;font-size:17px;font-weight:700;">Pharmacy Ledger</h3>
+      <div id="pharmaLogMount" class="audit" style="height:340px;"></div>
+    </div>
+  </div>
+</section>
 
-        <div class="glass mt-24 p-40">
-            <div class="glass-shine"></div>
-            <h3 style="margin-bottom:18px;font-size:18px;font-weight:800;">Active Clinical Bio-Nodes</h3>
-            <div id="pListMount" style="overflow-x:auto;"></div>
-        </div>
-    </section>
+<!-- LAB -->
+<section id="labSec" class="hidden section-in">
+  <div class="grid-3">
+    <div class="glass p-40 v-stack tilt-card">
+      <div class="glass-shine"></div><div class="glass-spec"></div>
+      <h3 style="margin-bottom:24px;font-size:17px;font-weight:700;">Diagnostic Suite 🔬</h3>
+      <span class="stat-label" style="margin-bottom:8px;">Patient</span>
+      <select id="labPSelect"></select>
+      <span class="stat-label" style="margin-bottom:8px;">Test</span>
+      <select id="labTestSelect">
+        <option value="2800">Hematology (Rs 2,800)</option>
+        <option value="24000">Neural MRI (Rs 24,000)</option>
+        <option value="85000">Genomic Seq. (Rs 85,000)</option>
+      </select>
+      <button class="btn btn-primary" style="width:100%;margin-top:auto;" onclick="issueLab()">🔬 Execute</button>
+    </div>
+    <div class="glass p-40 tilt-card" style="grid-column:span 2;">
+      <div class="glass-shine"></div><div class="glass-spec"></div>
+      <h3 style="margin-bottom:20px;font-size:17px;font-weight:700;">Lab Queue</h3>
+      <div id="labLogMount" class="audit" style="height:320px;"></div>
+    </div>
+  </div>
+</section>
 
-    <!-- PHARMACY -->
-    <section id="pharmaSec" class="hidden section-in">
-        <div class="grid-3">
-            <div class="glass p-40 v-stack">
-                <div class="glass-shine"></div>
-                <h3 style="margin-bottom:18px;font-size:18px;font-weight:800;">Pending Dispensing 💊</h3>
-                <span class="stat-label" style="margin-bottom:8px;">Target Bio-Node</span>
-                <select id="pharmaPSelect" onchange="showPrescribed()"></select>
-                <div id="prescView" style="margin-bottom:16px;padding:14px;background:rgba(255,149,0,0.08);border:1px solid rgba(255,149,0,0.15);border-radius:14px;display:none;">
-                    <span class="stat-label">Doctor Prescribed:</span>
-                    <h3 id="prescVal" style="color:var(--ios-orange);margin-top:5px;font-size:16px;">None</h3>
-                </div>
-                <span class="stat-label" style="margin-bottom:8px;">Dispense Price</span>
-                <input type="number" id="pharmaMedCost" placeholder="Final Compound Price (Rs)">
-                <button class="btn btn-primary" style="width:100%;margin-top:auto;" onclick="dispenseMed()">DISPENSE & BILL</button>
-            </div>
-            <div class="glass p-40" style="grid-column:span 2;">
-                <div class="glass-shine"></div>
-                <h3 style="margin-bottom:24px;font-size:18px;font-weight:800;">Pharmacy Ledger Sync</h3>
-                <div id="pharmaLogMount" class="audit" style="height:380px;"></div>
-            </div>
-        </div>
-    </section>
+<!-- FINANCE -->
+<section id="financeSec" class="hidden section-in">
+  <div class="glass fin-hero v-stack tilt-card" style="align-items:center;">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <span class="stat-label">NET LIQUIDITY LEDGER</span>
+    <div class="fin-num" id="fin-net">Rs 0</div>
+    <div class="grid-3" style="width:100%;">
+      <div class="glass p-40 tilt-card" style="background:rgba(52,199,89,.06);">
+        <div class="glass-shine"></div>
+        <small class="stat-label">Gross Revenue</small>
+        <h3 id="fin-gross" style="margin-top:10px;font-size:26px;font-weight:800;color:var(--ios-green);">Rs 0</h3>
+        <div class="prog-wrap"><div id="rev-bar" class="prog-fill" style="width:0%;background:linear-gradient(90deg,var(--ios-green),rgba(52,199,89,.5));"></div></div>
+      </div>
+      <div class="glass p-40 tilt-card" style="background:rgba(255,59,48,.05);">
+        <div class="glass-shine"></div>
+        <small class="stat-label">Payouts</small>
+        <h3 id="fin-pay" style="margin-top:10px;font-size:26px;font-weight:800;color:var(--ios-red);">Rs 0</h3>
+        <div class="prog-wrap"><div id="pay-bar" class="prog-fill" style="width:0%;background:linear-gradient(90deg,var(--ios-red),rgba(255,59,48,.5));"></div></div>
+      </div>
+      <div class="glass p-40 tilt-card" style="background:rgba(0,122,255,.05);">
+        <div class="glass-shine"></div>
+        <small class="stat-label">GST 18%</small>
+        <h3 id="fin-tax" style="margin-top:10px;font-size:26px;font-weight:800;color:var(--ios-blue);">Rs 0</h3>
+        <div class="prog-wrap"><div id="tax-bar" class="prog-fill" style="width:18%;background:linear-gradient(90deg,var(--ios-blue),rgba(0,122,255,.5));"></div></div>
+      </div>
+    </div>
+    <button class="btn btn-danger" style="margin-top:40px;padding:18px 60px;" onclick="wipeFiscal()">⚠️ Wipe Fiscal Ledger</button>
+  </div>
+</section>
 
-    <!-- LAB -->
-    <section id="labSec" class="hidden section-in">
-        <div class="grid-3">
-            <div class="glass p-40 v-stack">
-                <div class="glass-shine"></div>
-                <h3 style="margin-bottom:28px;font-size:18px;font-weight:800;">Diagnostic Scan 🔬</h3>
-                <span class="stat-label" style="margin-bottom:8px;">Bio-Identifier</span>
-                <select id="labPSelect"></select>
-                <span class="stat-label" style="margin-bottom:8px;">Process Suite</span>
-                <select id="labTestSelect">
-                    <option value="2800">Hematology Core (2.8k)</option>
-                    <option value="24000">Neural MRI Suite (24k)</option>
-                    <option value="85000">Full Genomic Sequencing (85k)</option>
-                </select>
-                <button class="btn btn-primary" style="width:100%;margin-top:auto;" onclick="issueLab()">EXECUTE SUITE</button>
-            </div>
-            <div class="glass p-40" style="grid-column:span 2;">
-                <div class="glass-shine"></div>
-                <h3 style="margin-bottom:24px;font-size:18px;font-weight:800;">Laboratory Workflow Queue</h3>
-                <div id="labLogMount" class="audit" style="height:360px;"></div>
-            </div>
-        </div>
-    </section>
+<!-- SEARCH -->
+<section id="searchSec" class="hidden section-in">
+  <div class="glass p-48 tilt-card" style="text-align:center;">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <p style="font-size:10px;font-weight:900;letter-spacing:3px;color:var(--text-3);margin-bottom:16px;">PATIENT BILLING TERMINAL</p>
+    <input type="text" id="searchBar" placeholder="🔍  Search patient name…" onkeyup="runSearch()" style="text-align:center;">
+  </div>
+  <div id="searchMount" class="mt-24"></div>
+</section>
 
-    <!-- FINANCE -->
-    <section id="financeSec" class="hidden section-in">
-        <div class="glass fin-hero v-stack h-stack">
-            <div class="glass-shine"></div>
-            <span class="stat-label">GLOBAL_NET_LIQUIDITY_LEDGER_MASTER</span>
-            <div class="fin-num" id="fin-net">Rs 0</div>
-            <div class="grid-3" style="width:100%;">
-                <div class="glass p-40" style="background:rgba(52,199,89,0.06);">
-                    <div class="glass-shine"></div>
-                    <small class="stat-label">Gross Revenue</small>
-                    <h3 id="fin-gross" style="margin-top:12px;font-size:28px;font-weight:800;">Rs 0</h3>
-                </div>
-                <div class="glass p-40" style="background:rgba(255,59,48,0.06);">
-                    <div class="glass-shine"></div>
-                    <small class="stat-label">Payout Nodes</small>
-                    <h3 id="fin-pay" style="margin-top:12px;font-size:28px;font-weight:800;">Rs 0</h3>
-                </div>
-                <div class="glass p-40" style="background:rgba(0,122,255,0.06);">
-                    <div class="glass-shine"></div>
-                    <small class="stat-label">GST Liability (18%)</small>
-                    <h3 id="fin-tax" style="margin-top:12px;font-size:28px;font-weight:800;">Rs 0</h3>
-                </div>
-            </div>
-            <button class="btn btn-danger" style="margin-top:60px;padding:24px 80px;" onclick="wipeFiscal()">WIPE GLOBAL FISCAL LEDGER</button>
-        </div>
-    </section>
+<!-- SPECS -->
+<section id="featSec" class="hidden section-in">
+  <div class="glass p-48 tilt-card">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <div class="page-title mb-32">Specifications ✨</div>
+    <p style="color:var(--text-2);font-size:16px;line-height:1.8;max-width:660px;margin-bottom:36px;">HMS Enterprise v26.3 — iOS 26 Liquid Crystal Design. Multi-role RBAC, fiscal ledger, AI triage, full clinical workflow. SVG feDisplacementMap refraction, 3D canvas elements, dot-globe, animated cursor, particle engine, cash/QR billing.</p>
+  </div>
+  <div class="grid-3">
+    <div class="feature-card tilt-card" data-a="🔮"><div style="font-size:28px;margin-bottom:12px;">💎</div><h3 style="font-size:15px;font-weight:700;margin-bottom:7px;">Liquid Crystal Glass</h3><p style="color:var(--text-3);font-size:13px;line-height:1.6;">SVG displacement with animated fractalNoise for authentic crystal refraction.</p></div>
+    <div class="feature-card tilt-card" data-a="🎯"><div style="font-size:28px;margin-bottom:12px;">🎯</div><h3 style="font-size:15px;font-weight:700;margin-bottom:7px;">Crystal Cursor</h3><p style="color:var(--text-3);font-size:13px;line-height:1.6;">Multi-layer cursor, liquid drop ripples on click, magnetic expansion on hover.</p></div>
+    <div class="feature-card tilt-card" data-a="🌍"><div style="font-size:28px;margin-bottom:12px;">🌍</div><h3 style="font-size:15px;font-weight:700;margin-bottom:7px;">Dot Globe</h3><p style="color:var(--text-3);font-size:13px;line-height:1.6;">Canvas-rendered sphere of 400 revolving dots with depth shading in the sidebar.</p></div>
+    <div class="feature-card tilt-card" data-a="💳"><div style="font-size:28px;margin-bottom:12px;">💳</div><h3 style="font-size:15px;font-weight:700;margin-bottom:7px;">Cash / QR Payment</h3><p style="color:var(--text-3);font-size:13px;line-height:1.6;">Choose cash (with change calculator) or scan-to-pay QR — then print a styled receipt.</p></div>
+    <div class="feature-card tilt-card" data-a="🔐"><div style="font-size:28px;margin-bottom:12px;">🔐</div><h3 style="font-size:15px;font-weight:700;margin-bottom:7px;">Role-Based Access</h3><p style="color:var(--text-3);font-size:13px;line-height:1.6;">Admin, Doctor, Pharmacist, Guest — dynamic UI with session validation.</p></div>
+    <div class="feature-card tilt-card" data-a="🤖"><div style="font-size:28px;margin-bottom:12px;">🤖</div><h3 style="font-size:15px;font-weight:700;margin-bottom:7px;">AI Symptom Triage</h3><p style="color:var(--text-3);font-size:13px;line-height:1.6;">Real-time keyword routing to correct specialty ward automatically.</p></div>
+  </div>
+  <div class="glass p-40 mt-24 tilt-card">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <h3 style="margin-bottom:20px;font-size:17px;font-weight:700;">Facility Preview</h3>
+    <div class="h-scroll" id="hScrollGallery"></div>
+  </div>
+</section>
 
-    <!-- SEARCH -->
-    <section id="searchSec" class="hidden section-in">
-        <div class="glass p-48" style="text-align:center;">
-            <div class="glass-shine"></div>
-            <input type="text" id="searchBar" style="font-size:28px;text-align:center;border-radius:20px;padding:36px;" placeholder="SCAN IDENTITY NODE TO FETCH BILL..." onkeyup="runSearch()">
-        </div>
-        <div id="searchMount" class="mt-24"></div>
-    </section>
+<!-- GALLERY -->
+<section id="galSec" class="hidden section-in">
+  <div class="glass p-48 tilt-card">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <div class="page-title mb-32">Facility Gallery 🖼️</div>
+    <div class="gallery-grid" id="galleryMount"></div>
+  </div>
+</section>
 
-    <!-- SPECS -->
-    <section id="featSec" class="hidden section-in">
-        <div class="glass p-48">
-            <div class="glass-shine"></div>
-            <div class="page-title mb-32">Specifications ✨</div>
-            <p style="color:var(--text-2);font-size:17px;line-height:1.8;max-width:680px;">HMS Enterprise v26.0 — Built on iOS 26 Liquid Glass Design System. Multi-role access control, real-time fiscal ledger, AI symptom analysis, and full clinical workflow integration. Featuring SVG feDisplacementMap refraction, specular highlights, and physics-based fluid animations.</p>
-        </div>
-    </section>
-
-    <!-- GALLERY -->
-    <section id="galSec" class="hidden section-in">
-        <div class="glass p-48">
-            <div class="glass-shine"></div>
-            <div class="page-title mb-32">Facility Matrix 🖼️</div>
-            <div class="gallery-grid" id="galleryMount"></div>
-        </div>
-    </section>
-
-    <!-- BREAK ROOM -->
-    <section id="gameSec" class="hidden section-in">
-        <div class="glass p-48 v-stack h-stack" style="text-align:center;align-items:center;">
-            <div class="glass-shine"></div>
-            <h2 style="font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:32px;">Staff Reflex Trainer 🎮</h2>
-            <canvas id="snakeGame" width="500" height="500" style="background:rgba(0,0,0,0.04);border-radius:36px;border:2px solid rgba(255,255,255,0.4);box-shadow:inset 1px 1px 0 rgba(255,255,255,0.6),0 12px 40px rgba(0,0,0,0.08);"></canvas>
-            <h3 style="color:var(--ios-blue);margin-top:36px;font-size:40px;font-weight:900;letter-spacing:-2px;">REFLEX: <span id="snakeScore">0</span></h3>
-        </div>
-    </section>
+<!-- BREAK ROOM -->
+<section id="gameSec" class="hidden section-in">
+  <div class="glass p-48 v-stack tilt-card" style="align-items:center;text-align:center;">
+    <div class="glass-shine"></div><div class="glass-spec"></div>
+    <h2 style="font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;">Staff Reflex Trainer 🎮</h2>
+    <p style="color:var(--text-3);font-size:13px;margin-bottom:28px;">Arrow keys to play</p>
+    <canvas id="snakeGame" width="480" height="480" style="max-width:min(480px,85vw);max-height:min(480px,50vh);"></canvas>
+    <h3 style="color:var(--ios-blue);margin-top:28px;font-size:38px;font-weight:900;letter-spacing:-2px;">Score: <span id="snakeScore">0</span></h3>
+    <button class="btn btn-glass" style="margin-top:12px;" onclick="initSnake()">↺ Reset</button>
+  </div>
+</section>
 
 </main>
 
 <script>
-/* ══════════════════════════════════════
-   HMS CORE STATE
-══════════════════════════════════════ */
-const SYS_CREDENTIALS = [
-    { u: "admin", p: "admin", role: "admin",  name: "Administrator"    },
-    { u: "doc",   p: "123",   role: "doctor", name: "Dr. Samip"        },
-    { u: "pharm", p: "123",   role: "pharm",  name: "Lead Pharmacist"  },
-    { u: "user",  p: "0",     role: "user",   name: "Guest Portal"     }
-];
+/* ════════════════════════════════════
+   HMS ENTERPRISE v26.3 — CORE ENGINE
+════════════════════════════════════ */
 
-let S = {
-    ROSTER:   JSON.parse(localStorage.getItem('hms_v34_roster'))   || [],
-    PATIENTS: JSON.parse(localStorage.getItem('hms_v34_patients')) || [],
-    AUDIT:    JSON.parse(localStorage.getItem('hms_v34_audit'))    || [],
-    FISCAL: {
-        rev: parseFloat(localStorage.getItem('hms_v34_rev')) || 0,
-        pay: parseFloat(localStorage.getItem('hms_v34_pay')) || 0
-    },
-    USER: null
-};
-
-const IMAGES = [
-    { url:"https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d", l:"FACILITY_MAIN" },
-    { url:"https://images.unsplash.com/photo-1516549655169-df83a0774514", l:"CRYSTAL_WARD"  },
-    { url:"https://images.unsplash.com/photo-1586773860418-d37222d8fce2", l:"NEURAL_LAB"    },
-    { url:"https://images.unsplash.com/photo-1512678080530-7760d81faba6", l:"ATRIUM_NORTH"  },
-    { url:"https://images.unsplash.com/photo-1551076805-e1869033e561", l:"ICU_SYNC"         },
-    { url:"https://images.unsplash.com/photo-1579684385127-1ef15d508118", l:"PHARMA_CORE"   },
-    { url:"https://images.unsplash.com/photo-1581594632702-f235ae89b022", l:"DNA_MATRIX"    },
-    { url:"https://images.unsplash.com/photo-1505751172107-57324a0834d8", l:"SCALING_TECH"  },
-    { url:"https://images.unsplash.com/photo-1538108197017-c1c9868bb2e3", l:"SURGERY_UNIT"  },
-    { url:"https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b", l:"RECOVERY_1"    },
-    { url:"https://images.unsplash.com/photo-1527613426441-4da17471b66d", l:"AMBULANCE"     },
-    { url:"https://images.unsplash.com/photo-1504813184591-01572f98c85f", l:"TECH_ROOM"     }
-];
-
-/* Mouse-driven light refraction on glass panels */
-document.addEventListener('mousemove', e => {
-    document.querySelectorAll('.glass').forEach(el => {
-        const r = el.getBoundingClientRect();
-        el.style.setProperty('--mx', `${((e.clientX - r.left) / r.width)  * 100}%`);
-        el.style.setProperty('--my', `${((e.clientY - r.top)  / r.height) * 100}%`);
+/* ── CURSOR ── */
+const cO=document.getElementById('cur-o'),cI=document.getElementById('cur-i'),cT=document.getElementById('cur-t');
+let mX=0,mY=0,oX=0,oY=0,tX=0,tY=0;
+const isMobile=window.innerWidth<680;const hasFinePt=window.matchMedia('(pointer:fine)').matches;
+if(!isMobile&&hasFinePt){
+  document.addEventListener('mousemove',e=>{
+    mX=e.clientX;mY=e.clientY;
+    cI.style.transform=`translate(${e.clientX-3.5}px,${e.clientY-3.5}px)`;
+    document.querySelectorAll('.glass').forEach(el=>{
+      const r=el.getBoundingClientRect();
+      el.style.setProperty('--mx',`${((e.clientX-r.left)/r.width)*100}%`);
+      el.style.setProperty('--my',`${((e.clientY-r.top)/r.height)*100}%`);
     });
+  });
+  document.addEventListener('mousedown',e=>{createRipple(e.clientX,e.clientY);spawnDrop(e.clientX,e.clientY);cI.style.transform=`translate(${e.clientX-3.5}px,${e.clientY-3.5}px) scale(.55)`;});
+  document.addEventListener('mouseup',e=>{cI.style.transform=`translate(${e.clientX-3.5}px,${e.clientY-3.5}px) scale(1)`;});
+  document.addEventListener('mouseover',e=>{
+    const hoverable=e.target.closest('button,.btn,.nav-item,.gallery-node,.pay-tab,.feature-card');
+    document.body.classList.toggle('cur-big',!!hoverable);
+  });
+  (function animCur(){oX+=(mX-oX)*.11;oY+=(mY-oY)*.11;tX+=(mX-tX)*.06;tY+=(mY-tY)*.06;
+    cO.style.transform=`translate(${oX-19}px,${oY-19}px)`;cT.style.transform=`translate(${tX-9}px,${tY-9}px)`;
+    requestAnimationFrame(animCur);
+  })();
+}
+
+function createRipple(x,y){const el=document.createElement('div');el.className='drop-rip';el.style.left=x+'px';el.style.top=y+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),1200);}
+
+/* ── BUTTON RIPPLE ── */
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.btn');if(!btn)return;
+  const r=btn.getBoundingClientRect(),s=document.createElement('span');s.className='btn-ripple';
+  const sz=Math.max(r.width,r.height)*2;
+  s.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX-r.left-sz/2}px;top:${e.clientY-r.top-sz/2}px;`;
+  btn.appendChild(s);setTimeout(()=>s.remove(),700);
 });
 
-/* ══ AUTH ══ */
-function runAuth() {
-    const u = document.getElementById('lU').value.trim().toLowerCase();
-    const p = document.getElementById('lP').value.trim();
-    const m = SYS_CREDENTIALS.find(x => x.u === u && x.p === p);
-    if (m) {
-        S.USER = m;
-        const lo = document.getElementById('loginOverlay');
-        lo.style.opacity = '0'; lo.style.pointerEvents = 'none';
-        setTimeout(() => lo.classList.add('hidden'), 900);
-        document.getElementById('sidebar').classList.remove('hidden');
-        document.getElementById('viewport').classList.remove('hidden');
-        document.getElementById('sys-user').innerText = m.name;
-        applyPermissions(m.role);
-        toast('Neural link established.');
-        audit('SEC: Auth OK for ' + m.u);
-        if      (m.role === 'admin')  morphTo('dashSec',   document.getElementById('ni-0'));
-        else if (m.role === 'doctor') morphTo('admitSec',  document.getElementById('ni-2'));
-        else if (m.role === 'pharm')  morphTo('pharmaSec', document.getElementById('ni-3'));
-        else                          morphTo('searchSec', document.getElementById('ni-6'));
-    } else {
-        document.getElementById('auth-msg').innerText = 'FATAL: BIOMETRIC MISMATCH.';
-        document.getElementById('auth-msg').style.animation = 'none';
-        setTimeout(() => document.getElementById('auth-msg').style.animation = '', 10);
-    }
-}
+/* ── PARTICLE ENGINE ── */
+const pCv=document.getElementById('particleCanvas'),pX=pCv.getContext('2d');
+let parts=[];
+function resizePart(){pCv.width=window.innerWidth;pCv.height=window.innerHeight;}
+resizePart();window.addEventListener('resize',resizePart);
+class Pt{constructor(){this.reset();}reset(){this.x=Math.random()*pCv.width;this.y=Math.random()*pCv.height;this.sz=Math.random()*2.5+.5;this.vx=(Math.random()-.5)*.5;this.vy=(Math.random()-.5)*.5;const c=['rgba(0,122,255,','rgba(88,86,214,','rgba(52,199,89,','rgba(90,200,250,'];this.c=c[Math.floor(Math.random()*c.length)];this.a=Math.random()*.35+.08;this.life=1;this.decay=Math.random()*.003+.001;}update(){const dx=mX-this.x,dy=mY-this.y,d=Math.sqrt(dx*dx+dy*dy);if(d<140){this.vx+=dx*.00012;this.vy+=dy*.00012;}this.x+=this.vx;this.y+=this.vy;this.vx*=.99;this.vy*=.99;this.life-=this.decay;if(this.life<=0||this.x<0||this.x>pCv.width||this.y<0||this.y>pCv.height)this.reset();}draw(){pX.beginPath();pX.arc(this.x,this.y,this.sz,0,Math.PI*2);pX.fillStyle=this.c+(this.a*this.life)+')';pX.fill();}}
+for(let i=0;i<70;i++)parts.push(new Pt());
+(function animP(){pX.clearRect(0,0,pCv.width,pCv.height);parts.forEach((p,i)=>{parts.slice(i+1).forEach(p2=>{const dx=p.x-p2.x,dy=p.y-p2.y,d=Math.sqrt(dx*dx+dy*dy);if(d<90){pX.beginPath();pX.strokeStyle=`rgba(0,122,255,${.05*(1-d/90)*p.life*p2.life})`;pX.lineWidth=.4;pX.moveTo(p.x,p.y);pX.lineTo(p2.x,p2.y);pX.stroke();}});p.update();p.draw();});requestAnimationFrame(animP);})();
 
-document.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !document.getElementById('loginOverlay').classList.contains('hidden')) runAuth();
-});
+/* ── CRYSTAL DROPS ── */
+const cCv=document.getElementById('crystalCanvas'),cC=cCv.getContext('2d');
+let drops=[];
+function resizeCrystal(){cCv.width=window.innerWidth;cCv.height=window.innerHeight;}
+resizeCrystal();window.addEventListener('resize',resizeCrystal);
+class Drop{constructor(x,y){this.x=x;this.y=y;this.r=0;this.maxR=180+Math.random()*120;this.sp=4+Math.random()*3;this.a=.75;this.rings=Math.floor(Math.random()*3)+2;this.h=Math.random()>.5?'0,122,255':'88,86,214';}
+update(){this.r+=this.sp;this.sp*=.97;this.a-=.013;}
+draw(){if(this.a<=0)return;for(let i=0;i<this.rings;i++){const r=this.r*(1-i*.18);if(r<=0)continue;cC.beginPath();cC.arc(this.x,this.y,r,0,Math.PI*2);cC.strokeStyle=`rgba(${this.h},${this.a*(1-i*.25)})`;cC.lineWidth=1.8-i*.3;cC.stroke();const g=cC.createRadialGradient(this.x,this.y,0,this.x,this.y,r);g.addColorStop(0,`rgba(${this.h},${this.a*.12*(1-i*.18)})`);g.addColorStop(1,`rgba(${this.h},0)`);cC.beginPath();cC.arc(this.x,this.y,r,0,Math.PI*2);cC.fillStyle=g;cC.fill();cC.beginPath();cC.arc(this.x,this.y,r,Math.PI*1.3,Math.PI*1.7);cC.strokeStyle=`rgba(255,255,255,${this.a*.55*(1-i*.25)})`;cC.lineWidth=2.5-i*.4;cC.stroke();}}
+isDead(){return this.a<=0;}}
+function spawnDrop(x,y){drops.push(new Drop(x,y));}
+setInterval(()=>{if(Math.random()>.45)spawnDrop(Math.random()*window.innerWidth,Math.random()*window.innerHeight);},2800);
+(function animD(){cC.clearRect(0,0,cCv.width,cCv.height);drops=drops.filter(d=>!d.isDead());drops.forEach(d=>{d.update();d.draw();});requestAnimationFrame(animD);})();
 
-function applyPermissions(role) {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.add('hidden'));
-    document.querySelectorAll('.ni-all').forEach(n => n.classList.remove('hidden'));
-    if (role === 'admin')  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('hidden'));
-    else if (role === 'doctor') document.querySelectorAll('.ni-doctor,.ni-clinical').forEach(n => n.classList.remove('hidden'));
-    else if (role === 'pharm')  document.querySelectorAll('.ni-pharm,.ni-clinical').forEach(n => n.classList.remove('hidden'));
-}
-
-/* ══ NAV MORPHING ══ */
-function morphTo(id, navEl) {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if (navEl) navEl.classList.add('active');
-
-    const blob = document.getElementById('nav-blob');
-    blob.style.opacity = '1';
-    blob.style.top = navEl ? navEl.offsetTop + 'px' : '0';
-
-    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-    const tgt = document.getElementById(id);
-    if (tgt) { tgt.classList.remove('hidden'); tgt.classList.remove('section-in'); void tgt.offsetWidth; tgt.classList.add('section-in'); }
-
-    if (id === 'dashSec')   updateDashboard();
-    if (id === 'hrSec')     renderRoster();
-    if (id === 'admitSec')  renderPatients();
-    if (id === 'financeSec') updateFinance();
-    if (id === 'galSec')    renderGallery();
-    if (id === 'gameSec')   initSnake();
-    refreshSelects();
-}
-
-/* ══ THEME ══ */
-function toggleTheme() {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('hms_v34_theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-    toast('Theme synchronized.');
-    if (S.USER && S.USER.role === 'admin') initChart();
-}
-
-/* ══ TOAST ══ */
-function toast(msg) {
-    const wrap = document.getElementById('toasts');
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.innerText = '⚡ ' + msg;
-    wrap.appendChild(el);
-    setTimeout(() => { el.style.opacity='0'; el.style.transform='translateX(110%)'; el.style.transition='all 0.4s'; setTimeout(()=>el.remove(),400); }, 3500);
-}
-
-/* ══ AI SYMPTOM ANALYZER ══ */
-function analyzeSymptoms() {
-    const s = document.getElementById('pSymptoms').value.toLowerCase();
-    const chip = document.getElementById('sectorChip');
-    const rules = [
-        { keys: ['chest','heart','breath'], sector: 'Cardiology Unit'   },
-        { keys: ['head','brain','seizure'], sector: 'Neurology Matrix'  },
-        { keys: ['bone','fracture','joint'],sector: 'Orthopedic Suite'  },
-        { keys: ['fever','cough','cold'],   sector: 'General Medicine'  },
-        { keys: ['blood','accident','cut'], sector: 'Trauma/Emergency'  }
-    ];
-    const hit = rules.find(r => r.keys.some(k => s.includes(k)));
-    if (s.length > 3 && hit) { document.getElementById('recText').innerText = hit.sector; chip.classList.add('active'); }
-    else chip.classList.remove('active');
-}
-
-function updateIntakeFields() {
-    const type = document.getElementById('pType').value;
-    const room = document.getElementById('pRoom');
-    room.disabled = type === 'checkup';
-    room.style.opacity = type === 'checkup' ? '0.35' : '1';
-    if (type === 'checkup') room.value = '0';
-}
-
-/* ══ HR ══ */
-function onboardStaff() {
-    const n  = document.getElementById('stName').value;
-    const sl = document.getElementById('stSalary').value;
-    if (!n || !sl) return toast('Registry nodes incomplete.');
-    S.ROSTER.push({ id: Date.now(), n, r: document.getElementById('stRole').value, s: parseFloat(sl), f: parseFloat(document.getElementById('stFee').value)||0, sp: document.getElementById('stSpec').value||'General', sh: document.getElementById('stShift').value, earnings: 0 });
-    save(); renderRoster(); toast('Professional node synchronized.'); audit('HR: '+n);
-    ['stName','stSalary','stFee','stSpec'].forEach(i => document.getElementById(i).value='');
-}
-
-function renderRoster() {
-    const m = document.getElementById('staffListMount');
-    let h = `<table><tr><th>Professional Identity</th><th>Role / Specialty</th><th>Earnings</th><th>Action</th></tr>`;
-    S.ROSTER.forEach(r => {
-        h += `<tr><td><strong>${r.n}</strong><br><small style="color:var(--text-3)">Shift: ${r.sh}</small></td><td>${r.r}<br><small style="color:var(--text-3)">${r.sp}</small></td><td style="color:var(--ios-green)">Rs ${r.earnings.toLocaleString()}</td><td><button onclick="voidStaff(${r.id})" class="btn btn-danger" style="padding:8px 16px;font-size:11px;">VOID</button></td></tr>`;
-    });
-    m.innerHTML = h + '</table>'; refreshDocSelect();
-}
-
-function voidStaff(id) { S.ROSTER = S.ROSTER.filter(x=>x.id!==id); save(); renderRoster(); }
-
-function refreshDocSelect() {
-    const sel = document.getElementById('pDocAssign'); if(!sel) return;
-    sel.innerHTML = '<option value="">Target Physician...</option>';
-    S.ROSTER.filter(r=>r.r.includes('Specialist')||r.r.includes('Surgeon')).forEach(d => sel.innerHTML += `<option value="${d.n}">${d.n} (${d.sp})</option>`);
-}
-
-/* ══ ADMISSIONS ══ */
-function admitPatient() {
-    const n = document.getElementById('pName').value; const doc = document.getElementById('pDocAssign').value;
-    if (!n||!doc) return toast('Bio-profile failure.');
-    const docObj = S.ROSTER.find(x=>x.n===doc);
-    S.PATIENTS.push({ id:Date.now(), name:n, age:document.getElementById('pAge').value, doc, roomPrice:parseInt(document.getElementById('pRoom').value), diagnosis:document.getElementById('pDiagnosis').value, blood:document.getElementById('pBlood').value, type:document.getElementById('pType').value, deposit:parseFloat(document.getElementById('pDeposit').value)||0, intakeDate:new Date(), status:'active', labCost:0, phaCost:0, f:docObj?docObj.f:0, prescription:'' });
-    save(); renderPatients(); toast('Bio-node intake successful.'); audit('CLINIC: '+n);
-    ['pName','pAge','pDiagnosis','pDeposit','pSymptoms'].forEach(i=>document.getElementById(i).value='');
-    document.getElementById('sectorChip').classList.remove('active'); refreshSelects();
-}
-
-function renderPatients() {
-    const m = document.getElementById('pListMount');
-    let active = S.PATIENTS.filter(p=>p.status==='active');
-    let h = `<table><tr><th>Bio-Node Identity</th><th>Type / Blood</th><th>Pending Doc Sync</th><th>Flux Outstanding</th></tr>`;
-    active.forEach(p => {
-        let b = calcBill(p);
-        h += `<tr><td><strong>${p.name}</strong><br><small style="color:var(--text-3)">Lead: ${p.doc}</small></td><td>${p.type.toUpperCase()}<br><small style="color:var(--text-3)">Group: ${p.blood}</small></td><td>${p.prescription?'<span class="rx-badge">PRESCRIPTION_PENDING</span>':'<small style="color:var(--ios-green)">Cleared</small>'}</td><td style="color:var(--ios-blue);font-weight:800;">Rs ${b.total.toLocaleString()}</td></tr>`;
-    });
-    m.innerHTML = h + '</table>';
-}
-
-/* ══ PRESCRIPTIONS ══ */
-function addPrescription() {
-    const pid = document.getElementById('prescPatSel').value; const med = document.getElementById('prescMedName').value.trim();
-    if (!pid||!med) return toast('Error: Target Identity Undefined.');
-    const idx = S.PATIENTS.findIndex(p=>p.id==pid);
-    S.PATIENTS[idx].prescription = med; save(); toast('Prescription committed.'); audit('Rx: '+med+' → '+S.PATIENTS[idx].name);
-    document.getElementById('prescMedName').value=''; renderPatients();
-}
-
-/* ══ PHARMACY ══ */
-function showPrescribed() {
-    const pid = document.getElementById('pharmaPSelect').value;
-    const view = document.getElementById('prescView'); const text = document.getElementById('prescVal');
-    if (!pid) return view.style.display='none';
-    const p = S.PATIENTS.find(x=>x.id==pid);
-    text.innerText = (p&&p.prescription) ? p.prescription : 'No Pending Prescriptions';
-    view.style.display = 'block';
-}
-
-function dispenseMed() {
-    const pid = document.getElementById('pharmaPSelect').value; const cost = parseInt(document.getElementById('pharmaMedCost').value);
-    if (!pid||isNaN(cost)) return toast('Error: Price Null or Identity Null.');
-    const idx = S.PATIENTS.findIndex(p=>p.id==pid);
-    S.PATIENTS[idx].phaCost += cost;
-    const med = S.PATIENTS[idx].prescription||'Compound Class-X'; S.PATIENTS[idx].prescription='';
-    save(); document.getElementById('pharmaLogMount').innerHTML += `> [${new Date().toLocaleTimeString()}] DISPENSED [${med}] → [${S.PATIENTS[idx].name}] Rs ${cost}<br>`; toast('Dispensed & Billed.'); showPrescribed(); document.getElementById('pharmaMedCost').value='';
-}
-
-/* ══ LAB ══ */
-function refreshSelects() {
-    const active = S.PATIENTS.filter(x=>x.status==='active');
-    ['pharmaPSelect','labPSelect','prescPatSel'].forEach(id => {
-        const s = document.getElementById(id); if(!s) return;
-        s.innerHTML = '<option value="">Select identity...</option>';
-        active.forEach(p=>s.innerHTML+=`<option value="${p.id}">${p.name}</option>`);
-    });
-}
-
-function issueLab() {
-    const pid = document.getElementById('labPSelect').value; const cost = parseInt(document.getElementById('labTestSelect').value);
-    if (!pid) return; const idx = S.PATIENTS.findIndex(p=>p.id==pid);
-    S.PATIENTS[idx].labCost += cost; save();
-    document.getElementById('labLogMount').innerHTML += `> [${new Date().toLocaleTimeString()}] SCAN DONE [${S.PATIENTS[idx].name}] Rs ${cost}<br>`; toast('Lab suite executed.');
-}
-
-/* ══ BILLING ══ */
-function calcBill(p) {
-    const days = Math.ceil((new Date()-new Date(p.intakeDate))/86400000)||1;
-    const sub = (p.type==='checkup'?0:(days*p.roomPrice))+p.labCost+p.phaCost+p.f;
-    const tax = sub*0.18;
-    return { s:sub, x:tax, total:Math.max(0,sub+tax-p.deposit) };
-}
-
-/* ══ FINANCE ══ */
-function updateFinance() {
-    if (S.USER.role!=='admin') return;
-    document.getElementById('fin-net').innerText   = 'Rs '+(S.FISCAL.rev-S.FISCAL.pay).toLocaleString();
-    document.getElementById('fin-gross').innerText = 'Rs '+S.FISCAL.rev.toLocaleString();
-    document.getElementById('fin-pay').innerText   = 'Rs '+S.FISCAL.pay.toLocaleString();
-    document.getElementById('fin-tax').innerText   = 'Rs '+(S.FISCAL.rev*0.18).toLocaleString();
-}
-function wipeFiscal() { if(confirm('VOID FISCAL MATRIX?')){S.FISCAL={rev:0,pay:0};save();updateFinance();} }
-
-/* ══ SEARCH & SETTLE ══ */
-function runSearch() {
-    const q = document.getElementById('searchBar').value.toLowerCase(); const m = document.getElementById('searchMount');
-    if (!q) { m.innerHTML=''; return; }
-    const hits = S.PATIENTS.filter(p=>p.name.toLowerCase().includes(q)&&p.status==='active');
-    let h = hits.map(p=>{
-        let b = calcBill(p);
-        let btn = S.USER.role==='admin' ? `<button class="btn btn-primary" onclick="settle(${p.id})">FINAL SETTLEMENT</button>` : `<div style="font-size:10px;color:var(--ios-red);font-weight:800;">ADMIN_AUTHORIZATION_REQUIRED</div>`;
-        return `<div class="glass section-in" style="padding:32px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;"><div class="glass-shine"></div><div><span class="stat-label">Identity Node</span><h3 style="font-size:20px;font-weight:800;margin-top:4px;">${p.name}</h3></div><div style="text-align:right;"><span class="stat-label">Active Flux Due</span><h3 style="color:var(--ios-blue);font-size:22px;font-weight:800;margin-top:4px;">Rs ${b.total.toLocaleString()}</h3></div>${btn}</div>`;
-    }).join('');
-    m.innerHTML = h || '<p style="text-align:center;opacity:0.3;font-weight:800;padding:40px;">NODE_NOT_RESOLVED.</p>';
-}
-
-function settle(id) {
-    if (S.USER.role!=='admin') return;
-    const idx = S.PATIENTS.findIndex(p=>p.id==id); const bill = calcBill(S.PATIENTS[idx]);
-    const comm = bill.s*0.15; const di = S.ROSTER.findIndex(d=>d.n===S.PATIENTS[idx].doc);
-    if (di!==-1) S.ROSTER[di].earnings+=comm;
-    S.FISCAL.rev+=bill.total; S.FISCAL.pay+=comm; S.PATIENTS[idx].status='discharged';
-    save(); renderInvoice(S.PATIENTS[idx],bill); runSearch(); audit('FIN: Discharge '+S.PATIENTS[idx].name);
-}
-
-function renderInvoice(p, b) {
-    document.getElementById('invoice-payload').innerText = `NODE: ${p.id}\nIDENTITY: ${p.name.toUpperCase()}\nPHYSICIAN: ${p.doc.toUpperCase()}\n─────────────────────\nWARD:  Rs ${(b.s-p.labCost-p.phaCost-p.f).toLocaleString()}\nDIAG:  Rs ${p.labCost.toLocaleString()}\nMEDS:  Rs ${p.phaCost.toLocaleString()}\nTAX:   Rs ${b.x.toLocaleString()}\n─────────────────────\nSETTLED: Rs ${b.total.toLocaleString()}`;
-    document.getElementById('modal-root').style.display='flex';
-}
-function closeModal() { document.getElementById('modal-root').style.display='none'; }
-
-/* ══ DASHBOARD ══ */
-function updateDashboard() {
-    if (S.USER.role!=='admin') return;
-    const active = S.PATIENTS.filter(p=>p.status==='active');
-    document.getElementById('dash-p-count').innerText = active.length;
-    const flux = active.reduce((a,c)=>a+calcBill(c).total, 0);
-    document.getElementById('dash-rev').innerText = 'Rs '+flux.toLocaleString();
-    document.getElementById('auditContainer').innerHTML = S.AUDIT.slice().reverse().join('<br>');
-    initChart();
-}
-
-function audit(msg) { S.AUDIT.push('> ['+new Date().toLocaleTimeString()+'] '+msg); if(S.AUDIT.length>80) S.AUDIT.shift(); save(); }
-
-/* ══ GALLERY ══ */
-function renderGallery() {
-    document.getElementById('galleryMount').innerHTML = IMAGES.map(i=>`<div class="gallery-node"><img src="${i.url}?auto=format&fit=crop&q=80&w=600" alt="${i.l}" loading="lazy"></div>`).join('');
-}
-
-/* ══ SAVE ══ */
-function save() {
-    localStorage.setItem('hms_v34_roster',   JSON.stringify(S.ROSTER));
-    localStorage.setItem('hms_v34_patients', JSON.stringify(S.PATIENTS));
-    localStorage.setItem('hms_v34_audit',    JSON.stringify(S.AUDIT));
-    localStorage.setItem('hms_v34_rev', S.FISCAL.rev);
-    localStorage.setItem('hms_v34_pay', S.FISCAL.pay);
-}
-
-/* ══ SNAKE ══ */
-function initSnake() {
-    const canvas=document.getElementById('snakeGame'); const ctx=canvas.getContext('2d');
-    let box=25, score=0, dir; let snake=[{x:9*box,y:10*box}];
-    let food={x:Math.floor(Math.random()*19)*box,y:Math.floor(Math.random()*19)*box};
+/* ── DOT GLOBE ── */
+(function initGlobe(){
+  const cv=document.getElementById('globeCanvas');if(!cv)return;
+  const ctx=cv.getContext('2d'),W=100,H=100,R=38,DOTS=420;
+  let angle=0;
+  const pts=[];
+  for(let i=0;i<DOTS;i++){const phi=Math.acos(-1+2*i/DOTS),theta=Math.PI*(1+Math.sqrt(5))*i;pts.push({phi,theta});}
+  function draw(){
+    ctx.clearRect(0,0,W,H);angle+=.006;
+    const sorted=[...pts].map(p=>{
+      const sinPhi=Math.sin(p.phi),cosPhi=Math.cos(p.phi);
+      const sinT=Math.sin(p.theta+angle),cosT=Math.cos(p.theta+angle);
+      const x3=R*sinPhi*cosT,y3=R*cosPhi,z3=R*sinPhi*sinT;
+      return{x:W/2+x3,y:H/2+y3,z:z3};
+    }).sort((a,b)=>a.z-b.z);
     const dark=document.body.classList.contains('dark');
-    document.onkeydown=e=>{if(e.keyCode==37&&dir!='RIGHT')dir='LEFT';else if(e.keyCode==38&&dir!='DOWN')dir='UP';else if(e.keyCode==39&&dir!='LEFT')dir='RIGHT';else if(e.keyCode==40&&dir!='UP')dir='DOWN';};
-    function draw(){
-        ctx.fillStyle=dark?'#1c1c1e':'rgba(242,242,247,0.8)';ctx.fillRect(0,0,500,500);
-        snake.forEach((s,i)=>{ctx.fillStyle=i===0?'#007aff':(dark?'#48484a':'#c7c7cc');ctx.beginPath();ctx.roundRect(s.x+1,s.y+1,box-2,box-2,6);ctx.fill();});
-        ctx.fillStyle='#ff3b30';ctx.beginPath();ctx.roundRect(food.x+1,food.y+1,box-2,box-2,8);ctx.fill();
-        let hX=snake[0].x,hY=snake[0].y;
-        if(dir=='LEFT')hX-=box;if(dir=='UP')hY-=box;if(dir=='RIGHT')hX+=box;if(dir=='DOWN')hY+=box;
-        if(hX==food.x&&hY==food.y){score++;document.getElementById('snakeScore').innerText=score;food={x:Math.floor(Math.random()*19)*box,y:Math.floor(Math.random()*19)*box};}else snake.pop();
-        if(hX<0||hX>=500||hY<0||hY>=500){clearInterval(window.snakeT);toast('Reflex Failure.');}
-        snake.unshift({x:hX,y:hY});
-    }
-    clearInterval(window.snakeT); window.snakeT=setInterval(draw,115);
+    sorted.forEach(p=>{
+      const t=(p.z+R)/(2*R);const sz=.6+t*1.6;
+      const alpha=dark?(0.15+t*.7):(0.12+t*.6);
+      ctx.beginPath();ctx.arc(p.x,p.y,sz,0,Math.PI*2);
+      ctx.fillStyle=dark?`rgba(0,170,255,${alpha})`:`rgba(0,122,255,${alpha})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── TILT CARDS ── */
+if(!isMobile&&hasFinePt){
+  document.addEventListener('mousemove',e=>{
+    document.querySelectorAll('.tilt-card').forEach(card=>{
+      const rect=card.getBoundingClientRect();
+      const dx=(e.clientX-rect.left-rect.width/2)/rect.width;
+      const dy=(e.clientY-rect.top-rect.height/2)/rect.height;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<.75)card.style.transform=`perspective(700px) rotateX(${-dy*5}deg) rotateY(${dx*5}deg) translateZ(3px)`;
+      else card.style.transform='';
+    });
+  });
 }
 
-/* ══ CHART ══ */
-function initChart() {
-    const ctx=document.getElementById('mainChart').getContext('2d');
-    if(window.myChart) window.myChart.destroy();
-    const isDark=document.body.classList.contains('dark');
-    window.myChart=new Chart(ctx,{type:'line',data:{labels:['00:00','04:00','08:00','12:00','16:00','20:00'],datasets:[{data:[35,60,45,95,75,90],borderColor:'#007aff',fill:true,backgroundColor:isDark?'rgba(0,122,255,0.08)':'rgba(0,122,255,0.05)',tension:0.45,borderWidth:3,pointRadius:0}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});
+/* ── CLOCK / DATE ── */
+function updateClock(){
+  const n=new Date();
+  const pad=v=>v.toString().padStart(2,'0');
+  const el=document.getElementById('live-clock');if(el)el.textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  const de=document.getElementById('live-date');if(de){const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];de.textContent=`${days[n.getDay()]}, ${n.getDate()} ${months[n.getMonth()]} ${n.getFullYear()}`;}
+}
+setInterval(updateClock,1000);updateClock();
+
+/* ── HEARTBEAT ── */
+const hbCv=document.getElementById('hb-canvas'),hbC=hbCv?hbCv.getContext('2d'):null;
+hbCv&&(hbCv.width=72,hbCv.height=22);let hbD=Array(36).fill(11),hbT=0;
+if(hbC)setInterval(()=>{hbT++;const v=11+Math.sin(hbT*.28)*4+(Math.random()-.5)*5;hbD.push(v);hbD.shift();hbC.clearRect(0,0,72,22);hbC.beginPath();hbD.forEach((h,i)=>{i===0?hbC.moveTo(0,h):hbC.lineTo(i*2,h);});hbC.strokeStyle='#34c759';hbC.lineWidth=1.5;hbC.stroke();},55);
+
+/* ── STATE ── */
+const CREDS=[{u:'admin',p:'admin',role:'admin',name:'Administrator'},{u:'doc',p:'123',role:'doctor',name:'Dr. Samip'},{u:'pharm',p:'123',role:'pharm',name:'Lead Pharmacist'},{u:'user',p:'0',role:'user',name:'Guest Portal'}];
+let S={ROSTER:JSON.parse(localStorage.getItem('hms_v34_roster'))||[],PATIENTS:JSON.parse(localStorage.getItem('hms_v34_patients'))||[],AUDIT:JSON.parse(localStorage.getItem('hms_v34_audit'))||[],FISCAL:{rev:parseFloat(localStorage.getItem('hms_v34_rev'))||0,pay:parseFloat(localStorage.getItem('hms_v34_pay'))||0},USER:null};
+
+const IMAGES=[
+  {url:'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d',l:'FACILITY MAIN'},
+  {url:'https://images.unsplash.com/photo-1516549655169-df83a0774514',l:'CRYSTAL WARD'},
+  {url:'https://images.unsplash.com/photo-1586773860418-d37222d8fce2',l:'NEURAL LAB'},
+  {url:'https://images.unsplash.com/photo-1512678080530-7760d81faba6',l:'ATRIUM NORTH'},
+  {url:'https://images.unsplash.com/photo-1551076805-e1869033e561',l:'ICU SYNC'},
+  {url:'https://images.unsplash.com/photo-1579684385127-1ef15d508118',l:'PHARMA CORE'},
+  {url:'https://images.unsplash.com/photo-1581594632702-f235ae89b022',l:'DNA MATRIX'},
+  {url:'https://images.unsplash.com/photo-1505751172107-57324a0834d8',l:'TECH ROOM'},
+  {url:'https://images.unsplash.com/photo-1538108197017-c1c9868bb2e3',l:'SURGERY UNIT'},
+  {url:'https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b',l:'RECOVERY'},
+  {url:'https://images.unsplash.com/photo-1527613426441-4da17471b66d',l:'AMBULANCE'},
+  {url:'https://images.unsplash.com/photo-1504813184591-01572f98c85f',l:'LAB TECH'},
+];
+
+/* ── AUTH ── */
+function quickLogin(u,p){document.getElementById('lU').value=u;document.getElementById('lP').value=p;runAuth();}
+
+function runAuth(){
+  const u=document.getElementById('lU').value.trim().toLowerCase();
+  const p=document.getElementById('lP').value.trim();
+  const msg=document.getElementById('auth-msg');
+  // Validate not empty
+  if(!u||!p){msg.textContent='⚠ Please enter username and password.';return;}
+  const m=CREDS.find(x=>x.u===u&&x.p===p);
+  if(m){
+    S.USER=m;msg.textContent='';
+    const lo=document.getElementById('loginOverlay');
+    lo.classList.add('out');setTimeout(()=>lo.classList.add('hidden'),950);
+    document.getElementById('sidebar').classList.remove('hidden');
+    document.getElementById('viewport').classList.remove('hidden');
+    document.getElementById('sys-user').textContent=m.name;
+    document.getElementById('sys-role').innerHTML=`<span class="pulse-dot" style="margin-right:4px;"></span>${m.role.toUpperCase()} ACTIVE`;
+    applyPermissions(m.role);toast('⚡ Neural link: '+m.name,'green');audit('AUTH: '+m.u);
+    if(m.role==='admin')morphTo('dashSec',document.getElementById('ni-0'));
+    else if(m.role==='doctor')morphTo('admitSec',document.getElementById('ni-2'));
+    else if(m.role==='pharm')morphTo('pharmaSec',document.getElementById('ni-3'));
+    else morphTo('searchSec',document.getElementById('ni-6'));
+    for(let i=0;i<4;i++)setTimeout(()=>spawnDrop(Math.random()*window.innerWidth,Math.random()*window.innerHeight),i*220);
+  }else{
+    msg.textContent='⚠ Invalid username or password.';
+    const card=document.querySelector('.login-card');
+    card.style.animation='none';card.offsetWidth;card.style.animation='shake .5s ease';
+  }
+}
+const sk=document.createElement('style');sk.textContent='@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-10px);}40%{transform:translateX(10px);}60%{transform:translateX(-7px);}80%{transform:translateX(7px);}}';document.head.appendChild(sk);
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('loginOverlay').classList.contains('hidden'))runAuth();});
+
+/* ── PERMISSIONS ── */
+function applyPermissions(role){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.add('hidden'));
+  document.querySelectorAll('.ni-all').forEach(n=>n.classList.remove('hidden'));
+  if(role==='admin')document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('hidden'));
+  else if(role==='doctor')document.querySelectorAll('.ni-doctor,.ni-clinical,.ni-all').forEach(n=>n.classList.remove('hidden'));
+  else if(role==='pharm')document.querySelectorAll('.ni-pharm,.ni-clinical,.ni-all').forEach(n=>n.classList.remove('hidden'));
 }
 
-/* ══ INIT ══ */
-if (localStorage.getItem('hms_v34_theme')==='dark') document.body.classList.add('dark');
+/* ── NAV MORPH ── */
+function morphTo(id,navEl){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(navEl)navEl.classList.add('active');
+  const blob=document.getElementById('nav-blob');
+  blob.style.opacity='1';blob.style.top=(navEl?navEl.offsetTop:0)+'px';
+  document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
+  const tgt=document.getElementById(id);
+  if(tgt){tgt.classList.remove('hidden');tgt.classList.remove('section-in');void tgt.offsetWidth;tgt.classList.add('section-in');}
+  if(id==='dashSec')updateDashboard();if(id==='hrSec')renderRoster();if(id==='admitSec')renderPatients();
+  if(id==='financeSec')updateFinance();if(id==='galSec')renderGallery();if(id==='gameSec')initSnake();
+  if(id==='featSec')renderFeatGallery();
+  refreshSelects();spawnDrop(55+Math.random()*180,180+Math.random()*360);
+}
+
+/* ── THEME ── */
+function toggleTheme(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem('hms_v34_theme',document.body.classList.contains('dark')?'dark':'light');
+  toast('🌙 Theme synced');if(S.USER&&S.USER.role==='admin')initChart();
+}
+
+/* ── TOAST ── */
+function toast(msg,color){
+  const w=document.getElementById('toasts'),el=document.createElement('div');el.className='toast';
+  if(color==='green')el.style.borderColor='rgba(52,199,89,.45)';
+  el.innerHTML=`<span>⚡</span>${msg}`;w.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(120%) scale(.9)';el.style.transition='all .4s var(--ease)';setTimeout(()=>el.remove(),420);},3200);
+}
+
+/* ── AI SYMPTOMS ── */
+function analyzeSymptoms(){
+  const s=document.getElementById('pSymptoms').value.toLowerCase();
+  const chip=document.getElementById('sectorChip');
+  const rules=[
+    {keys:['chest','heart','breath','palpitation'],sector:'Cardiology'},
+    {keys:['head','brain','seizure','migraine'],sector:'Neurology'},
+    {keys:['bone','fracture','joint','ortho'],sector:'Orthopedics'},
+    {keys:['fever','cough','cold','flu'],sector:'General Medicine'},
+    {keys:['blood','accident','cut','trauma'],sector:'Trauma / ER'},
+    {keys:['stomach','abdomen','gastro','vomit'],sector:'Gastroenterology'},
+    {keys:['skin','rash','allergy'],sector:'Dermatology'},
+    {keys:['eye','vision'],sector:'Ophthalmology'},
+    {keys:['ear','nose','throat'],sector:'ENT'},
+    {keys:['kidney','urine'],sector:'Nephrology'},
+  ];
+  const hit=rules.find(r=>r.keys.some(k=>s.includes(k)));
+  if(s.length>3&&hit){document.getElementById('recText').textContent=hit.sector;chip.classList.add('active');}
+  else chip.classList.remove('active');
+}
+function updateIntakeFields(){const t=document.getElementById('pType').value,r=document.getElementById('pRoom');r.disabled=t==='checkup';r.style.opacity=t==='checkup'?.35:1;if(t==='checkup')r.value='0';}
+
+/* ── HR ── */
+function onboardStaff(){
+  const n=document.getElementById('stName').value,sl=document.getElementById('stSalary').value;
+  if(!n||!sl)return toast('⚠ Fill all required fields.');
+  S.ROSTER.push({id:Date.now(),n,r:document.getElementById('stRole').value,s:parseFloat(sl),f:parseFloat(document.getElementById('stFee').value)||0,sp:document.getElementById('stSpec').value||'General',sh:document.getElementById('stShift').value,earnings:0});
+  save();renderRoster();toast('✅ Staff added.');audit('HR: '+n);
+  ['stName','stSalary','stFee','stSpec'].forEach(i=>document.getElementById(i).value='');
+}
+function renderRoster(){
+  const m=document.getElementById('staffListMount');
+  let h=`<table><tr><th>Name</th><th>Role</th><th>Shift</th><th>Earnings</th><th>Action</th></tr>`;
+  if(!S.ROSTER.length)h+=`<tr><td colspan="5" style="text-align:center;opacity:.4;padding:30px 0;">No staff registered</td></tr>`;
+  S.ROSTER.forEach(r=>{h+=`<tr><td><strong>${r.n}</strong><br><small style="color:var(--text-3)">${r.sp}</small></td><td><span class="badge badge-blue">${r.r}</span></td><td><span class="badge badge-green">${r.sh}</span></td><td style="color:var(--ios-green);font-weight:800;">Rs ${r.earnings.toLocaleString()}</td><td><button onclick="voidStaff(${r.id})" class="btn btn-danger" style="padding:7px 14px;font-size:11px;">✕</button></td></tr>`;});
+  m.innerHTML=h+'</table>';refreshDocSelect();
+  const ds=document.getElementById('dash-staff');if(ds)ds.textContent=S.ROSTER.length;
+}
+function voidStaff(id){S.ROSTER=S.ROSTER.filter(x=>x.id!==id);save();renderRoster();toast('Staff removed.');}
+function refreshDocSelect(){const sel=document.getElementById('pDocAssign');if(!sel)return;sel.innerHTML='<option value="">Select physician…</option>';S.ROSTER.filter(r=>r.r.includes('Specialist')||r.r.includes('Surgeon')).forEach(d=>sel.innerHTML+=`<option value="${d.n}">${d.n} (${d.sp})</option>`);}
+
+/* ── ADMISSIONS ── */
+function admitPatient(){
+  const n=document.getElementById('pName').value,doc=document.getElementById('pDocAssign').value;
+  if(!n||!doc)return toast('⚠ Fill patient name and assign a physician.');
+  const docObj=S.ROSTER.find(x=>x.n===doc);
+  S.PATIENTS.push({id:Date.now(),name:n,age:document.getElementById('pAge').value,doc,roomPrice:parseInt(document.getElementById('pRoom').value),diagnosis:document.getElementById('pDiagnosis').value,blood:document.getElementById('pBlood').value,type:document.getElementById('pType').value,deposit:parseFloat(document.getElementById('pDeposit').value)||0,intakeDate:new Date(),status:'active',labCost:0,phaCost:0,f:docObj?docObj.f:0,prescription:''});
+  save();renderPatients();toast('✅ Patient admitted.');audit('CLINIC: '+n);
+  ['pName','pAge','pDiagnosis','pDeposit','pSymptoms'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('sectorChip').classList.remove('active');refreshSelects();
+  for(let i=0;i<3;i++)setTimeout(()=>spawnDrop(Math.random()*window.innerWidth,Math.random()*window.innerHeight),i*180);
+}
+function renderPatients(){
+  const m=document.getElementById('pListMount');
+  const active=S.PATIENTS.filter(p=>p.status==='active');
+  let h=`<table><tr><th>Name</th><th>Type/Blood</th><th>Prescription</th><th>Balance</th></tr>`;
+  if(!active.length)h+=`<tr><td colspan="4" style="text-align:center;opacity:.4;padding:28px 0;">No active patients</td></tr>`;
+  active.forEach(p=>{const b=calcBill(p);h+=`<tr><td><strong>${p.name}</strong><br><small style="color:var(--text-3)">${p.doc}</small></td><td>${p.type.toUpperCase()}<br><small style="color:var(--text-3)">${p.blood}</small></td><td>${p.prescription?'<span class="rx-badge">⚠ RX PENDING</span>':'<small style="color:var(--ios-green)">✓ Clear</small>'}</td><td style="color:var(--ios-blue);font-weight:800;">Rs ${b.total.toLocaleString()}</td></tr>`;});
+  m.innerHTML=h+'</table>';
+  const dx=document.getElementById('dash-rx');if(dx)dx.textContent=active.filter(p=>p.prescription).length;
+}
+
+/* ── PRESCRIPTIONS ── */
+function addPrescription(){
+  const pid=document.getElementById('prescPatSel').value,med=document.getElementById('prescMedName').value.trim();
+  if(!pid||!med)return toast('⚠ Select patient and enter medicine.');
+  const idx=S.PATIENTS.findIndex(p=>p.id==pid);S.PATIENTS[idx].prescription=med;save();toast('💊 Prescribed: '+med);audit('Rx: '+med);document.getElementById('prescMedName').value='';renderPatients();
+}
+
+/* ── PHARMACY ── */
+function showPrescribed(){
+  const pid=document.getElementById('pharmaPSelect').value,view=document.getElementById('prescView');
+  if(!pid)return(view.style.display='none');
+  const p=S.PATIENTS.find(x=>x.id==pid);document.getElementById('prescVal').textContent=(p&&p.prescription)?p.prescription:'No pending prescription';view.style.display='block';
+}
+function dispenseMed(){
+  const pid=document.getElementById('pharmaPSelect').value,cost=parseInt(document.getElementById('pharmaMedCost').value);
+  if(!pid||isNaN(cost))return toast('⚠ Select patient and enter price.');
+  const idx=S.PATIENTS.findIndex(p=>p.id==pid);S.PATIENTS[idx].phaCost+=cost;
+  const med=S.PATIENTS[idx].prescription||'Compound';S.PATIENTS[idx].prescription='';
+  save();document.getElementById('pharmaLogMount').innerHTML+=`<span style="color:var(--ios-green)">></span> [${new Date().toLocaleTimeString()}] DISPENSED [${med}] → ${S.PATIENTS[idx].name} · Rs ${cost}<br>`;
+  toast('✅ Dispensed & billed.');showPrescribed();document.getElementById('pharmaMedCost').value='';spawnDrop(window.innerWidth*.4,window.innerHeight*.5);
+}
+
+/* ── LAB ── */
+function refreshSelects(){
+  const active=S.PATIENTS.filter(x=>x.status==='active');
+  ['pharmaPSelect','labPSelect','prescPatSel'].forEach(id=>{const s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="">Select patient…</option>';active.forEach(p=>s.innerHTML+=`<option value="${p.id}">${p.name}</option>`);});
+}
+function issueLab(){
+  const pid=document.getElementById('labPSelect').value,cost=parseInt(document.getElementById('labTestSelect').value);
+  if(!pid)return toast('⚠ Select a patient first.');
+  const idx=S.PATIENTS.findIndex(p=>p.id==pid);S.PATIENTS[idx].labCost+=cost;save();
+  const tn=document.getElementById('labTestSelect').options[document.getElementById('labTestSelect').selectedIndex].text;
+  document.getElementById('labLogMount').innerHTML+=`<span style="color:var(--ios-teal)">></span> [${new Date().toLocaleTimeString()}] ${tn} → ${S.PATIENTS[idx].name} · Rs ${cost}<br>`;
+  toast('🔬 Lab executed.');spawnDrop(window.innerWidth*.65,window.innerHeight*.5);
+}
+
+/* ── BILLING ── */
+function calcBill(p){const days=Math.ceil((new Date()-new Date(p.intakeDate))/86400000)||1;const sub=(p.type==='checkup'?0:(days*p.roomPrice))+p.labCost+p.phaCost+p.f;const tax=sub*.18;return{s:sub,x:tax,total:Math.max(0,sub+tax-p.deposit)};}
+
+/* ── PAYMENT FLOW ── */
+let _pendingPatient=null,_pendingBill=null,_payMode=null;
+
+function settle(id){
+  if(S.USER.role!=='admin')return;
+  const idx=S.PATIENTS.findIndex(p=>p.id==id);
+  _pendingPatient=S.PATIENTS[idx];_pendingBill=calcBill(_pendingPatient);_payMode=null;
+  document.getElementById('modal-title').textContent='Payment Terminal';
+  document.getElementById('modal-sub').textContent=`${_pendingPatient.name} · Due: Rs ${_pendingBill.total.toLocaleString()}`;
+  document.getElementById('phase-pay').style.display='block';
+  document.getElementById('phase-invoice').classList.remove('show');document.getElementById('phase-invoice').style.display='none';
+  document.getElementById('qr-area').classList.remove('show');document.getElementById('cash-area').classList.remove('show');
+  document.getElementById('tab-cash').classList.remove('selected');document.getElementById('tab-qr').classList.remove('selected');
+  document.getElementById('btn-print').style.display='none';
+  document.getElementById('cash-tendered').value='';document.getElementById('change-row').style.display='none';
+  document.getElementById('cash-due').textContent='Rs '+_pendingBill.total.toLocaleString();
+  document.getElementById('modal-root').style.display='flex';
+}
+
+function selectPay(mode){
+  _payMode=mode;
+  document.getElementById('tab-cash').classList.toggle('selected',mode==='cash');
+  document.getElementById('tab-qr').classList.toggle('selected',mode==='qr');
+  document.getElementById('qr-area').classList.remove('show');document.getElementById('cash-area').classList.remove('show');
+  if(mode==='qr'){document.getElementById('qr-area').classList.add('show');generateQR();}
+  else{document.getElementById('cash-area').classList.add('show');}
+}
+
+function generateQR(){
+  if(!_pendingBill)return;
+  const upiId='hms-enterprise@upi';
+  const name='HMS Enterprise';
+  const amt=_pendingBill.total;
+  const ref='HMS'+Date.now().toString().slice(-8);
+  const upiStr=`upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amt}&cu=INR&tn=${encodeURIComponent('HMS Bill #'+ref)}`;
+  document.getElementById('qr-upi-str').textContent=`UPI: ${upiId} · Rs ${amt.toLocaleString()} · Ref: ${ref}`;
+  if(window.QRCode){
+    const cv=document.getElementById('qrCanvas');
+    QRCode.toCanvas(cv,upiStr,{width:180,margin:2,color:{dark:'#1c1c1e',light:'#ffffff'}},err=>{if(err)console.warn(err);});
+  }
+}
+
+function calcChange(){
+  const due=_pendingBill?_pendingBill.total:0;
+  const tendered=parseFloat(document.getElementById('cash-tendered').value)||0;
+  const change=tendered-due;
+  const row=document.getElementById('change-row');
+  if(tendered>0){row.style.display='flex';document.getElementById('cash-change').textContent=change>=0?`Rs ${change.toLocaleString()}`:`⚠ Short by Rs ${Math.abs(change).toLocaleString()}`;}
+  else row.style.display='none';
+}
+
+function confirmPay(){
+  if(!_pendingPatient)return;
+  const comm=_pendingBill.s*.15;
+  const di=S.ROSTER.findIndex(d=>d.n===_pendingPatient.doc);
+  if(di!==-1)S.ROSTER[di].earnings+=comm;
+  S.FISCAL.rev+=_pendingBill.total;S.FISCAL.pay+=comm;_pendingPatient.status='discharged';save();
+  audit('FIN: Settled '+_pendingPatient.name);runSearch();
+  // Show invoice
+  document.getElementById('phase-pay').style.display='none';
+  document.getElementById('phase-invoice').style.display='block';document.getElementById('phase-invoice').classList.add('show');
+  const methodLabel=_payMode==='qr'?'📱 UPI / QR Code':'💵 Cash Payment';
+  document.getElementById('pay-method-label').textContent=methodLabel;
+  const p=_pendingPatient,b=_pendingBill;
+  document.getElementById('inv-payload').textContent=`HOSPITAL MANAGEMENT SYSTEM
+HMS Enterprise v26.3 · Liquid Crystal
+
+PATIENT RECEIPT
+────────────────────────────────
+Patient:    ${p.name}
+Age:        ${p.age||'—'} yrs
+Blood:      ${p.blood}
+Doctor:     ${p.doc}
+Admission:  ${new Date(p.intakeDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+Type:       ${p.type.toUpperCase()}
+────────────────────────────────
+Ward Charges:   Rs ${(b.s-p.labCost-p.phaCost-p.f).toLocaleString()}
+Lab & Diagnostics: Rs ${p.labCost.toLocaleString()}
+Pharmacy:        Rs ${p.phaCost.toLocaleString()}
+Consultation:    Rs ${p.f.toLocaleString()}
+                 ──────────────
+Sub-Total:       Rs ${b.s.toLocaleString()}
+GST (18%):       Rs ${b.x.toLocaleString()}
+Deposit Paid:   -Rs ${p.deposit.toLocaleString()}
+                 ──────────────
+TOTAL PAID:      Rs ${b.total.toLocaleString()}
+────────────────────────────────
+Payment Method: ${_payMode==='qr'?'UPI / QR Code':'Cash'}
+Status: SETTLED ✓`;
+  document.getElementById('inv-timestamp').textContent='Issued: '+new Date().toLocaleString('en-IN');
+  document.getElementById('modal-title').textContent='Payment Complete';document.getElementById('modal-sub').textContent='Receipt generated';
+  document.getElementById('btn-print').style.display='flex';
+  for(let i=0;i<6;i++)setTimeout(()=>spawnDrop(Math.random()*window.innerWidth,Math.random()*window.innerHeight),i*140);
+}
+
+function closeModal(){document.getElementById('modal-root').style.display='none';_pendingPatient=null;_pendingBill=null;}
+
+/* ── FINANCE ── */
+function updateFinance(){
+  if(S.USER.role!=='admin')return;
+  document.getElementById('fin-net').textContent='Rs '+(S.FISCAL.rev-S.FISCAL.pay).toLocaleString();
+  document.getElementById('fin-gross').textContent='Rs '+S.FISCAL.rev.toLocaleString();
+  document.getElementById('fin-pay').textContent='Rs '+S.FISCAL.pay.toLocaleString();
+  document.getElementById('fin-tax').textContent='Rs '+(S.FISCAL.rev*.18).toLocaleString();
+  const mx=Math.max(S.FISCAL.rev,1);
+  const rb=document.getElementById('rev-bar');const pb=document.getElementById('pay-bar');
+  if(rb)rb.style.width=Math.min(100,(S.FISCAL.rev/mx)*100)+'%';
+  if(pb)pb.style.width=Math.min(100,(S.FISCAL.pay/S.FISCAL.rev)*100||0)+'%';
+}
+function wipeFiscal(){if(confirm('⚠ Wipe all fiscal data? Cannot be undone.')){S.FISCAL={rev:0,pay:0};save();updateFinance();toast('💥 Fiscal ledger cleared.');}}
+
+/* ── SEARCH / SETTLE ── */
+function runSearch(){
+  const q=document.getElementById('searchBar').value.toLowerCase(),m=document.getElementById('searchMount');
+  if(!q){m.innerHTML='';return;}
+  const hits=S.PATIENTS.filter(p=>p.name.toLowerCase().includes(q)&&p.status==='active');
+  m.innerHTML=hits.map(p=>{const b=calcBill(p);const btn=S.USER.role==='admin'?`<button class="btn btn-primary" onclick="settle(${p.id})" style="padding:12px 20px;">💳 Settle</button>`:`<div style="font-size:10px;color:var(--ios-red);font-weight:800;">ADMIN REQUIRED</div>`;return`<div class="glass section-in" style="padding:28px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;"><div class="glass-shine"></div><div class="glass-spec"></div><div><span class="stat-label">Patient</span><h3 style="font-size:20px;font-weight:800;margin-top:3px;">${p.name}</h3><small style="color:var(--text-3)">${p.type.toUpperCase()} · ${p.blood}</small></div><div style="text-align:right;"><span class="stat-label">Balance Due</span><h3 style="color:var(--ios-blue);font-size:24px;font-weight:900;margin-top:3px;letter-spacing:-1px;">Rs ${b.total.toLocaleString()}</h3></div>${btn}</div>`;}).join('')||'<p style="text-align:center;opacity:.3;font-weight:800;padding:50px;font-size:18px;">No patient found.</p>';
+}
+
+/* ── DASHBOARD ── */
+function updateDashboard(){
+  if(S.USER.role!=='admin')return;
+  const active=S.PATIENTS.filter(p=>p.status==='active');
+  document.getElementById('dash-p-count').textContent=active.length;
+  document.getElementById('dash-rev').textContent='Rs '+active.reduce((a,c)=>a+calcBill(c).total,0).toLocaleString();
+  const ds=document.getElementById('dash-staff');if(ds)ds.textContent=S.ROSTER.length;
+  const dx=document.getElementById('dash-rx');if(dx)dx.textContent=active.filter(p=>p.prescription).length;
+  document.getElementById('auditContainer').innerHTML=S.AUDIT.slice().reverse().slice(0,30).join('<br>');
+  initChart();
+}
+function audit(msg){S.AUDIT.push('> ['+new Date().toLocaleTimeString()+'] '+msg);if(S.AUDIT.length>100)S.AUDIT.shift();save();}
+
+/* ── GALLERY ── */
+function renderGallery(){document.getElementById('galleryMount').innerHTML=IMAGES.map(i=>`<div class="gallery-node" data-label="${i.l}"><img src="${i.url}?auto=format&fit=crop&q=75&w=500" alt="${i.l}" loading="lazy"></div>`).join('');}
+function renderFeatGallery(){const el=document.getElementById('hScrollGallery');if(!el)return;el.innerHTML=IMAGES.slice(0,8).map(i=>`<div class="hs-card"><img src="${i.url}?auto=format&fit=crop&q=65&w=360" alt="${i.l}" loading="lazy" style="border-radius:18px;"></div>`).join('');}
+
+/* ── SAVE ── */
+function save(){localStorage.setItem('hms_v34_roster',JSON.stringify(S.ROSTER));localStorage.setItem('hms_v34_patients',JSON.stringify(S.PATIENTS));localStorage.setItem('hms_v34_audit',JSON.stringify(S.AUDIT));localStorage.setItem('hms_v34_rev',S.FISCAL.rev);localStorage.setItem('hms_v34_pay',S.FISCAL.pay);}
+
+/* ── SNAKE ── */
+function initSnake(){
+  const cv=document.getElementById('snakeGame'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,box=Math.floor(W/20);
+  let score=0,dir,snake=[{x:9*box,y:10*box}],food={x:Math.floor(Math.random()*19)*box,y:Math.floor(Math.random()*19)*box};
+  const dark=document.body.classList.contains('dark');
+  document.onkeydown=e=>{if(e.key==='ArrowLeft'&&dir!=='RIGHT')dir='LEFT';else if(e.key==='ArrowUp'&&dir!=='DOWN')dir='UP';else if(e.key==='ArrowRight'&&dir!=='LEFT')dir='RIGHT';else if(e.key==='ArrowDown'&&dir!=='UP')dir='DOWN';};
+  function draw(){
+    ctx.fillStyle=dark?'rgba(0,0,0,.88)':'rgba(242,242,247,.88)';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle=dark?'rgba(255,255,255,.025)':'rgba(0,0,0,.03)';ctx.lineWidth=.5;
+    for(let i=0;i<=W;i+=box){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(W,i);ctx.stroke();}
+    snake.forEach((s,i)=>{ctx.shadowColor=i===0?'rgba(0,122,255,.6)':'transparent';ctx.shadowBlur=i===0?10:0;ctx.fillStyle=i===0?'#007aff':(dark?'#48484a':'#c7c7cc');ctx.beginPath();ctx.roundRect(s.x+2,s.y+2,box-4,box-4,5);ctx.fill();ctx.shadowBlur=0;});
+    ctx.shadowColor='rgba(255,59,48,.6)';ctx.shadowBlur=8;ctx.fillStyle='#ff3b30';ctx.beginPath();ctx.arc(food.x+box/2,food.y+box/2,box/2-3,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    let hx=snake[0].x,hy=snake[0].y;
+    if(dir==='LEFT')hx-=box;if(dir==='UP')hy-=box;if(dir==='RIGHT')hx+=box;if(dir==='DOWN')hy+=box;
+    if(hx===food.x&&hy===food.y){score++;document.getElementById('snakeScore').textContent=score;food={x:Math.floor(Math.random()*19)*box,y:Math.floor(Math.random()*19)*box};spawnDrop(window.innerWidth/2,window.innerHeight/2);}else snake.pop();
+    if(hx<0||hx>=W||hy<0||hy>=H||snake.some(s=>s.x===hx&&s.y===hy)){clearInterval(window.snakeT);toast('💀 Game over! Score: '+score);ctx.fillStyle='rgba(255,59,48,.18)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#ff3b30';ctx.font=`900 ${Math.floor(W*.055)}px var(--font)`;ctx.textAlign='center';ctx.fillText('GAME OVER',W/2,H/2);return;}
+    snake.unshift({x:hx,y:hy});
+  }
+  clearInterval(window.snakeT);window.snakeT=setInterval(draw,110);
+}
+
+/* ── CHART ── */
+function initChart(){
+  const el=document.getElementById('mainChart');if(!el)return;
+  const ctx=el.getContext('2d');if(window.myChart)window.myChart.destroy();
+  const dark=document.body.classList.contains('dark'),tc=dark?'rgba(255,255,255,.45)':'rgba(60,60,67,.45)';
+  window.myChart=new Chart(ctx,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Revenue',data:[35000,62000,45000,95000,73000,88000,120000],borderColor:'#007aff',fill:true,backgroundColor:dark?'rgba(0,122,255,.09)':'rgba(0,122,255,.05)',tension:.45,borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#007aff',pointBorderColor:'#fff',pointBorderWidth:2},{label:'Payouts',data:[8000,14000,10000,20000,15000,18000,25000],borderColor:'#ff3b30',fill:false,tension:.45,borderWidth:2,pointRadius:3,pointBackgroundColor:'#ff3b30',borderDash:[5,5]}]},options:{responsive:true,plugins:{legend:{display:true,labels:{color:tc,font:{family:'-apple-system,BlinkMacSystemFont,sans-serif',size:11},padding:16,usePointStyle:true}},tooltip:{backgroundColor:dark?'rgba(28,28,30,.94)':'rgba(255,255,255,.94)',titleColor:dark?'#fff':'#000',bodyColor:tc,borderColor:dark?'rgba(255,255,255,.1)':'rgba(0,0,0,.07)',borderWidth:1,cornerRadius:12,padding:12}},scales:{x:{display:true,grid:{display:false},ticks:{color:tc,font:{size:10}}},y:{display:false}},interaction:{intersect:false,mode:'index'},animation:{duration:900,easing:'easeInOutQuart'}}});
+}
+
+/* ── INIT ── */
+if(localStorage.getItem('hms_v34_theme')==='dark')document.body.classList.add('dark');
+setTimeout(()=>{for(let i=0;i<3;i++)setTimeout(()=>spawnDrop(Math.random()*window.innerWidth,Math.random()*window.innerHeight),i*750);},400);
 </script>
 </body>
 </html>
